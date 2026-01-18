@@ -278,7 +278,7 @@ export function AdminLogs() {
             View and manage all application activity
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:flex">
           <Button onClick={() => refetch()} size="sm" variant="outline">
             <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
@@ -376,7 +376,7 @@ export function AdminLogs() {
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
-                      className="w-[240px] justify-start text-left font-normal"
+                      className="w-full sm:w-[240px] justify-start text-left font-normal"
                       variant="outline"
                     >
                       <CalendarDays className="mr-2 h-4 w-4" />
@@ -438,7 +438,7 @@ export function AdminLogs() {
                 onValueChange={handleActionTypeChange}
                 value={filters.actionType || "all"}
               >
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-full sm:w-[200px]">
                   <SelectValue placeholder="All Actions" />
                 </SelectTrigger>
                 <SelectContent>
@@ -482,48 +482,82 @@ export function AdminLogs() {
             </div>
           ) : (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date/Time</TableHead>
-                    <TableHead>Action</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>User</TableHead>
-                    <TableHead>Entity</TableHead>
-                    <TableHead>Page</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {logs.map((log) => (
-                    <TableRow key={log.id}>
-                      <TableCell className="whitespace-nowrap">
-                        {format(new Date(log.created_at), "MMM dd, yyyy HH:mm")}
-                      </TableCell>
-                      <TableCell>
-                        <span className="rounded bg-primary/10 px-2 py-1 font-medium text-primary text-xs">
-                          {formatActionType(log.action_type)}
-                        </span>
-                      </TableCell>
-                      <TableCell className="max-w-[200px] truncate">
-                        {log.action_description || "-"}
-                      </TableCell>
-                      <TableCell>{log.user_email || "System"}</TableCell>
-                      <TableCell>
-                        {log.entity_type ? (
-                          <span className="text-muted-foreground text-sm">
-                            {log.entity_type}
-                          </span>
-                        ) : (
-                          "-"
-                        )}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {log.page_path || "-"}
-                      </TableCell>
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date/Time</TableHead>
+                      <TableHead>Action</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>User</TableHead>
+                      <TableHead>Entity</TableHead>
+                      <TableHead>Page</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {logs.map((log) => (
+                      <TableRow key={log.id}>
+                        <TableCell className="whitespace-nowrap">
+                          {format(new Date(log.created_at), "MMM dd, yyyy HH:mm")}
+                        </TableCell>
+                        <TableCell>
+                          <span className="rounded bg-primary/10 px-2 py-1 font-medium text-primary text-xs">
+                            {formatActionType(log.action_type)}
+                          </span>
+                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate">
+                          {log.action_description || "-"}
+                        </TableCell>
+                        <TableCell>{log.user_email || "System"}</TableCell>
+                        <TableCell>
+                          {log.entity_type ? (
+                            <span className="text-muted-foreground text-sm">
+                              {log.entity_type}
+                            </span>
+                          ) : (
+                            "-"
+                          )}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {log.page_path || "-"}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile View */}
+              <div className="md:hidden space-y-4">
+                {logs.map((log) => (
+                  <div key={log.id} className="rounded-lg border p-4 space-y-3 shadow-sm bg-card text-card-foreground">
+                    <div className="flex items-center justify-between">
+                      <span className="rounded bg-primary/10 px-2 py-1 font-medium text-primary text-xs">
+                        {formatActionType(log.action_type)}
+                      </span>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {format(new Date(log.created_at), "MMM dd HH:mm")}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{log.action_description || "-"}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        By: {log.user_email || "System"}
+                      </p>
+                    </div>
+                    {(log.entity_type || log.page_path) && (
+                      <div className="pt-2 border-t flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mt-2">
+                        {log.entity_type && (
+                          <span>Entity: {log.entity_type}</span>
+                        )}
+                        {log.page_path && (
+                          <span className="truncate max-w-full">Path: {log.page_path}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
 
               {/* Pagination */}
               {totalPages > 1 && (
