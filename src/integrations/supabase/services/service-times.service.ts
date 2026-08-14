@@ -1,5 +1,5 @@
 import type { Database } from "../types";
-import { supabase } from "../client";
+import { invokeFunction } from "../functions";
 
 export type ServiceTime = Database["public"]["Tables"]["service_times"]["Row"];
 type ServiceTimeInsert = Database["public"]["Tables"]["service_times"]["Insert"];
@@ -7,15 +7,10 @@ type ServiceTimeUpdate = Database["public"]["Tables"]["service_times"]["Update"]
 
 export const serviceTimesService = {
   async getServiceTimes(): Promise<ServiceTime[]> {
-    const { data, error } = await supabase
-      .from("service_times")
-      .select("*")
-      .order("sort_order", { ascending: true });
-
-    if (error) {
-      throw error;
-    }
-    return data;
+    return invokeFunction<ServiceTime[]>("content-data", {
+      resource: "service-times",
+      operation: "list",
+    });
   },
 
   async create(serviceTime: ServiceTimeInsert): Promise<ServiceTime> {

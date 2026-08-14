@@ -1,4 +1,4 @@
-import { supabase } from "../client";
+import { invokeFunction } from "../functions";
 
 type PastorInsert = {
   name: string;
@@ -15,14 +15,10 @@ type Pastor = PastorInsert & {
 
 export const pastorsService = {
   async getAll(): Promise<Pastor[]> {
-    const { data, error } = await supabase
-      .from("pastors")
-      .select("*")
-      .order("sort_order", { ascending: true });
-    if (error) {
-      throw error;
-    }
-    return data as Pastor[];
+    return invokeFunction<Pastor[]>("content-data", {
+      resource: "pastors",
+      operation: "list",
+    });
   },
 
   async create(pastor: PastorInsert): Promise<Pastor> {

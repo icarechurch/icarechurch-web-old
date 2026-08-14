@@ -1,4 +1,4 @@
-import { supabase } from "../client";
+import { invokeFunction } from "../functions";
 
 type EventInsert = {
   title: string;
@@ -17,14 +17,10 @@ type Event = EventInsert & {
 
 export const eventsService = {
   async getAll(): Promise<Event[]> {
-    const { data, error } = await supabase
-      .from("events")
-      .select("*")
-      .order("event_date", { ascending: true });
-    if (error) {
-      throw error;
-    }
-    return data as Event[];
+    return invokeFunction<Event[]>("content-data", {
+      resource: "events",
+      operation: "list",
+    });
   },
 
   async create(event: EventInsert): Promise<Event> {

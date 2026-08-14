@@ -1,4 +1,4 @@
-import { supabase } from "../client";
+import { invokeFunction } from "../functions";
 
 type SermonInsert = {
   title: string;
@@ -16,27 +16,17 @@ type Sermon = SermonInsert & {
 
 export const sermonsService = {
   async getAll(): Promise<Sermon[]> {
-    const { data, error } = await supabase
-      .from("sermons")
-      .select("*")
-      .order("sermon_date", { ascending: false });
-    if (error) {
-      throw error;
-    }
-    return data as Sermon[];
+    return invokeFunction<Sermon[]>("content-data", {
+      resource: "sermons",
+      operation: "list",
+    });
   },
 
   async getLatest(): Promise<Sermon | null> {
-    const { data, error } = await supabase
-      .from("sermons")
-      .select("*")
-      .order("sermon_date", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (error) {
-      throw error;
-    }
-    return data as Sermon | null;
+    return invokeFunction<Sermon | null>("content-data", {
+      resource: "sermons",
+      operation: "latest",
+    });
   },
 
   async create(sermon: SermonInsert): Promise<Sermon> {

@@ -1,5 +1,5 @@
 import type { Database } from "../types";
-import { supabase } from "../client";
+import { invokeFunction } from "../functions";
 
 export type EventPopupSettings =
   Database["public"]["Tables"]["event_popup_settings"]["Row"];
@@ -13,28 +13,10 @@ type UpdateEventPopupSettingsParams = {
 
 export const eventPopupService = {
   async getSettings(): Promise<EventPopupSettings> {
-    const { data, error } = await supabase
-      .from("event_popup_settings")
-      .select("*")
-      .eq("singleton_key", true)
-      .single();
-
-    if (error) {
-      // Safe fallback when settings row is missing.
-      if (error.code === "PGRST116") {
-        return {
-          id: "",
-          singleton_key: true,
-          event_id: null,
-          is_enabled: false,
-          created_at: "",
-          updated_at: "",
-        };
-      }
-      throw error;
-    }
-
-    return data;
+    return invokeFunction<EventPopupSettings>("content-data", {
+      resource: "event-popup",
+      operation: "get",
+    });
   },
 
   async upsertSettings(

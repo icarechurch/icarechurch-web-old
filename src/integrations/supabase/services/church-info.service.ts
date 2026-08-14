@@ -1,4 +1,4 @@
-import { supabase } from "../client";
+import { invokeFunction } from "../functions";
 
 export type ChurchInfo = {
   id: string;
@@ -20,15 +20,10 @@ export type ChurchInfo = {
 
 export const churchInfoService = {
   async getChurchInfo(): Promise<ChurchInfo | null> {
-    const { data, error } = await supabase
-      .from("church_info")
-      .select("*")
-      .maybeSingle();
-
-    if (error) {
-      throw error;
-    }
-    return data as ChurchInfo | null;
+    return invokeFunction<ChurchInfo | null>("content-data", {
+      resource: "church-info",
+      operation: "get",
+    });
   },
 
   async update(

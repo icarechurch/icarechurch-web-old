@@ -1,4 +1,4 @@
-import { supabase } from "../client";
+import { invokeFunction } from "../functions";
 
 export type GivingSettings = {
   id: string;
@@ -11,14 +11,9 @@ export type GivingSettings = {
 
 export const givingService = {
   async getGivingSettings(): Promise<GivingSettings> {
-    const { data, error } = await supabase
-      .from("giving_settings")
-      .select("*")
-      .single();
-
-    if (error) {
-      throw error;
-    }
-    return data;
+    return invokeFunction<GivingSettings>("content-data", {
+      resource: "giving",
+      operation: "get",
+    });
   },
 };

@@ -1,22 +1,11 @@
-import { supabase } from "@/integrations/supabase/client";
+import { givingService } from "@/integrations/supabase/services/giving.service";
 import { useMutation, useQuery, useQueryClient } from "./simple-query-hooks";
 import type { GivingSettings } from "@/components/admin/adminconstants/giving/admingiving";
 
 export const useGivingSettings = () => {
   return useQuery({
     queryKey: ["giving-settings"],
-    queryFn: async (): Promise<GivingSettings> => {
-      const { data, error } = await supabase
-        .from("giving_settings")
-        .select("*")
-        .single();
-
-      if (error) {
-        throw error;
-      }
-
-      return data as GivingSettings;
-    },
+    queryFn: async (): Promise<GivingSettings> => givingService.getGivingSettings(),
   });
 };
 

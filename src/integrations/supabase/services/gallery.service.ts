@@ -1,4 +1,4 @@
-import { supabase } from "../client";
+import { invokeFunction } from "../functions";
 
 export type GalleryImage = {
   id: string;
@@ -16,15 +16,10 @@ type GalleryImageInsert = Omit<
 
 export const galleryService = {
   async getGalleryImages(): Promise<GalleryImage[]> {
-    const { data, error } = await supabase
-      .from("gallery_images")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      throw error;
-    }
-    return data as GalleryImage[];
+    return invokeFunction<GalleryImage[]>("content-data", {
+      resource: "gallery",
+      operation: "list",
+    });
   },
 
   async create(image: GalleryImageInsert): Promise<GalleryImage> {
