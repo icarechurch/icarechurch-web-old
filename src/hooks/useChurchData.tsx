@@ -4,32 +4,10 @@ import {
   churchInfoService,
   galleryService,
   pastorsService,
-  sermonsService,
 } from "@/integrations/supabase/services";
 import { useMutation, useQuery, useQueryClient } from "@/shared/hooks/simple-query-hooks";
 
 // Types
-export type Sermon = {
-  id: string;
-  title: string;
-  description: string | null;
-  speaker: string;
-  sermon_date: string;
-  video_url: string | null;
-  audio_url: string | null;
-  scripture_reference: string | null;
-  series_name: string | null;
-  thumbnail_url: string | null;
-  duration_minutes: number | null;
-  is_featured: boolean;
-  created_at: string;
-  updated_at: string;
-};
-
-export type SermonInsert = Omit<Sermon, "id" | "created_at" | "updated_at"> & {
-  id?: string;
-};
-
 export type ChurchInfo = {
   id: string;
   pastor_name: string | null;
@@ -101,67 +79,6 @@ export function useChurchInfoMutation() {
       });
     },
   });
-}
-
-// Sermons
-export function useSermons() {
-  return useQuery({
-    queryKey: ["sermons"],
-    queryFn: async () => sermonsService.getAll(),
-  });
-}
-
-export function useLatestSermon() {
-  return useQuery({
-    queryKey: ["latest_sermon"],
-    queryFn: async () => sermonsService.getLatest(),
-  });
-}
-
-export function useSermonMutations() {
-  const queryClient = useQueryClient();
-
-  const createSermon = useMutation({
-    mutationFn: async (sermon: SermonInsert) => sermonsService.create(sermon),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["sermons"] });
-      queryClient.invalidateQueries({ queryKey: ["latest_sermon"] });
-      logActivity(LOG_ACTION_TYPES.CREATE_SERMON, {
-        description: `Created sermon: ${data.title}`,
-        entityType: "sermon",
-        entityId: data.id,
-      });
-    },
-  });
-
-  const updateSermon = useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Sermon> & { id: string }) =>
-      sermonsService.update({ id, ...updates }),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["sermons"] });
-      queryClient.invalidateQueries({ queryKey: ["latest_sermon"] });
-      logActivity(LOG_ACTION_TYPES.UPDATE_SERMON, {
-        description: `Updated sermon: ${data.title}`,
-        entityType: "sermon",
-        entityId: data.id,
-      });
-    },
-  });
-
-  const deleteSermon = useMutation({
-    mutationFn: async (id: string) => sermonsService.deleteSermon(id),
-    onSuccess: (id) => {
-      queryClient.invalidateQueries({ queryKey: ["sermons"] });
-      queryClient.invalidateQueries({ queryKey: ["latest_sermon"] });
-      logActivity(LOG_ACTION_TYPES.DELETE_SERMON, {
-        description: "Deleted a sermon",
-        entityType: "sermon",
-        entityId: id,
-      });
-    },
-  });
-
-  return { createSermon, updateSermon, deleteSermon };
 }
 
 // Gallery

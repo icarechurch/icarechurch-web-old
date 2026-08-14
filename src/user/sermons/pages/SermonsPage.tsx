@@ -5,7 +5,8 @@ import { Layout } from "@/shared/components/layout/Layout";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { useChurchInfo, useSermons } from "@/hooks/useChurchData";
+import { useSermons } from "@/domains/sermons/hooks/useSermons";
+import { useChurchInfo } from "@/hooks/useChurchData";
 
 const Sermons = () => {
   const { data: sermons, isLoading } = useSermons();

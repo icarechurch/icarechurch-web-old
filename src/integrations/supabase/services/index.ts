@@ -19,7 +19,7 @@ export { ministriesService } from "./ministries.service";
 export { pastorsService } from "./pastors.service";
 export type { ProfileData, UpdateProfileParams } from "./profiles.service";
 export { profileService } from "./profiles.service";
-export { sermonsService } from "./sermons.service";
+export { sermonsApi } from "@/domains/sermons/api/sermons.api";
 export type { ServiceTime } from "@/domains/service-times/model/service-times.types";
 export { serviceTimesApi } from "@/domains/service-times/api/service-times.api";
 export type {

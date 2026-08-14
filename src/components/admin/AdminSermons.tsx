@@ -42,11 +42,10 @@ import { Label } from "@/shared/components/ui/label";
 import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
 import {
-  type Sermon,
-  type SermonInsert,
   useSermonMutations,
   useSermons,
-} from "@/hooks/useChurchData";
+} from "@/domains/sermons/hooks/useSermons";
+import type { Sermon, SermonInsert } from "@/domains/sermons/model/sermons.types";
 
 const INITIAL_FORM_DATA: SermonInsert = {
   title: "",

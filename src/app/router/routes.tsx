@@ -11,7 +11,7 @@ import Ministries from "@/user/ministries/pages/MinistriesPage";
 import Moderator from "@/pages/Moderator";
 import NotFound from "@/pages/NotFound";
 import Profile from "@/pages/Profile";
-import Sermons from "@/pages/Sermons";
+import Sermons from "@/user/sermons/pages/SermonsPage";
 import Services from "@/user/service-times/pages/ServicesPage";
 import UpdatePassword from "@/user/auth/pages/UpdatePasswordPage";
 
@@ -20,9 +20,9 @@ export function AppRoutes() {
     <Routes>
       <Route element={<Index />} path="/" />
       <Route element={<About />} path="/about" />
-      <Route element={<ServicesPage />} path="/services" />
-      <Route element={<MinistriesPage />} path="/ministries" />
-      <Route element={<EventsPage />} path="/events" />
+      <Route element={<Services />} path="/services" />
+      <Route element={<Ministries />} path="/ministries" />
+      <Route element={<Events />} path="/events" />
       <Route element={<Sermons />} path="/sermons" />
       <Route element={<Contact />} path="/contact" />
       <Route element={<Giving />} path="/giving" />

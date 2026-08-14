@@ -7,7 +7,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { useChurchInfo } from "@/hooks/useChurchData";
+import { useChurchInfo } from "@/domains/sermons/hooks/useSermons";
 
 export default function Contact() {
   const { data: churchInfo } = useChurchInfo();
