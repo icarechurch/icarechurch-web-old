@@ -47,7 +47,7 @@ import {
   useEventPopupSettings,
   useUpdateEventPopupSettings,
 } from "@/hooks/useEventPopup";
-import { ImageUpload } from "./ImageUpload";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 import {
   type EventFormState,
   createDefaultEventForm,
@@ -55,9 +55,9 @@ import {
   getErrorMessage,
   getStatusBadgeVariant,
   validateEventForm,
-} from "./adminconstants/events/adminevents";
+} from "@/admin/events/events.constants";
 
-export function AdminEvents() {
+export function AdminEventsPage() {
   const { data: events, isLoading } = useEvents();
   const { createEvent, updateEvent, deleteEvent } = useEventMutations();
   const { data: popupSettings, isLoading: popupSettingsLoading } =

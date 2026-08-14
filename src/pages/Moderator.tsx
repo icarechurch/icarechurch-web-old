@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { AdminEvents } from "@/components/admin/AdminEvents";
+import { AdminEvents } from "@/admin/events/pages/AdminEventsPage";
 import { AdminGallery } from "@/components/admin/AdminGallery";
 import { AdminMinistries } from "@/components/admin/AdminMinistries";
 import { AdminProfile } from "@/components/admin/AdminProfile";
@@ -50,7 +50,7 @@ export default function Moderator() {
             </h1>
 
             {activeTab === "analytics" && <ModeratorAnalytics />}
-            {activeTab === "events" && <AdminEvents />}
+            {activeTab === "events" && <AdminEventsPage />}
             {activeTab === "sermons" && <AdminSermons />}
             {activeTab === "ministries" && <AdminMinistries />}
             {activeTab === "gallery" && <AdminGallery />}
