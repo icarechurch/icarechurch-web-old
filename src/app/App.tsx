@@ -2,10 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { ErrorBoundary } from "@/shared/components/system/ErrorBoundary";
 import { PageTracker } from "@/components/PageTracker";
 import ScrollToTop from "@/shared/components/navigation/ScrollToTop";
-import { Toaster as Sonner } from "@/shared/components/ui/sonner";
-import { Toaster } from "@/shared/components/ui/toaster";
-import { TooltipProvider } from "@/shared/components/ui/tooltip";
-import { AuthProvider } from "@/hooks/useAuth";
+import { AppProviders } from "@/app/providers/AppProviders";
 import { useBibleVerseRotator } from "@/hooks/useBibleVerseRotator";
 import {
   useEvents,
@@ -100,11 +97,8 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
 
 const App = () => (
   <ErrorBoundary>
-    <TooltipProvider>
-    <AuthProvider>
+    <AppProviders>
       <AppInitializer>
-        <Toaster />
-        <Sonner />
         <PageTracker />
         <ScrollToTop />
         <Helmet>
@@ -112,8 +106,7 @@ const App = () => (
         </Helmet>
         <AppRoutes />
       </AppInitializer>
-    </AuthProvider>
-  </TooltipProvider>
+    </AppProviders>
 </ErrorBoundary>
 );
 
