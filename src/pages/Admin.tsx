@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TabGuard } from "@/pages/auth/TabGuard";
+import { TabGuard } from "@/admin/layout/TabGuard";
 import { TAB_COMPONENTS, type TabKey } from "@/pages/pageconstants/admin-tabs";
 import { Navigate } from "react-router-dom";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";

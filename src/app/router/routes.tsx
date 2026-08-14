@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import About from "@/pages/About";
 import Admin from "@/pages/Admin";
-import Auth from "@/pages/Auth";
+import Auth from "@/user/auth/pages/AuthPage";
 import Contact from "@/pages/Contact";
 import Events from "@/pages/Events";
 import Gallery from "@/pages/Gallery";
@@ -13,7 +13,7 @@ import NotFound from "@/pages/NotFound";
 import Profile from "@/pages/Profile";
 import Sermons from "@/pages/Sermons";
 import Services from "@/pages/Services";
-import UpdatePassword from "@/pages/UpdatePassword";
+import UpdatePassword from "@/user/auth/pages/UpdatePasswordPage";
 
 export function AppRoutes() {
   return (
