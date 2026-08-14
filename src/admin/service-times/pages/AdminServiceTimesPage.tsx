@@ -38,9 +38,9 @@ import {
   isFormValid,
   prepareSortOrderUpdates,
   swapItems,
-} from "./adminconstants/servicetimes/adminservicetimes";
+} from "@/admin/service-times/service-times.constants";
 
-export function AdminServiceTimes() {
+export function AdminServiceTimesPage() {
   const { data: serviceTimes, isLoading } = useServiceTimes();
   const {
     createServiceTime,

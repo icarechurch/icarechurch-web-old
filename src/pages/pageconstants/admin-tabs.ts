@@ -8,7 +8,7 @@ import { AdminLogs } from "@/components/admin/AdminLogs";
 import { AdminMinistriesPage } from "@/admin/ministries/pages/AdminMinistriesPagePage";
 import { AdminProfile } from "@/components/admin/AdminProfile";
 import { AdminSermons } from "@/components/admin/AdminSermons";
-import { AdminServiceTimes } from "@/components/admin/AdminServiceTimes";
+import { AdminServiceTimesPage } from "@/admin/service-times/pages/AdminServiceTimesPagePage";
 import { AdminUsers } from "@/components/admin/AdminUsers";
 
 export const TAB_COMPONENTS = {
@@ -16,7 +16,7 @@ export const TAB_COMPONENTS = {
   ministries: AdminMinistriesPage,
   events: AdminEventsPage,
   sermons: AdminSermons,
-  services: AdminServiceTimes,
+  services: AdminServiceTimesPage,
   "church-info": AdminChurchInfo,
   gallery: AdminGallery,
   giving: AdminGiving,
