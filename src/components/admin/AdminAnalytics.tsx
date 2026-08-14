@@ -50,7 +50,7 @@ import {
   useDailyVisits,
   usePagePopularity,
   useRecentVisits,
-} from "@/hooks/useAnalytics";
+} from "@/domains/analytics/hooks/useAnalytics";
 import {
   CHART_COLORS,
   createPieChartData,

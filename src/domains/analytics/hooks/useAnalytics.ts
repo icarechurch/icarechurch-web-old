@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { analyticsService } from "@/integrations/supabase/services/analytics.service";
+import { analyticsService } from "@/domains/analytics/api/analytics.api";
 import { useQuery } from "@/shared/hooks/simple-query-hooks";
 
 export interface ContentAnalytics {

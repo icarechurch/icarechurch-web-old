@@ -30,7 +30,7 @@ import {
   useContentAnalytics,
   useDailyVisits,
   useRecentVisits,
-} from "@/hooks/useAnalytics";
+} from "@/domains/analytics/hooks/useAnalytics";
 
 export function ModeratorAnalytics() {
   // Fetching slightly less data potentially, but reusing hooks is fine
