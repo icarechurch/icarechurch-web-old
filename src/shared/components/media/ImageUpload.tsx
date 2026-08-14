@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import { storageService } from "@/integrations/supabase/services";
+import { storageService } from "@/domains/auth/api";
 
 interface ImageUploadProps {
   value: string;

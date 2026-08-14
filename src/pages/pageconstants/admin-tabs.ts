@@ -9,7 +9,7 @@ import { AdminMinistriesPage } from "@/admin/ministries/pages/AdminMinistriesPag
 import { AdminProfile } from "@/components/admin/AdminProfile";
 import { AdminSermonsPage } from "@/admin/sermons/pages/AdminSermonsPage";
 import { AdminServiceTimesPage } from "@/admin/service-times/pages/AdminServiceTimesPage";
-import { AdminUsers } from "@/components/admin/AdminUsers";
+import { AdminUsersPage } from "@/admin/users/pages/AdminUsersPagePage";
 
 export const TAB_COMPONENTS = {
   analytics: AdminAnalyticsPage,
@@ -20,7 +20,7 @@ export const TAB_COMPONENTS = {
   "church-info": AdminChurchInfoPage,
   gallery: AdminGalleryPage,
   giving: AdminGivingPage,
-  users: AdminUsers,
+  users: AdminUsersPage,
   logs: AdminLogsPage,
   profile: AdminProfile,
 } satisfies Record<string, ComponentType>;

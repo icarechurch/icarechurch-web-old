@@ -2,8 +2,8 @@
 // Import these directly from specific service files for best performance
 // Example: import { profileService } from '@/domains/auth/api/profile.api'
 
-export type { AdminUserProfile } from "./admin.service";
-export { adminService } from "./admin.service";
+export type { AdminUserProfile } from "@/domains/auth/model/users.types";
+export { adminService } from "@/domains/auth/api/users.api";
 export type { UserRole, UserRoleData } from "@/domains/auth/api/auth.api";
 export { authService } from "@/domains/auth/api/auth.api";
 export type { ChurchInfo } from "@/domains/church-info/model/church-info.types";
@@ -31,5 +31,5 @@ export type {
   CreateUserRoleParams,
   DeleteUserParams,
   UpdateUserRoleParams,
-} from "./users.service";
-export { usersService } from "./users.service";
+} from "@/domains/auth/model/users.types";
+export { usersService } from "@/domains/auth/model/users.types";

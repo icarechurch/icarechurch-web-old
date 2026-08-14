@@ -48,7 +48,7 @@ import {
 } from "@/shared/components/ui/table";
 import { useAuth } from "@/domains/auth/hooks/useAuth";
 import { supabase } from "@/infrastructure/supabase/client";
-import { adminService, usersService } from "@/integrations/supabase/services";
+import { adminService, usersService } from "@/domains/auth/api/users.api";
 
 interface UserProfile {
   id: string;
@@ -58,7 +58,7 @@ interface UserProfile {
   role: "admin" | "moderator" | "user" | null;
 }
 
-export function AdminUsers() {
+export function AdminUsersPage() {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);

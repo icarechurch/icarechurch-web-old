@@ -15,7 +15,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { useAuth } from "@/domains/auth/hooks/useAuth";
 import { useProfileUpdater } from "@/domains/auth/hooks/useProfileUpdater";
-import { profileService } from "@/integrations/supabase/services";
+import { profileService } from "@/domains/auth/api";
 
 export default function Profile() {
   const { user, signOut } = useAuth();

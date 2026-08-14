@@ -14,7 +14,7 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { useAuth } from "@/domains/auth/hooks/useAuth";
-import { profileService } from "@/integrations/supabase/services";
+import { profileService } from "@/domains/auth/api";
 
 export default function UpdatePassword() {
   const [password, setPassword] = useState("");

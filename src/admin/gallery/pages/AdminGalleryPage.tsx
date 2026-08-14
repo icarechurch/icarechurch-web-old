@@ -16,7 +16,7 @@ import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { useToast } from "@/shared/components/ui/use-toast";
 import { useGallery, useGalleryMutations } from "@/domains/gallery/hooks/useGallery";
-import { storageService } from "@/integrations/supabase/services";
+import { storageService } from "@/domains/auth/api";
 import {
   FORM_LABELS,
   GALLERY_STORAGE_BUCKET,

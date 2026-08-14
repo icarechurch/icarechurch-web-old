@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { profileService } from "@/integrations/supabase/services";
+import { profileService } from "@/domains/auth/api";
 
 export function useProfileUpdater(userId: string | undefined) {
   const [updatingProfile, setUpdatingProfile] = useState(false);
