@@ -40,10 +40,8 @@ import {
 } from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
-import {
-  useEventMutations,
-  useEvents,
-} from "@/hooks/useChurchData";
+import { useEventMutations } from "@/domains/events/hooks/useEventMutations";
+import { useEvents } from "@/domains/events/hooks/useEvents";
 import type { Event, EventInsert } from "@/domains/events/model/events.types";
 import {
   useEventPopupSettings,

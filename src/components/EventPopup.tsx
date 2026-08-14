@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import { Calendar, Clock, Image as ImageIcon, MapPin } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useEvents } from "@/hooks/useChurchData";
+import { useEvents } from "@/domains/events/hooks/useEvents";
 import { useEventPopupSettings } from "@/hooks/useEventPopup";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
