@@ -9,7 +9,7 @@ import Giving from "@/user/giving/pages/GivingPage";
 import HomePage from "@/user/home/pages/HomePage";
 import Ministries from "@/user/ministries/pages/MinistriesPage";
 import ModeratorPage from "@/moderator/pages/ModeratorPage";
-import NotFound from "@/pages/NotFound";
+import NotFoundPage from "@/user/not-found/pages/NotFoundPage";
 import Profile from "@/user/profile/pages/ProfilePage";
 import Sermons from "@/user/sermons/pages/SermonsPage";
 import Services from "@/user/service-times/pages/ServicesPage";
@@ -32,7 +32,7 @@ export function AppRoutes() {
       <Route element={<ProfilePage />} path="/profile" />
       <Route element={<AdminDashboardPage />} path="/admin" />
       <Route element={<ModeratorPage />} path="/moderator" />
-      <Route element={<NotFound />} path="*" />
+      <Route element={<NotFoundPage />} path="*" />
     </Routes>
   );
 }
