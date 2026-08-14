@@ -7,7 +7,7 @@ import Events from "@/user/events/pages/EventsPage";
 import Gallery from "@/pages/Gallery";
 import Giving from "@/pages/Giving";
 import Index from "@/pages/Index";
-import Ministries from "@/pages/Ministries";
+import Ministries from "@/user/ministries/pages/MinistriesPage";
 import Moderator from "@/pages/Moderator";
 import NotFound from "@/pages/NotFound";
 import Profile from "@/pages/Profile";
@@ -21,7 +21,7 @@ export function AppRoutes() {
       <Route element={<Index />} path="/" />
       <Route element={<About />} path="/about" />
       <Route element={<Services />} path="/services" />
-      <Route element={<Ministries />} path="/ministries" />
+      <Route element={<MinistriesPage />} path="/ministries" />
       <Route element={<EventsPage />} path="/events" />
       <Route element={<Sermons />} path="/sermons" />
       <Route element={<Contact />} path="/contact" />
