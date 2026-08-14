@@ -2,12 +2,12 @@ import { useState, useCallback } from "react";
 import {
   type ActivityLogInsert,
   type LogActionType,
-} from "@/integrations/supabase/loggingTypes";
+} from "@/domains/activity-logs/model/logging.types";
 import {
   activityLogsService,
   type ActivityLogQuery,
   type ActivityLogsResult,
-} from "@/integrations/supabase/services/activity-logs.service";
+} from "@/domains/activity-logs/api/activity-logs.api";
 import { useQuery } from "@/shared/hooks/simple-query-hooks";
 
 

@@ -1,7 +1,7 @@
 import { sermonsApi } from "@/domains/sermons/api/sermons.api";
 import type { Sermon, SermonInsert } from "@/domains/sermons/model/sermons.types";
-import { logActivity } from "@/hooks/useLogs";
-import { LOG_ACTION_TYPES } from "@/integrations/supabase/loggingTypes";
+import { logActivity } from "@/domains/activity-logs/hooks/useActivityLogs";
+import { LOG_ACTION_TYPES } from "@/domains/activity-logs/model/logging.types";
 import { useMutation, useQuery, useQueryClient } from "@/shared/hooks/simple-query-hooks";
 
 export function useSermons() { return useQuery({ queryKey: ["sermons"], queryFn: async () => sermonsApi.getAll() }); }

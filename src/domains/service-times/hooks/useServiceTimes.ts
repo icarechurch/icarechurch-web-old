@@ -1,7 +1,7 @@
 import { serviceTimesApi } from "@/domains/service-times/api/service-times.api";
 import type { ServiceTime, ServiceTimeInsert } from "@/domains/service-times/model/service-times.types";
-import { logActivity } from "@/hooks/useLogs";
-import { LOG_ACTION_TYPES } from "@/integrations/supabase/loggingTypes";
+import { logActivity } from "@/domains/activity-logs/hooks/useActivityLogs";
+import { LOG_ACTION_TYPES } from "@/domains/activity-logs/model/logging.types";
 import { useMutation, useQuery, useQueryClient } from "@/shared/hooks/simple-query-hooks";
 
 export function useServiceTimes() {

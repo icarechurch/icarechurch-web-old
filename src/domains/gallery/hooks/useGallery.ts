@@ -1,7 +1,7 @@
 import { galleryApi } from "@/domains/gallery/api/gallery.api";
 import type { GalleryImageInsert } from "@/domains/gallery/model/gallery.types";
-import { logActivity } from "@/hooks/useLogs";
-import { LOG_ACTION_TYPES } from "@/integrations/supabase/loggingTypes";
+import { logActivity } from "@/domains/activity-logs/hooks/useActivityLogs";
+import { LOG_ACTION_TYPES } from "@/domains/activity-logs/model/logging.types";
 import { useMutation, useQuery, useQueryClient } from "@/shared/hooks/simple-query-hooks";
 
 export function useGallery() { return useQuery({ queryKey: ["gallery"], queryFn: async () => galleryApi.getGalleryImages() }); }

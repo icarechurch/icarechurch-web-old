@@ -2,7 +2,7 @@ import { invokeFunction } from "@/infrastructure/supabase/functions";
 import type {
   ActivityLog,
   ActivityLogInsert,
-} from "../loggingTypes";
+} from "@/domains/activity-logs/model/logging.types";
 
 export type ActivityLogQuery = {
   startDate?: string;

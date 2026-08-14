@@ -60,15 +60,15 @@ import {
   useLogSummary,
   logActivity,
   type LogFilters,
-} from "@/hooks/useLogs";
-import { LOG_ACTION_TYPES } from "@/integrations/supabase/loggingTypes";
+} from "@/domains/activity-logs/hooks/useActivityLogs";
+import { LOG_ACTION_TYPES } from "@/domains/activity-logs/model/logging.types";
 import {
   DATE_PRESETS,
   ITEMS_PER_PAGE,
   formatActionType,
-} from "./adminconstants/logging/adminlogs";
+} from "@/admin/activity-logs/logging.constants";
 
-export function AdminLogs() {
+export function AdminLogsPage() {
   // filters state
   const { toast } = useToast();
   const isMobile = useIsMobile();
