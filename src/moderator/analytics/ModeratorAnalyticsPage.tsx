@@ -25,22 +25,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import {
-  useAnalyticsSummary,
-  useContentAnalytics,
-  useDailyVisits,
-  useRecentVisits,
-} from "@/domains/analytics/hooks/useAnalytics";
+import { useAnalyticsOverview } from "@/domains/analytics/hooks/useAnalytics";
 
 export function ModeratorAnalyticsPage() {
-  // Fetching slightly less data potentially, but reusing hooks is fine
-  const { data: summary, isLoading: summaryLoading } = useAnalyticsSummary(30);
-  const { data: dailyVisits, isLoading: dailyLoading } = useDailyVisits(30);
-  const { data: recentVisits, isLoading: recentLoading } = useRecentVisits(10); // Reduced from 20
-  const { data: contentAnalytics, isLoading: contentLoading } =
-    useContentAnalytics();
+  const { data: overview, isLoading } = useAnalyticsOverview(30, 10);
+  const summary = overview?.summary;
+  const dailyVisits = overview?.dailyVisits;
+  const recentVisits = overview?.recentVisits;
+  const contentAnalytics = overview?.contentAnalytics;
 
-  if (summaryLoading || dailyLoading || recentLoading || contentLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="h-8 w-8 animate-spin rounded-full border-primary border-b-2" />

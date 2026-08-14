@@ -3,6 +3,7 @@ import { createOptionsResponse } from "../_shared/cors.ts";
 import { HttpError } from "../_shared/errors.ts";
 import { parseRequest, type FunctionRequest } from "../_shared/request.ts";
 import { failFromError, ok } from "../_shared/responses.ts";
+import { createAnalyticsOverviewHandler } from "./overview.ts";
 import { createAnalyticsHandlers } from "./queries.ts";
 
 export type AnalyticsHandler = (...args: never[]) => Promise<unknown>;
@@ -35,7 +36,10 @@ export async function dispatchAnalyticsRequest(
 export function createAnalyticsHandlersForClient(
   client: SupabaseClient,
 ): AnalyticsHandlers {
-  return createAnalyticsHandlers(client);
+  return {
+    ...createAnalyticsHandlers(client),
+    overview: createAnalyticsOverviewHandler(client),
+  };
 }
 
 function createRequestClient(req: Request): SupabaseClient {

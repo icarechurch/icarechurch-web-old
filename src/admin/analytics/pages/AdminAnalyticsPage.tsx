@@ -44,13 +44,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import {
-  useAnalyticsSummary,
-  useContentAnalytics,
-  useDailyVisits,
-  usePagePopularity,
-  useRecentVisits,
-} from "@/domains/analytics/hooks/useAnalytics";
+import { useAnalyticsOverview } from "@/domains/analytics/hooks/useAnalytics";
 import {
   CHART_COLORS,
   createPieChartData,
@@ -60,21 +54,14 @@ import {
 
 export function AdminAnalyticsPage() {
   const [activeTab, setActiveTab] = useState("overview");
-  const { data: summary, isLoading: summaryLoading } = useAnalyticsSummary(30);
-  const { data: dailyVisits, isLoading: dailyLoading } = useDailyVisits(30);
-  const { data: pagePopularity, isLoading: pagesLoading } =
-    usePagePopularity(30);
-  const { data: recentVisits, isLoading: recentLoading } = useRecentVisits(20);
-  const { data: contentAnalytics, isLoading: contentLoading } =
-    useContentAnalytics();
+  const { data: overview, isLoading } = useAnalyticsOverview(30, 20);
+  const summary = overview?.summary;
+  const dailyVisits = overview?.dailyVisits;
+  const pagePopularity = overview?.pagePopularity;
+  const recentVisits = overview?.recentVisits;
+  const contentAnalytics = overview?.contentAnalytics;
 
-  if (
-    summaryLoading ||
-    dailyLoading ||
-    pagesLoading ||
-    recentLoading ||
-    contentLoading
-  ) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="h-8 w-8 animate-spin rounded-full border-primary border-b-2" />

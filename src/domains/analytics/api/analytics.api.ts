@@ -1,4 +1,5 @@
 import { invokeFunction } from "@/infrastructure/supabase/functions";
+import type { ContentAnalytics } from "@/domains/analytics/model/analytics.types";
 
 export type AnalyticsVisitPayload = {
   page_path: string;
@@ -40,6 +41,14 @@ export type AnalyticsRecentVisit = {
 export type ContentAnalyticsRows = {
   ministries: Array<{ id: string }>;
   events: Array<{ id: string; status: string | null }>;
+};
+
+export type AnalyticsOverview = {
+  summary: AnalyticsSummary | null;
+  dailyVisits: AnalyticsDailyStat[];
+  pagePopularity: AnalyticsPageStat[];
+  recentVisits: AnalyticsRecentVisit[];
+  contentAnalytics: ContentAnalytics | null;
 };
 
 export const analyticsService = {
@@ -87,6 +96,14 @@ export const analyticsService = {
     return invokeFunction<ContentAnalyticsRows>("analytics-data", {
       resource: "analytics",
       operation: "content",
+    });
+  },
+
+  getOverview(daysBack = 30, recentLimit = 20): Promise<AnalyticsOverview> {
+    return invokeFunction<AnalyticsOverview>("analytics-data", {
+      resource: "analytics",
+      operation: "overview",
+      input: { daysBack, recentLimit },
     });
   },
 };

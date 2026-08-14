@@ -14,6 +14,19 @@ Deno.test("dispatches an analytics summary operation", async () => {
   }
 });
 
+Deno.test("dispatches the bounded analytics overview operation", async () => {
+  const result = await dispatchAnalyticsRequest(
+    { resource: "analytics", operation: "overview", input: { daysBack: 30 } },
+    {
+      overview: async (input) => input,
+    },
+  );
+
+  if (!result || (result as { daysBack: number }).daysBack !== 30) {
+    throw new Error("The analytics overview handler was not called");
+  }
+});
+
 Deno.test("rejects an unsupported analytics operation", async () => {
   try {
     await dispatchAnalyticsRequest(
