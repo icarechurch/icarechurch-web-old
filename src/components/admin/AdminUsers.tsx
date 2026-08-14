@@ -46,7 +46,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/domains/auth/hooks/useAuth";
 import { supabase } from "@/infrastructure/supabase/client";
 import { adminService, usersService } from "@/integrations/supabase/services";
 

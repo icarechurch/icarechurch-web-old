@@ -4,7 +4,7 @@ import { TAB_COMPONENTS, type TabKey } from "@/pages/pageconstants/admin-tabs";
 import { Navigate } from "react-router-dom";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/shared/components/ui/sidebar";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/domains/auth/hooks/useAuth";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 export default function Admin() {

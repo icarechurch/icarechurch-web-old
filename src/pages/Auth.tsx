@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/domains/auth/hooks/useAuth";
 import { supabase } from "@/infrastructure/supabase/client";
 
 const authSchema = z.object({

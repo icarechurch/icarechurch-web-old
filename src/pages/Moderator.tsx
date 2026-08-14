@@ -8,7 +8,7 @@ import { AdminSermons } from "@/components/admin/AdminSermons";
 import { ModeratorAnalytics } from "@/components/moderator/ModeratorAnalytics";
 import { ModeratorSidebar } from "@/components/moderator/ModeratorSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/shared/components/ui/sidebar";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/domains/auth/hooks/useAuth";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 export default function Moderator() {
