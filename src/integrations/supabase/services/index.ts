@@ -10,7 +10,7 @@ export type { ChurchInfo } from "./church-info.service";
 export { churchInfoService } from "./church-info.service";
 export type { EventPopupSettings } from "./event-popup.service";
 export { eventPopupService } from "./event-popup.service";
-export { eventsService } from "./events.service";
+export { eventsService } from "@/domains/events/api/events.api";
 export type { GalleryImage } from "./gallery.service";
 export { galleryService } from "./gallery.service";
 export type { GivingSettings } from "./giving.service";
