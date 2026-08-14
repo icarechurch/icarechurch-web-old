@@ -99,5 +99,13 @@
     "typescript": "^5.8.3",
     "ultracite": "^6.4.2",
     "vite": "^7.3.0"
+  },
+  "overrides": {
+    "body-parser": {
+      "content-type": "2.0.0"
+    },
+    "type-is": {
+      "content-type": "2.0.0"
+    }
   }
 }
