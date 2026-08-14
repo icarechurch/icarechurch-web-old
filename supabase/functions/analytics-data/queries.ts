@@ -1,6 +1,36 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
+import { HttpError } from "../_shared/errors.ts";
 
 const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
+export const MAX_ANALYTICS_DAYS = 365;
+export const MAX_RECENT_VISITS = 100;
+
+function getBoundedInteger(
+  input: unknown,
+  field: string,
+  minimum: number,
+  maximum: number,
+): number {
+  const value =
+    input && typeof input === "object"
+      ? (input as Record<string, unknown>)[field]
+      : undefined;
+
+  if (
+    typeof value !== "number" ||
+    !Number.isInteger(value) ||
+    value < minimum ||
+    value > maximum
+  ) {
+    throw new HttpError(
+      400,
+      "INVALID_INPUT",
+      `${field} must be an integer between ${minimum} and ${maximum}`,
+    );
+  }
+
+  return value;
+}
 
 export function getAnalyticsStartDate(daysBack: number): string {
   return new Date(Date.now() - daysBack * MILLISECONDS_PER_DAY)
@@ -19,8 +49,14 @@ export function createAnalyticsHandlers(client: SupabaseClient) {
     },
 
     async summary(input: { daysBack: number }) {
+      const daysBack = getBoundedInteger(
+        input,
+        "daysBack",
+        0,
+        MAX_ANALYTICS_DAYS,
+      );
       const { data, error } = await client.rpc("get_analytics_summary", {
-        days_back: input.daysBack,
+        days_back: daysBack,
       });
 
       if (error) throw error;
@@ -28,10 +64,16 @@ export function createAnalyticsHandlers(client: SupabaseClient) {
     },
 
     async "daily-visits"(input: { daysBack: number }) {
+      const daysBack = getBoundedInteger(
+        input,
+        "daysBack",
+        0,
+        MAX_ANALYTICS_DAYS,
+      );
       const { data, error } = await client
         .from("analytics_daily_stats")
         .select("date, total_visits, unique_visitors, page_path")
-        .gte("date", getAnalyticsStartDate(input.daysBack))
+        .gte("date", getAnalyticsStartDate(daysBack))
         .order("date", { ascending: true });
 
       if (error) throw error;
@@ -39,10 +81,16 @@ export function createAnalyticsHandlers(client: SupabaseClient) {
     },
 
     async "page-popularity"(input: { daysBack: number }) {
+      const daysBack = getBoundedInteger(
+        input,
+        "daysBack",
+        0,
+        MAX_ANALYTICS_DAYS,
+      );
       const { data, error } = await client
         .from("analytics_daily_stats")
         .select("page_path, total_visits, unique_visitors")
-        .gte("date", getAnalyticsStartDate(input.daysBack))
+        .gte("date", getAnalyticsStartDate(daysBack))
         .order("total_visits", { ascending: false });
 
       if (error) throw error;
@@ -50,11 +98,12 @@ export function createAnalyticsHandlers(client: SupabaseClient) {
     },
 
     async "recent-visits"(input: { limit: number }) {
+      const limit = getBoundedInteger(input, "limit", 1, MAX_RECENT_VISITS);
       const { data, error } = await client
         .from("analytics_visits")
         .select("id, page_path, visited_at, user_agent, referrer")
         .order("visited_at", { ascending: false })
-        .limit(input.limit);
+        .limit(limit);
 
       if (error) throw error;
       return data;

@@ -2,6 +2,7 @@ import {
   createAnalyticsHandlers,
   getAnalyticsStartDate,
 } from "./queries.ts";
+import { HttpError } from "../_shared/errors.ts";
 
 type Action = { method: string; args: unknown[] };
 
@@ -56,6 +57,20 @@ function createClient() {
 
 const operation = (handlers: ReturnType<typeof createAnalyticsHandlers>, name: string) =>
   handlers[name as keyof typeof handlers] as (...args: unknown[]) => Promise<unknown>;
+
+async function assertInvalidInput(
+  handler: (...args: unknown[]) => Promise<unknown>,
+  input: unknown,
+) {
+  try {
+    await handler(input);
+  } catch (error) {
+    if (error instanceof HttpError && error.status === 400) return;
+    throw error;
+  }
+
+  throw new Error("Expected invalid analytics input to be rejected");
+}
 
 Deno.test("preserves the analytics visit insert query", async () => {
   const { actions, client } = createClient();
@@ -145,4 +160,20 @@ Deno.test("preserves the content analytics queries", async () => {
   ])) {
     throw new Error("Content analytics queries changed");
   }
+});
+
+Deno.test("rejects analytics day ranges outside the supported bounds", async () => {
+  const { client } = createClient();
+  const handlers = createAnalyticsHandlers(client as never);
+
+  await assertInvalidInput(operation(handlers, "daily-visits"), { daysBack: -1 });
+  await assertInvalidInput(operation(handlers, "page-popularity"), { daysBack: 366 });
+});
+
+Deno.test("rejects recent visit limits outside the supported bounds", async () => {
+  const { client } = createClient();
+  const handlers = createAnalyticsHandlers(client as never);
+
+  await assertInvalidInput(operation(handlers, "recent-visits"), { limit: 0 });
+  await assertInvalidInput(operation(handlers, "recent-visits"), { limit: 101 });
 });
