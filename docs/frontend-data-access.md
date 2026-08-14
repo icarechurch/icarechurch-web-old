@@ -17,7 +17,7 @@ Current domains:
 
 The frontend may retain client-native Supabase APIs that are not table queries, such as Auth, Storage, and Realtime. Storage calls are intentionally kept in `storage.service.ts`.
 
-Each domain has focused tests that record the Supabase query-builder calls. Those tests protect query shape while the service adapter tests protect the frontend-to-function transport contract.
+The frontend architecture guard and user-facing behavior tests run in Cypress. Edge-function modules have focused Deno tests that record the Supabase query-builder calls; those tests protect query shape at the runtime where the queries execute.
 
 Run the regression suites with:
 

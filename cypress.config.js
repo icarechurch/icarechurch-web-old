@@ -1,12 +1,36 @@
-const { defineConfig } = require("cypress");
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+import { defineConfig } from "cypress";
 
-module.exports = defineConfig({
+const frontendDataDirectories = [
+  join(process.cwd(), "src", "hooks"),
+  join(process.cwd(), "src", "integrations", "supabase", "services"),
+];
+
+const getFrontendDataSources = () =>
+  frontendDataDirectories.flatMap((directory) =>
+    readdirSync(directory, { recursive: true })
+      .map((entry) => join(directory, entry.toString()))
+      .filter((filePath) => statSync(filePath).isFile())
+      .filter((filePath) => !filePath.endsWith(".test.ts"))
+      .filter((filePath) => !filePath.endsWith(".test.tsx"))
+      .map((filePath) => ({
+        filePath,
+        source: readFileSync(filePath, "utf8"),
+      })),
+  );
+
+export default defineConfig({
   e2e: {
     baseUrl: "http://localhost:8080",
     screenshotsFolder: "cypress/screenshots",
     trashAssetsBeforeRuns: true,
     setupNodeEvents(on, config) {
-      // implement node event listeners here
+      on("task", {
+        getFrontendDataSources,
+      });
+
+      return config;
     },
   },
 
