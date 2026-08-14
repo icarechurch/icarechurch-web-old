@@ -75,8 +75,7 @@ Deno.test("preserves the admin profile and role queries", async () => {
 
   const queryActions = actions.map(({ table, method, args }) => ({ table, method, args }));
   if (JSON.stringify(queryActions) !== JSON.stringify([
-    { table: "profiles", method: "select", args: ["*"] },
-    { table: "user_roles", method: "select", args: ["*"] },
+    { table: "rpc", method: "get_admin_users", args: [{}] },
   ])) {
     throw new Error("Admin user queries changed");
   }
