@@ -10,6 +10,10 @@ html {
 }
 
 @layer base {
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
+
   :root {
     --background: 0 0% 100%;
     --foreground: 220 20% 15%;

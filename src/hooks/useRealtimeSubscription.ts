@@ -10,6 +10,7 @@ const REALTIME_TABLES = [
   { table: "gallery_images", queryKey: "gallery" },
   { table: "service_times", queryKey: "service_times" },
   { table: "church_info", queryKey: "church_info" },
+  { table: "event_popup_settings", queryKey: "event-popup-settings" },
 ] as const;
 
 /**

@@ -27,71 +27,99 @@ export default function Events() {
       <section className="section-padding" id="events-list">
         <div className="container mx-auto px-4">
           {isLoading ? (
-            <div className="text-center text-muted-foreground">
-              Loading events...
+            <div className="flex min-h-[400px] items-center justify-center">
+              <div className="text-center">
+                <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                <p className="text-muted-foreground">Loading events...</p>
+              </div>
             </div>
           ) : events && events.length > 0 ? (
-            <div className="mx-auto max-w-4xl space-y-6">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {events.map((event) => (
                 <Card
-                  className="border-none shadow-lg transition-shadow hover:shadow-xl"
+                  className="group overflow-hidden border-none shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                   key={event.id}
                 >
-                  <CardContent className="p-6 md:p-8">
-                    <div className="flex flex-col gap-6 md:flex-row md:items-start">
-                      {/* Date Box */}
-                      <div className="flex h-20 w-20 flex-shrink-0 flex-col items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                        <span className="font-bold text-2xl">
-                          {format(new Date(event.event_date), "d")}
-                        </span>
-                        <span className="text-sm uppercase">
-                          {format(new Date(event.event_date), "MMM")}
-                        </span>
+                  {/* Event Image with Date Badge */}
+                  <div className="relative">
+                    {event.image_url ? (
+                      <div className="aspect-video w-full overflow-hidden">
+                        <img
+                          src={event.image_url}
+                          alt={event.title}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
                       </div>
+                    ) : (
+                      <div className="aspect-video w-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                        <Calendar className="h-16 w-16 text-primary/20" />
+                      </div>
+                    )}
 
-                      {/* Event Details */}
-                      <div className="flex-1 space-y-3">
-                        <h3 className="font-bold font-sans text-xl">
-                          {event.title}
-                        </h3>
+                    {/* Floating Date Badge */}
+                    <div className="absolute top-4 left-4 flex h-16 w-16 flex-col items-center justify-center rounded-xl bg-background/95 shadow-lg backdrop-blur-sm">
+                      <span className="font-bold text-2xl leading-none text-primary">
+                        {format(new Date(event.event_date), "d")}
+                      </span>
+                      <span className="text-xs uppercase leading-none text-muted-foreground mt-1">
+                        {format(new Date(event.event_date), "MMM")}
+                      </span>
+                    </div>
+                  </div>
 
-                        <div className="flex flex-wrap gap-4 text-muted-foreground text-sm">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            {format(
-                              new Date(event.event_date),
-                              "EEEE, MMMM d, yyyy"
-                            )}
-                          </div>
-                          {event.event_time && (
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              {event.event_time}
-                            </div>
-                          )}
-                          {event.location && (
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-4 w-4" />
-                              {event.location}
-                            </div>
-                          )}
+                  {/* Event Details */}
+                  <CardContent className="space-y-4 p-6">
+                    <div>
+                      <h3 className="font-bold font-sans text-xl leading-tight line-clamp-2 mb-3">
+                        {event.title}
+                      </h3>
+
+                      <div className="space-y-2 text-muted-foreground text-sm">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 flex-shrink-0" />
+                          <span className="line-clamp-1">
+                            {format(new Date(event.event_date), "EEEE, MMM d, yyyy")}
+                          </span>
                         </div>
 
-                        {event.description && (
-                          <p className="text-muted-foreground">
-                            {event.description}
-                          </p>
+                        {event.event_time && (
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 flex-shrink-0" />
+                            <span className="line-clamp-1">{event.event_time}</span>
+                          </div>
+                        )}
+
+                        {event.location && (
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4 flex-shrink-0" />
+                            <span className="line-clamp-1">{event.location}</span>
+                          </div>
                         )}
                       </div>
                     </div>
+
+                    {event.description && (
+                      <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed">
+                        {event.description}
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               ))}
             </div>
           ) : (
-            <div className="py-12 text-center text-muted-foreground">
-              <Calendar className="mx-auto mb-4 h-16 w-16 opacity-50" />
-              <p>No upcoming events at this time. Check back soon!</p>
+            <div className="flex min-h-[400px] items-center justify-center">
+              <div className="text-center space-y-4 max-w-md mx-auto px-4">
+                <div className="inline-flex rounded-full bg-secondary/50 p-6">
+                  <Calendar className="h-12 w-12 text-muted-foreground/50" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">No Upcoming Events</h3>
+                  <p className="text-muted-foreground text-sm">
+                    There are no events scheduled at this time. Check back soon for exciting upcoming events!
+                  </p>
+                </div>
+              </div>
             </div>
           )}
         </div>

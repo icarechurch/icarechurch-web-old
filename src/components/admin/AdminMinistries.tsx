@@ -11,11 +11,9 @@ import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Pencil, Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -47,95 +45,19 @@ import {
   useMinistries,
   useMinistryMutations,
 } from "@/hooks/useChurchData";
+import {
+  CATEGORY_LABELS,
+  DEFAULT_FORM_STATE,
+  DELETE_CONFIRMATION,
+  EMPTY_STATES,
+  FORM_FIELDS,
+  IMAGE_UPLOAD_CONFIG,
+  MINISTRY_CATEGORIES,
+  SECTION_TITLES,
+  TOAST_MESSAGES,
+} from "./adminconstants/ministries/adminministries";
 import { ImageUpload } from "./ImageUpload";
-
-function SortableMinistryCard({
-  ministry,
-  onEdit,
-  onDelete,
-}: {
-  ministry: Ministry;
-  onEdit: (m: Ministry) => void;
-  onDelete: (id: string) => void;
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: ministry.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div className="mb-4" ref={setNodeRef} style={style}>
-      <Card className="overflow-hidden">
-        {ministry.image_url && (
-          <div className="relative h-24 w-full">
-            <img
-              alt={ministry.name}
-              className="h-full w-full object-cover"
-              src={ministry.image_url}
-            />
-            <div
-              {...attributes}
-              {...listeners}
-              className="absolute top-2 right-2 cursor-grab rounded bg-black/50 p-1 text-white hover:bg-black/70"
-            >
-              <GripVertical className="h-4 w-4" />
-            </div>
-          </div>
-        )}
-        {!ministry.image_url && (
-          <div className="flex h-8 w-full justify-end bg-muted p-2">
-            <div
-              {...attributes}
-              {...listeners}
-              className="cursor-grab rounded p-1 hover:bg-muted-foreground/20"
-            >
-              <GripVertical className="h-4 w-4 text-muted-foreground" />
-            </div>
-          </div>
-        )}
-        <CardHeader className="flex flex-row items-center justify-between py-3">
-          <CardTitle className="text-lg">{ministry.name}</CardTitle>
-          <div className="flex gap-2">
-            <Button
-              onClick={() => onEdit(ministry)}
-              size="icon"
-              variant="ghost"
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              onClick={() => onDelete(ministry.id)}
-              size="icon"
-              variant="ghost"
-            >
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0 text-muted-foreground text-sm">
-          {ministry.leader && <p>Leader: {ministry.leader}</p>}
-          {ministry.meeting_time && (
-            <div>
-              <span className="font-medium">Schedule:</span>
-              <div className="mt-1 space-y-0.5">
-                {ministry.meeting_time
-                  .split(/[\n,;]+/)
-                  .map((line) => line.trim())
-                  .filter((line) => line.length > 0)
-                  .map((line, index) => (
-                    <p key={index}>{line}</p>
-                  ))}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+import { SortableMinistryCard } from "./SortableMinistryCard";
 
 export function AdminMinistries() {
   const { data: ministries, isLoading } = useMinistries();
@@ -143,14 +65,7 @@ export function AdminMinistries() {
     useMinistryMutations();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Ministry | null>(null);
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    leader: "",
-    meeting_time: "",
-    image_url: "",
-    category: "ministry" as "ministry" | "outreach",
-  });
+  const [form, setForm] = useState(DEFAULT_FORM_STATE);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const sensors = useSensors(
@@ -159,26 +74,19 @@ export function AdminMinistries() {
   );
 
   const resetForm = () => {
-    setForm({
-      name: "",
-      description: "",
-      leader: "",
-      meeting_time: "",
-      image_url: "",
-      category: "ministry",
-    });
+    setForm(DEFAULT_FORM_STATE);
     setEditing(null);
   };
 
   const handleSave = async () => {
     if (!form.name) {
-      toast.error("Name is required");
+      toast.error(TOAST_MESSAGES.NAME_REQUIRED);
       return;
     }
     try {
       if (editing) {
         await updateMinistry.mutateAsync({ id: editing.id, ...form });
-        toast.success("Updated successfully");
+        toast.success(TOAST_MESSAGES.UPDATED_SUCCESS);
       } else {
         // Get max sort order for the new item to put it at the end
         const currentMaxSort = ministries?.length
@@ -188,12 +96,12 @@ export function AdminMinistries() {
           ...form,
           sort_order: currentMaxSort + 1,
         } as MinistryInsert);
-        toast.success("Created successfully");
+        toast.success(TOAST_MESSAGES.CREATED_SUCCESS);
       }
       setOpen(false);
       resetForm();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "An error occurred");
+      toast.error(e instanceof Error ? e.message : TOAST_MESSAGES.ERROR_DEFAULT);
     }
   };
 
@@ -205,9 +113,9 @@ export function AdminMinistries() {
     if (!deleteId) return;
     try {
       await deleteMinistry.mutateAsync(deleteId);
-      toast.success("Deleted");
+      toast.success(TOAST_MESSAGES.DELETED_SUCCESS);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "An error occurred");
+      toast.error(e instanceof Error ? e.message : TOAST_MESSAGES.ERROR_DEFAULT);
     } finally {
       setDeleteId(null);
     }
@@ -221,7 +129,7 @@ export function AdminMinistries() {
       leader: m.leader || "",
       meeting_time: m.meeting_time || "",
       image_url: m.image_url || "",
-      category: m.category || "ministry",
+      category: m.category || MINISTRY_CATEGORIES.MINISTRY,
     });
     setOpen(true);
   };
@@ -266,13 +174,20 @@ export function AdminMinistries() {
   };
 
   const churchMinistries =
-    ministries?.filter((m) => m.category === "ministry" || !m.category) || [];
-  const outreaches = ministries?.filter((m) => m.category === "outreach") || [];
+    ministries?.filter((m) => m.category === MINISTRY_CATEGORIES.MINISTRY || !m.category) || [];
+  const outreaches = ministries?.filter((m) => m.category === MINISTRY_CATEGORIES.OUTREACH) || [];
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="font-semibold text-2xl">Ministries & Outreaches</h2>
+    <div className="max-w-full space-y-6 overflow-x-hidden pb-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="break-words font-bold font-display text-xl md:text-2xl">
+            {SECTION_TITLES.MAIN_TITLE}
+          </h2>
+          <p className="text-muted-foreground text-sm md:text-base">
+            {SECTION_TITLES.MAIN_DESCRIPTION}
+          </p>
+        </div>
         <Dialog
           onOpenChange={(o) => {
             setOpen(o);
@@ -288,62 +203,64 @@ export function AdminMinistries() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editing ? "Edit" : "Add"} Entry</DialogTitle>
+              <DialogTitle className="text-base md:text-lg">
+                {editing ? FORM_FIELDS.DIALOG_TITLE_EDIT : FORM_FIELDS.DIALOG_TITLE_ADD}
+              </DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Category</Label>
+                <Label className="text-xs md:text-sm">{FORM_FIELDS.CATEGORY_LABEL}</Label>
                 <RadioGroup
                   className="flex gap-4"
-                  onValueChange={(v: "ministry" | "outreach") =>
+                  onValueChange={(v: typeof MINISTRY_CATEGORIES[keyof typeof MINISTRY_CATEGORIES]) =>
                     setForm({ ...form, category: v })
                   }
                   value={form.category}
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem id="cat-ministry" value="ministry" />
-                    <Label htmlFor="cat-ministry">Church Ministry</Label>
+                    <RadioGroupItem id="cat-ministry" value={MINISTRY_CATEGORIES.MINISTRY} />
+                    <Label className="text-xs md:text-sm" htmlFor="cat-ministry">{CATEGORY_LABELS.ministry}</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem id="cat-outreach" value="outreach" />
-                    <Label htmlFor="cat-outreach">Outreach</Label>
+                    <RadioGroupItem id="cat-outreach" value={MINISTRY_CATEGORIES.OUTREACH} />
+                    <Label className="text-xs md:text-sm" htmlFor="cat-outreach">{CATEGORY_LABELS.outreach}</Label>
                   </div>
                 </RadioGroup>
               </div>
 
               <Input
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Name *"
+                placeholder={FORM_FIELDS.NAME_PLACEHOLDER}
                 value={form.name}
               />
               <Textarea
                 onChange={(e) =>
                   setForm({ ...form, description: e.target.value })
                 }
-                placeholder="Description"
+                placeholder={FORM_FIELDS.DESCRIPTION_PLACEHOLDER}
                 value={form.description}
               />
               <Input
                 onChange={(e) => setForm({ ...form, leader: e.target.value })}
-                placeholder="Leader"
+                placeholder={FORM_FIELDS.LEADER_PLACEHOLDER}
                 value={form.leader}
               />
               <Input
                 onChange={(e) =>
                   setForm({ ...form, meeting_time: e.target.value })
                 }
-                placeholder="Meeting Time"
+                placeholder={FORM_FIELDS.MEETING_TIME_PLACEHOLDER}
                 value={form.meeting_time}
               />
               <div>
-                <Label className="mb-2 block">Image</Label>
+                <Label className="mb-2 block text-xs md:text-sm">{FORM_FIELDS.IMAGE_LABEL}</Label>
                 <ImageUpload
-                  folder="ministries"
+                  folder={IMAGE_UPLOAD_CONFIG.FOLDER}
                   onChange={(url) => setForm({ ...form, image_url: url })}
                   value={form.image_url}
                 />
               </div>
-              <Button className="w-full" onClick={handleSave}>
+              <Button className="w-full text-xs md:text-sm" onClick={handleSave}>
                 Save
               </Button>
             </div>
@@ -351,19 +268,21 @@ export function AdminMinistries() {
         </Dialog>
       </div>
 
-      <DndContext
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-        sensors={sensors}
-      >
-        <div className="space-y-8">
-          <section>
-            <h3 className="mb-4 font-medium text-primary text-xl">
-              Church Ministries
-            </h3>
-            {isLoading ? (
-              <p>Loading...</p>
-            ) : (
+      {isLoading ? (
+        <div className="flex items-center justify-center p-8">
+          <div className="h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
+        </div>
+      ) : (
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+          sensors={sensors}
+        >
+          <div className="space-y-8">
+            <section>
+              <h3 className="mb-3 font-display font-semibold text-base md:mb-4 md:text-lg">
+                {SECTION_TITLES.CHURCH_MINISTRIES}
+              </h3>
               <SortableContext
                 items={churchMinistries.map((m) => m.id)}
                 strategy={verticalListSortingStrategy}
@@ -378,22 +297,18 @@ export function AdminMinistries() {
                     />
                   ))}
                   {churchMinistries.length === 0 && (
-                    <p className="col-span-full text-muted-foreground">
-                      No church ministries yet.
+                    <p className="col-span-full text-muted-foreground text-sm md:text-base">
+                      {EMPTY_STATES.NO_CHURCH_MINISTRIES}
                     </p>
                   )}
                 </div>
               </SortableContext>
-            )}
-          </section>
+            </section>
 
-          <section>
-            <h3 className="mb-4 font-medium text-primary text-xl">
-              Outreaches
-            </h3>
-            {isLoading ? (
-              <p>Loading...</p>
-            ) : (
+            <section>
+              <h3 className="mb-3 font-display font-semibold text-base md:mb-4 md:text-lg">
+                {SECTION_TITLES.OUTREACHES}
+              </h3>
               <SortableContext
                 items={outreaches.map((m) => m.id)}
                 strategy={verticalListSortingStrategy}
@@ -408,16 +323,16 @@ export function AdminMinistries() {
                     />
                   ))}
                   {outreaches.length === 0 && (
-                    <p className="col-span-full text-muted-foreground">
-                      No outreaches yet.
+                    <p className="col-span-full text-muted-foreground text-sm md:text-base">
+                      {EMPTY_STATES.NO_OUTREACHES}
                     </p>
                   )}
                 </div>
               </SortableContext>
-            )}
-          </section>
-        </div>
-      </DndContext>
+            </section>
+          </div>
+        </DndContext>
+      )}
 
       <AlertDialog
         onOpenChange={(open) => !open && setDeleteId(null)}
@@ -425,19 +340,18 @@ export function AdminMinistries() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              ministry/outreach.
+            <AlertDialogTitle className="text-base md:text-lg">{DELETE_CONFIRMATION.TITLE}</AlertDialogTitle>
+            <AlertDialogDescription className="text-xs md:text-sm">
+              {DELETE_CONFIRMATION.DESCRIPTION}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="text-xs md:text-sm">{DELETE_CONFIRMATION.CANCEL}</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="text-xs md:text-sm bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={confirmDelete}
             >
-              Delete
+              {DELETE_CONFIRMATION.DELETE}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

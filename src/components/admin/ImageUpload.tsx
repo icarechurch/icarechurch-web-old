@@ -3,18 +3,22 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
+import { storageService } from "@/integrations/supabase/services";
 
 interface ImageUploadProps {
   value: string;
   onChange: (url: string) => void;
   folder?: string;
+  showInput?: boolean;
+  imageClassName?: string;
 }
 
 export function ImageUpload({
   value,
   onChange,
   folder = "general",
+  showInput = true,
+  imageClassName = "h-32 w-full rounded-md border object-cover",
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -35,18 +39,11 @@ export function ImageUpload({
 
     setUploading(true);
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("church-images")
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("church-images").getPublicUrl(fileName);
+      const { publicUrl } = await storageService.uploadImage({
+        file,
+        bucket: "church-images",
+        folder,
+      });
 
       onChange(publicUrl);
       toast.success("Image uploaded");
@@ -76,7 +73,7 @@ export function ImageUpload({
         <div className="group relative">
           <img
             alt="Preview"
-            className="h-32 w-full rounded-md border object-cover"
+            className={imageClassName}
             src={value}
           />
           <Button
@@ -113,12 +110,14 @@ export function ImageUpload({
         </Button>
       </div>
 
-      <Input
-        className="text-xs"
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Or paste image URL"
-        value={value}
-      />
+      {showInput && (
+        <Input
+          className="text-xs"
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Or paste image URL"
+          value={value}
+        />
+      )}
     </div>
   );
 }

@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { profileService } from "@/integrations/supabase/services";
 
 export default function UpdatePassword() {
   const [password, setPassword] = useState("");
@@ -38,18 +38,17 @@ export default function UpdatePassword() {
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password,
-      });
-
-      if (error) throw error;
-
+      await profileService.updatePassword(password);
       toast.success("Password updated successfully!");
       navigate("/auth");
-    } catch (error: any) {
+    } catch {
       toast.error("Failed to update password. Please try again.");
     } finally {
       setLoading(false);

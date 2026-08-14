@@ -16,7 +16,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { useGallery, useGalleryMutations } from "@/hooks/useChurchData";
-import { supabase } from "@/integrations/supabase/client";
+import { storageService } from "@/integrations/supabase/services";
+import {
+  FORM_LABELS,
+  GALLERY_STORAGE_BUCKET,
+  getDialogDescription,
+  getSubtitle,
+  isGalleryFull,
+  UI_TEXT,
+} from "./adminconstants/gallery/admingallery";
 
 export function AdminGallery() {
   const { data: images, isLoading } = useGallery();
@@ -38,19 +46,21 @@ export function AdminGallery() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    if (e.target.files?.[0]) {
       setSelectedFile(e.target.files[0]);
     }
   };
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!(selectedFile && title)) return;
+    if (!(selectedFile && title)) {
+      return;
+    }
 
-    if ((images?.length || 0) >= 15) {
+    if (isGalleryFull(images?.length || 0)) {
       toast({
-        title: "Limit Reached",
-        description: "You can only upload up to 15 images to the gallery.",
+        title: UI_TEXT.limitReached.title,
+        description: UI_TEXT.limitReached.description,
         variant: "destructive",
       });
       return;
@@ -60,22 +70,12 @@ export function AdminGallery() {
       setIsUploading(true);
 
       // 1. Upload file to Supabase Storage
-      const fileExt = selectedFile.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const { publicUrl } = await storageService.uploadImage({
+        file: selectedFile,
+        bucket: GALLERY_STORAGE_BUCKET,
+      });
 
-      const { error: uploadError } = await supabase.storage
-        .from("gallery")
-        .upload(filePath, selectedFile);
-
-      if (uploadError) throw uploadError;
-
-      // 2. Get Public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("gallery").getPublicUrl(filePath);
-
-      // 3. Save to Database
+      // 2. Save to Database
       await uploadImage.mutateAsync({
         title,
         description: description || null,
@@ -83,16 +83,16 @@ export function AdminGallery() {
       });
 
       toast({
-        title: "Success",
-        description: "Image uploaded successfully",
+        title: UI_TEXT.uploadSuccess.title,
+        description: UI_TEXT.uploadSuccess.description,
       });
 
       setIsDialogOpen(false);
       resetForm();
     } catch (_error) {
       toast({
-        title: "Error",
-        description: "Failed to upload image. Please try again.",
+        title: UI_TEXT.uploadError.title,
+        description: UI_TEXT.uploadError.description,
         variant: "destructive",
       });
     } finally {
@@ -103,23 +103,23 @@ export function AdminGallery() {
   const handleDelete = async (id: string, imageUrl: string) => {
     try {
       // Extract filename from URL to delete from storage
-      // This is a simplified approach; ideally we store the storage path
-      const urlParts = imageUrl.split("/");
-      const fileName = urlParts[urlParts.length - 1];
+      const fileName = imageUrl.split("/").at(-1);
 
       await deleteImage.mutateAsync(id);
 
-      // Attempt to delete from storage as well (optional but good for cleanup)
-      // await supabase.storage.from('gallery').remove([fileName]);
+      // Also delete the file from storage to prevent orphaned files
+      if (fileName) {
+        await storageService.deleteFile(GALLERY_STORAGE_BUCKET, fileName);
+      }
 
       toast({
-        title: "Deleted",
-        description: "Image removed from gallery",
+        title: UI_TEXT.deleteSuccess.title,
+        description: UI_TEXT.deleteSuccess.description,
       });
-    } catch (error) {
+    } catch (_error) {
       toast({
-        title: "Error",
-        description: "Failed to delete image",
+        title: UI_TEXT.deleteError.title,
+        description: UI_TEXT.deleteError.description,
         variant: "destructive",
       });
     }
@@ -128,7 +128,7 @@ export function AdminGallery() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
-        Loading gallery...
+        {UI_TEXT.loading}
       </div>
     );
   }
@@ -137,50 +137,47 @@ export function AdminGallery() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-bold font-display text-2xl">
-            Gallery Management
-          </h2>
+          <h2 className="font-bold font-display text-2xl">{UI_TEXT.title}</h2>
           <p className="text-muted-foreground">
-            Manage your church photo gallery (Max 15 images)
+            {getSubtitle(images?.length || 0)}
           </p>
         </div>
         <Dialog onOpenChange={setIsDialogOpen} open={isDialogOpen}>
           <DialogTrigger asChild>
-            <Button disabled={(images?.length || 0) >= 15}>
+            <Button disabled={isGalleryFull(images?.length || 0)}>
               <Plus className="mr-2 h-4 w-4" />
-              Add Image
+              {UI_TEXT.addButton}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Image</DialogTitle>
+              <DialogTitle>{UI_TEXT.dialogTitle}</DialogTitle>
               <DialogDescription>
-                Upload a new photo to the gallery. {15 - (images?.length || 0)}{" "}
-                slots remaining.
+                {getDialogDescription(images?.length || 0)}
               </DialogDescription>
             </DialogHeader>
             <form className="space-y-4" onSubmit={handleUpload}>
               <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
+                <Label htmlFor="title">{FORM_LABELS.title}</Label>
                 <Input
                   id="title"
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g., Sunday Worship"
+                  placeholder={FORM_LABELS.titlePlaceholder}
                   required
                   value={title}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description">Description (Optional)</Label>
+                <Label htmlFor="description">{FORM_LABELS.description}</Label>
                 <Textarea
                   id="description"
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Brief description of the photo"
+                  placeholder={FORM_LABELS.descriptionPlaceholder}
                   value={description}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="image">Image File</Label>
+                <Label htmlFor="image">{FORM_LABELS.imageFile}</Label>
                 <Input
                   accept="image/*"
                   id="image"
@@ -194,10 +191,10 @@ export function AdminGallery() {
                   {isUploading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Uploading...
+                      {FORM_LABELS.uploadingButton}
                     </>
                   ) : (
-                    "Upload"
+                    FORM_LABELS.uploadButton
                   )}
                 </Button>
               </DialogFooter>
@@ -213,7 +210,9 @@ export function AdminGallery() {
               <img
                 alt={image.title}
                 className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                height={720}
                 src={image.image_url}
+                width={1280}
               />
               <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                 <Button
@@ -222,13 +221,13 @@ export function AdminGallery() {
                   variant="destructive"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
+                  {FORM_LABELS.deleteButton}
                 </Button>
               </div>
             </div>
             <CardContent className="p-4">
               <h3 className="truncate font-semibold">{image.title}</h3>
-              {image.description && (
+              {!!image.description && (
                 <p className="mt-1 line-clamp-2 text-muted-foreground text-sm">
                   {image.description}
                 </p>
@@ -240,10 +239,10 @@ export function AdminGallery() {
           <div className="col-span-full rounded-lg border-2 border-dashed py-12 text-center">
             <ImageIcon className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
             <h3 className="font-medium text-lg text-muted-foreground">
-              No images yet
+              {UI_TEXT.emptyState.heading}
             </h3>
             <p className="text-muted-foreground text-sm">
-              Upload photos to showcase your church community
+              {UI_TEXT.emptyState.description}
             </p>
           </div>
         )}

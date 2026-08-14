@@ -14,21 +14,22 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { useProfileUpdater } from "@/hooks/useProfileUpdater";
+import { profileService } from "@/integrations/supabase/services";
 
 export default function Profile() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { updateProfile, updatePassword, updatingProfile, updatingPassword } =
+    useProfileUpdater(user?.id);
 
   // Profile State
   const [fullName, setFullName] = useState("");
   const [loadingProfile, setLoadingProfile] = useState(false);
-  const [updatingProfile, setUpdatingProfile] = useState(false);
 
   // Password State
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [updatingPassword, setUpdatingPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -41,22 +42,18 @@ export default function Profile() {
   }, [user, navigate]);
 
   const getProfile = async () => {
+    if (!user?.id) {
+      return;
+    }
+
     try {
       setLoadingProfile(true);
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", user?.id)
-        .single();
+      const data = await profileService.getProfile(user.id);
 
-      if (error && error.code !== "PGRST116") {
-        throw error;
+      if (data.full_name) {
+        setFullName(data.full_name);
       }
-
-      if (data) {
-        setFullName(data.full_name || "");
-      }
-    } catch (error: any) {
+    } catch {
       toast.error("Error loading user profile");
     } finally {
       setLoadingProfile(false);
@@ -65,52 +62,15 @@ export default function Profile() {
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      setUpdatingProfile(true);
-
-      const { error } = await supabase.from("profiles").upsert({
-        id: user?.id,
-        full_name: fullName,
-        updated_at: new Date().toISOString(),
-      });
-
-      if (error) throw error;
-      toast.success("Profile updated successfully!");
-    } catch (error: any) {
-      toast.error("Error updating profile");
-    } finally {
-      setUpdatingProfile(false);
-    }
+    await updateProfile(fullName);
   };
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      toast.error("Passwords don't match");
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return;
-    }
-
-    try {
-      setUpdatingPassword(true);
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword,
-      });
-
-      if (error) throw error;
-
-      toast.success("Password updated successfully!");
+    await updatePassword(newPassword, confirmPassword, () => {
       setNewPassword("");
       setConfirmPassword("");
-    } catch (error: any) {
-      toast.error("Failed to update password. Please try again.");
-    } finally {
-      setUpdatingPassword(false);
-    }
+    });
   };
 
   const handleSignOut = async () => {
@@ -118,7 +78,7 @@ export default function Profile() {
       await signOut();
       navigate("/");
       toast.success("Signed out successfully");
-    } catch (_error) {
+    } catch {
       toast.error("Error signing out");
     }
   };

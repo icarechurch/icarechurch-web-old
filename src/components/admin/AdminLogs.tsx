@@ -1,8 +1,7 @@
-import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { format } from "date-fns";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
-  Calendar,
   CalendarDays,
   Download,
   FileText,
@@ -53,6 +52,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   useLogs,
   useClearLogs,
@@ -62,63 +62,16 @@ import {
   type LogFilters,
 } from "@/hooks/useLogs";
 import { LOG_ACTION_TYPES } from "@/integrations/supabase/loggingTypes";
-
-const ITEMS_PER_PAGE = 20;
-
-// Preset date ranges
-const DATE_PRESETS = [
-  { label: "Today", getValue: () => ({ start: new Date(), end: new Date() }) },
-  {
-    label: "Last 7 days",
-    getValue: () => {
-      const end = new Date();
-      const start = new Date();
-      start.setDate(start.getDate() - 7);
-      return { start, end };
-    },
-  },
-  {
-    label: "Last 30 days",
-    getValue: () => {
-      const end = new Date();
-      const start = new Date();
-      start.setDate(start.getDate() - 30);
-      return { start, end };
-    },
-  },
-  {
-    label: "This month",
-    getValue: () => ({
-      start: startOfMonth(new Date()),
-      end: endOfMonth(new Date()),
-    }),
-  },
-  {
-    label: "Last month",
-    getValue: () => ({
-      start: startOfMonth(subMonths(new Date(), 1)),
-      end: endOfMonth(subMonths(new Date(), 1)),
-    }),
-  },
-  {
-    label: "Last 3 months",
-    getValue: () => ({
-      start: startOfMonth(subMonths(new Date(), 2)),
-      end: new Date(),
-    }),
-  },
-];
-
-// Format action type for display
-const formatActionType = (actionType: string): string => {
-  return actionType
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
+import {
+  DATE_PRESETS,
+  ITEMS_PER_PAGE,
+  formatActionType,
+} from "./adminconstants/logging/adminlogs";
 
 export function AdminLogs() {
+  // filters state
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [filters, setFilters] = useState<LogFilters>({
     limit: ITEMS_PER_PAGE,
     offset: 0,
@@ -128,6 +81,7 @@ export function AdminLogs() {
     to: Date | undefined;
   }>({ from: undefined, to: undefined });
 
+  // importing logs data and actions from custom hooks
   const { data: logsData, isLoading, refetch } = useLogs(filters);
   const { data: actionTypes } = useLogActionTypes();
   const { data: summary } = useLogSummary();
@@ -193,23 +147,76 @@ export function AdminLogs() {
   const exportToPDF = useCallback(async () => {
     try {
       const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      let yPosition = 15;
 
-      // Title
-      doc.setFontSize(20);
-      doc.text("Activity Logs Report", 14, 22);
+      // Load and add logo
+      try {
+        const logoResponse = await fetch("/icc logo no bg.png");
+        const logoBlob = await logoResponse.blob();
+        const logoUrl = URL.createObjectURL(logoBlob);
+        const img = new Image();
+        img.onload = () => {
+          // Logo will be added, but we'll set it up in canvas conversion
+        };
+        img.src = logoUrl;
 
-      // Date range info
-      doc.setFontSize(10);
+        // Add logo image to PDF
+        doc.addImage(logoUrl, "PNG", 14, yPosition, 20, 20);
+      } catch {
+        // If logo fails to load, continue without it
+      }
+
+      // Header section with church info
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("I Care Center", 40, yPosition + 5);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      doc.text("The Refuge Church", 40, yPosition + 12);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      doc.text("Activity Logs Report", 40, yPosition + 18);
+
+      yPosition += 35;
+
+      // Divider line
+      doc.setDrawColor(41, 128, 185);
+      doc.line(14, yPosition, pageWidth - 14, yPosition);
+      yPosition += 8;
+
+      // Report metadata
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+
       const dateInfo = dateRange.from
-        ? `Date Range: ${format(dateRange.from, "MMM dd, yyyy")} - ${dateRange.to ? format(dateRange.to, "MMM dd, yyyy") : "Present"}`
+        ? `${format(dateRange.from, "MMM dd, yyyy")} - ${dateRange.to ? format(dateRange.to, "MMM dd, yyyy") : "Present"}`
         : "All Dates";
-      doc.text(dateInfo, 14, 32);
-      doc.text(`Generated: ${format(new Date(), "MMM dd, yyyy HH:mm")}`, 14, 38);
-      doc.text(`Total Records: ${totalCount}`, 14, 44);
+
+      const metadataText = [
+        { label: "Date Range:", value: dateInfo },
+        { label: "Generated:", value: format(new Date(), "MMM dd, yyyy HH:mm") },
+        { label: "Total Records:", value: totalCount.toString() },
+      ];
+
+      for (const item of metadataText) {
+        doc.setFont("helvetica", "bold");
+        doc.text(item.label, 14, yPosition);
+        doc.setFont("helvetica", "normal");
+        doc.text(item.value, 50, yPosition);
+        yPosition += 6;
+      }
+
+      yPosition += 4;
 
       // Table
       autoTable(doc, {
-        startY: 50,
+        startY: yPosition,
         head: [["Date/Time", "Action", "Description", "User", "Entity"]],
         body: logs.map((log) => [
           format(new Date(log.created_at), "MMM dd, yyyy HH:mm"),
@@ -218,8 +225,39 @@ export function AdminLogs() {
           log.user_email || "System",
           log.entity_type ? `${log.entity_type}` : "-",
         ]),
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [41, 128, 185] },
+        styles: {
+          fontSize: 8,
+          cellPadding: 4,
+          textColor: 0,
+        },
+        headStyles: {
+          fillColor: [41, 128, 185],
+          textColor: 255,
+          fontStyle: "bold",
+          halign: "left",
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245],
+        },
+        margin: { left: 14, right: 14 },
+        didDrawPage(data: any) {
+          // Add footer
+          const footerY = pageHeight - 10;
+          doc.setFontSize(8);
+          doc.setTextColor(150, 150, 150);
+          doc.text(
+            `Page ${data.pageCount}`,
+            pageWidth / 2,
+            footerY,
+            { align: "center" }
+          );
+          doc.text(
+            "I Care Center - The Refuge Church",
+            pageWidth / 2,
+            pageHeight - 5,
+            { align: "center" }
+          );
+        },
       });
 
       // Save
@@ -235,7 +273,7 @@ export function AdminLogs() {
         title: "Export Successful",
         description: "Logs have been exported to PDF.",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Export Failed",
         description: "Failed to export logs to PDF.",
@@ -376,7 +414,7 @@ export function AdminLogs() {
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
-                      className="w-full sm:w-[240px] justify-start text-left font-normal"
+                      className="w-full md:w-[240px] justify-start text-left font-normal"
                       variant="outline"
                     >
                       <CalendarDays className="mr-2 h-4 w-4" />
@@ -395,8 +433,8 @@ export function AdminLogs() {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent align="start" className="w-auto p-0">
-                    <div className="flex">
-                      <div className="border-r p-2">
+                    <div className="flex flex-col md:flex-row">
+                      <div className="border-b md:border-r p-2">
                         <div className="space-y-1">
                           {DATE_PRESETS.map((preset) => (
                             <Button
@@ -414,7 +452,7 @@ export function AdminLogs() {
                       <CalendarComponent
                         defaultMonth={dateRange.from}
                         mode="range"
-                        numberOfMonths={2}
+                        numberOfMonths={isMobile ? 1 : 2}
                         onSelect={(range) =>
                           handleDateRangeChange(range?.from, range?.to)
                         }

@@ -1,7 +1,23 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["ultracite/core", "ultracite/react"],
+  "extends": [
+    "ultracite/core",
+    "ultracite/react"
+  ],
   "files": {
-    "ignore": ["cypress/**"]
+    "ignoreUnknown": true,
+    "ignore": [
+      "cypress",
+      "node_modules",
+      "dist",
+      "coverage",
+      "build",
+      "*.d.ts",
+      "**/*.d.ts",
+      "**/*.js",
+      "**/*.jsx",
+      "**/*.ts",
+      "**/*.tsx"
+    ]
   }
 }

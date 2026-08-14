@@ -438,6 +438,60 @@ export type Database = {
         };
         Relationships: [];
       };
+      event_popup_settings: {
+        Row: {
+          id: string;
+          singleton_key: boolean;
+          event_id: string | null;
+          is_enabled: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          singleton_key?: boolean;
+          event_id?: string | null;
+          is_enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          singleton_key?: boolean;
+          event_id?: string | null;
+          is_enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      giving_settings: {
+        Row: {
+          id: string;
+          gcash_qr_url: string | null;
+          donation_platform_name: string;
+          donation_platform_url: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          gcash_qr_url?: string | null;
+          donation_platform_name?: string;
+          donation_platform_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          gcash_qr_url?: string | null;
+          donation_platform_name?: string;
+          donation_platform_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       activity_logs: {
         Row: {
           id: string;
@@ -488,6 +542,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      get_allowed_tabs: {
+        Args: Record<PropertyKey, never>;
+        Returns: string[];
+      };
       get_analytics_summary: {
         Args: {
           days_back?: number;

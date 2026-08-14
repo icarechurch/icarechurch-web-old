@@ -103,6 +103,11 @@ export function Navbar({ isVisible = true }: NavbarProps) {
   const navigate = useNavigate();
   const { user, isAdmin, isModerator } = useAuth();
 
+  const isNavLinkActive = (href: string) =>
+    href === "/"
+      ? location.pathname === href
+      : location.pathname.startsWith(href);
+
   const handleParentClick = (e: React.MouseEvent, href: string) => {
     e.preventDefault();
     navigate(href);
@@ -139,13 +144,18 @@ export function Navbar({ isVisible = true }: NavbarProps) {
 
   return (
     <nav
+      aria-label="Main navigation"
       className={`fixed top-0 right-0 left-0 z-50 border-b bg-background/95 backdrop-blur transition-all duration-300 supports-[backdrop-filter]:bg-background/60 ${isVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"}`}
     >
       <div className="container mx-auto px-4">
         <div className="relative flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex flex-1 justify-start">
-            <Link className="flex items-center space-x-2" to="/">
+            <Link
+              aria-label="Go to homepage"
+              className="flex items-center space-x-2"
+              to="/"
+            >
               <img
                 alt="REFUGE Logo"
                 className="h-10 w-auto"
@@ -163,7 +173,7 @@ export function Navbar({ isVisible = true }: NavbarProps) {
                     {link.subLinks ? (
                       <>
                         <NavigationMenuTrigger
-                          className={`bg-transparent ${location.pathname.startsWith(link.href) ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                          className={`bg-transparent ${isNavLinkActive(link.href) ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
                           onClick={(e) => handleParentClick(e, link.href)}
                         >
                           {link.label}
@@ -174,6 +184,12 @@ export function Navbar({ isVisible = true }: NavbarProps) {
                               <li key={subLink.href}>
                                 <Link
                                   className="block rounded-md p-2 font-medium text-sm hover:bg-muted"
+                                  onClick={(e) => {
+                                    if (subLink.href.includes("#")) {
+                                      e.preventDefault();
+                                      handleSubLinkClick(subLink.href);
+                                    }
+                                  }}
                                   to={subLink.href}
                                 >
                                   {subLink.label}
@@ -188,7 +204,7 @@ export function Navbar({ isVisible = true }: NavbarProps) {
                         <NavigationMenuLink
                           className={
                             navigationMenuTriggerStyle() +
-                            `bg-transparent ${location.pathname === link.href ? "text-primary" : "text-muted-foreground hover:text-foreground"}`
+                            `bg-transparent ${isNavLinkActive(link.href) ? "text-primary" : "text-muted-foreground hover:text-foreground"}`
                           }
                         >
                           {link.label}
@@ -234,6 +250,9 @@ export function Navbar({ isVisible = true }: NavbarProps) {
 
             {/* Mobile Menu Button */}
             <Button
+              aria-controls="mobile-site-menu"
+              aria-expanded={isOpen}
+              aria-label={isOpen ? "Close menu" : "Open menu"}
               className="2xl:hidden"
               onClick={() => setIsOpen(!isOpen)}
               size="icon"
@@ -250,7 +269,10 @@ export function Navbar({ isVisible = true }: NavbarProps) {
 
         {/* Mobile Nav */}
         {isOpen && (
-          <div className="max-h-[calc(100vh-4rem)] overflow-y-auto border-t py-4 2xl:hidden">
+          <div
+            className="max-h-[calc(100vh-4rem)] overflow-y-auto border-t py-4 2xl:hidden"
+            id="mobile-site-menu"
+          >
             <div className="flex flex-col space-y-2 px-4">
               <Accordion className="w-full" collapsible type="single">
                 {navLinks.map((link) =>

@@ -4,9 +4,11 @@ import {
   type ReactNode,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { authService } from "@/integrations/supabase/services";
 import type { Database } from "@/integrations/supabase/types";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
@@ -17,6 +19,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isModerator: boolean;
   role: AppRole | null;
+  roleError: boolean;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
@@ -32,6 +35,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isModerator, setIsModerator] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [roleError, setRoleError] = useState(false);
+  const roleRequestRef = useRef(0);
 
   useEffect(() => {
     const {
@@ -48,11 +53,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setRole(null);
         setIsAdmin(false);
         setIsModerator(false);
+        setRoleError(false);
         setLoading(false);
       }
     });
 
-    // Initial session check
+    // Initial session check — deduplicated by roleRequestRef
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -67,38 +73,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const fetchUserRole = async (userId: string) => {
+    const requestId = ++roleRequestRef.current;
     try {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      if (error) {
-        // Error handled silently in production
-        setRole(null);
-        setIsAdmin(false);
-        setIsModerator(false);
-      } else if (data) {
-        setRole(data.role);
-        setIsAdmin(data.role === "admin");
-        setIsModerator(data.role === "moderator");
-      } else {
-        // No role found
-        setRole(null);
-        setIsAdmin(false);
-        setIsModerator(false);
-      }
-    } catch (_err) {
-      // Error handled silently in production
+      const fetchedRole = await authService.getUserRole(userId);
+      // Ignore stale responses from concurrent calls
+      if (requestId !== roleRequestRef.current) return;
+      setRole(fetchedRole);
+      setIsAdmin(fetchedRole === "admin");
+      setIsModerator(fetchedRole === "moderator");
+      setRoleError(false);
+    } catch {
+      if (requestId !== roleRequestRef.current) return;
+      // Distinguish a network/RLS failure from a user with no role
+      setRoleError(true);
+      setRole(null);
+      setIsAdmin(false);
+      setIsModerator(false);
     } finally {
-      setLoading(false);
+      if (requestId === roleRequestRef.current) {
+        setLoading(false);
+      }
     }
   };
 
   const signIn = async (email: string, password: string) => {
+    if (!email || !password) {
+      return { error: new Error("Email and password are required") };
+    }
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: email.trim(),
       password,
     });
     return { error };
@@ -146,6 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAdmin,
         isModerator,
         role,
+        roleError,
         loading,
         signIn,
         signUp,

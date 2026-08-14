@@ -1,4 +1,3 @@
-import { createClient } from "@supabase/supabase-js";
 import {
   Eye,
   EyeOff,
@@ -49,6 +48,7 @@ import {
 } from "@/components/ui/table";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { adminService, usersService } from "@/integrations/supabase/services";
 
 interface UserProfile {
   id: string;
@@ -93,28 +93,7 @@ export function AdminUsers() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // Fetch profiles
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("*");
-
-      if (profilesError) throw profilesError;
-
-      // Fetch user roles
-      const { data: roles, error: rolesError } = await supabase
-        .from("user_roles")
-        .select("*");
-
-      if (rolesError) throw rolesError;
-
-      // Merge data
-      const mergedUsers = profiles.map((profile) => {
-        const userRole = roles.find((r) => r.user_id === profile.id);
-        return {
-          ...profile,
-          role: userRole ? userRole.role : "user",
-        } as UserProfile;
-      });
+      const mergedUsers = await adminService.getAllUsersWithRoles();
 
       // Sort by created_at desc
       mergedUsers.sort(
@@ -129,54 +108,32 @@ export function AdminUsers() {
       setLoading(false);
     }
   };
-  // what
+
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsCreating(true);
 
     try {
-      // 1. Create Supabase client for creation (non-persisting to avoid logging out admin)
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-      const tempClient = createClient(supabaseUrl, supabaseKey, {
-        auth: {
-          persistSession: false, // Critical: don't overwrite admin session
-          autoRefreshToken: false,
-        },
-      });
-
-      // 2. Sign up the user
-      const { data: authData, error: authError } = await tempClient.auth.signUp(
+      const { data, error: fnError } = await supabase.functions.invoke(
+        "create-user",
         {
-          email: newUserEmail,
-          password: newUserPassword,
-          options: {
-            data: {
-              full_name: newUserName,
-            },
+          body: {
+            email: newUserEmail,
+            password: newUserPassword,
+            full_name: newUserName,
+            role: newUserRole,
           },
         }
       );
 
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("No user data returned");
-
-      // 3. Assign Role (using main admin client)
-      if (newUserRole !== "user") {
-        const { error: roleError } = await supabase.from("user_roles").insert({
-          user_id: authData.user.id,
-          role: newUserRole,
-        });
-
-        if (roleError) throw roleError;
-      }
+      if (fnError) throw fnError;
+      if (data?.warning) toast.warning(data.warning);
 
       toast.success("User created successfully");
       setIsCreateOpen(false);
       resetForm();
-      fetchUsers(); // Refresh list
-    } catch (error: any) {
+      fetchUsers();
+    } catch (_error) {
       toast.error("Failed to create user. Please try again.");
     } finally {
       setIsCreating(false);
@@ -197,34 +154,19 @@ export function AdminUsers() {
     setIsUpdating(true);
     try {
       // 1. Update Profile (Name)
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({ full_name: editName })
-        .eq("id", editingUser.id);
-
-      if (profileError) throw profileError;
+      await adminService.updateUserProfile(editingUser.id, editName);
 
       // 2. Update Role
       if (editRole !== editingUser.role) {
         if (editRole === "user") {
           // Remove role entry if downgrading to user
-          const { error: deleteError } = await supabase
-            .from("user_roles")
-            .delete()
-            .eq("user_id", editingUser.id);
-
-          if (deleteError) throw deleteError;
+          await usersService.deleteUserRole(editingUser.id);
         } else {
-          // Upsert role (insert or update)
-          const { error: roleError } = await supabase.from("user_roles").upsert(
-            {
-              user_id: editingUser.id,
-              role: editRole,
-            },
-            { onConflict: "user_id" }
-          ); // user_id is part of unique constraint
-
-          if (roleError) throw roleError;
+          // Update user role
+          await usersService.updateUserRole({
+            user_id: editingUser.id,
+            role: editRole,
+          });
         }
       }
 
@@ -248,11 +190,9 @@ export function AdminUsers() {
 
     setIsDeleting(true);
     try {
-      const { error } = await supabase.rpc("delete_user", {
+      await usersService.deleteUser({
         target_user_id: deleteUser.id,
       });
-
-      if (error) throw error;
 
       toast.success("User deleted successfully");
       setDeleteUser(null);

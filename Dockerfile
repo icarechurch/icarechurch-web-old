@@ -3,10 +3,10 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files first to leverage cache
+# Copy package manifest first to leverage layer cache
 COPY package.json ./
 
-# Install dependencies
+# Install all dependencies
 RUN npm install
 
 # Copy the rest of the application code
@@ -29,21 +29,19 @@ WORKDIR /app
 # Set environment to production
 ENV NODE_ENV=production
 
-# Copy package files
+# Copy package files and install only production dependencies
 COPY package.json ./
-
-# Install only production dependencies
 RUN npm install --omit=dev
 
 # Copy built assets from builder stage
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/server.js ./server.js
-# Copy scripts if needed, though mostly used for build time. 
-# If generate-sitemap.js is needed at runtime, copy it.
-# COPY --from=builder /app/scripts ./scripts 
+
+# Run as non-root user for security
+USER node
 
 # Expose the port the app runs on
-EXPOSE 5173
+EXPOSE 8081
 
-# Define the command to run the app
-CMD ["npm", "run", "serve:ssr"]
+# Run node directly so signals are forwarded correctly (node is PID 1)
+CMD ["node", "server.js"]

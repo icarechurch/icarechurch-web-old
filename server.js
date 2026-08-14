@@ -124,9 +124,13 @@ export async function createServer({
       if (!isProd) {
         vite.ssrFixStacktrace(e);
       }
+      const timestamp = new Date().toISOString();
+      const logEntry = `[${timestamp}] SSR Error:\n${e.stack}\n\n`;
       console.error("SSR Error:", e.stack);
-      fs.writeFileSync("server_error.log", e.stack);
-      res.status(500).end(e.stack);
+      fs.appendFile("server_error.log", logEntry, (writeErr) => {
+        if (writeErr) console.error("Failed to write error log:", writeErr);
+      });
+      res.status(500).end("Internal Server Error");
     }
   });
 
@@ -136,7 +140,7 @@ export async function createServer({
 const isMainModule = import.meta.url === pathToFileURL(process.argv[1]).href;
 
 if (isMainModule) {
-  const port = process.env.PORT || 1010;
+  const port = process.env.PORT;
   createServer({})
     .then(({ app }) =>
       app.listen(port, () => {

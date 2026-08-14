@@ -51,15 +51,12 @@ import {
   usePagePopularity,
   useRecentVisits,
 } from "@/hooks/useAnalytics";
-
-const COLORS = [
-  "#0088FE",
-  "#00C49F",
-  "#FFBB28",
-  "#FF8042",
-  "#8884d8",
-  "#82ca9d",
-];
+import {
+  CHART_COLORS,
+  createPieChartData,
+  formatChartData,
+  formatPagePath,
+} from "./adminconstants/analytics/adminanalytics";
 
 export function AdminAnalytics() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -85,32 +82,8 @@ export function AdminAnalytics() {
     );
   }
 
-  const formatPagePath = (path: string) => {
-    const pageMappings: Record<string, string> = {
-      "/": "Home",
-      "/about": "About",
-      "/ministries": "Ministries",
-      "/services": "Services",
-      "/events": "Events",
-      "/contact": "Contact",
-      "/auth": "Authentication",
-      "/admin": "Admin Dashboard",
-    };
-    return pageMappings[path] || path;
-  };
-
-  const formatChartData = (data: any[]) =>
-    data?.map((item) => ({
-      ...item,
-      date: format(new Date(item.date), "MMM dd"),
-    })) || [];
-
-  const pieChartData =
-    pagePopularity?.slice(0, 6).map((page, index) => ({
-      name: formatPagePath(page.page_path),
-      value: page.total_visits,
-      color: COLORS[index % COLORS.length],
-    })) || [];
+  const chartData = formatChartData(dailyVisits || [], format);
+  const pieChartData = createPieChartData(pagePopularity);
 
   return (
     <div className="max-w-full space-y-6 overflow-x-hidden pb-6">
@@ -326,7 +299,7 @@ export function AdminAnalytics() {
                 <div className="w-full">
                   <ResponsiveContainer height={250} width="100%">
                     <LineChart
-                      data={formatChartData(dailyVisits || [])}
+                      data={chartData}
                       margin={{ left: -20, right: 10, top: 5, bottom: 5 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />

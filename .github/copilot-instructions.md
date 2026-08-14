@@ -1,6 +1,7 @@
 ---
-applyTo: "**/*.{ts,tsx,js,jsx}"
+applyTo: "**/*.{ts,tsx,js,jsx, php, html, css, md,json, yml,yaml, sql, py, rb, go, java, cs}"
 ---
+basically apply to every standard code lol
 
 # Ultracite Code Standards
 

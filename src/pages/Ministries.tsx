@@ -82,7 +82,7 @@ export default function Ministries() {
                                 .map((line) => line.trim())
                                 .filter((line) => line.length > 0)
                                 .map((line, index) => (
-                                  <p key={index}>{line}</p>
+                                  <p key={`${line}-${index}`}>{line}</p>
                                 ))}
                             </div>
                           </div>
@@ -144,7 +144,7 @@ export default function Ministries() {
                                 .map((line) => line.trim())
                                 .filter((line) => line.length > 0)
                                 .map((line, index) => (
-                                  <p key={index}>{line}</p>
+                                  <p key={`${line}-${index}`}>{line}</p>
                                 ))}
                             </div>
                           </div>

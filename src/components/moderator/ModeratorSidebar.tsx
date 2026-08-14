@@ -3,7 +3,7 @@ import {
   BookOpen,
   Calendar,
   Home,
-  Image as ImageIcon,
+  ImageIcon,
   LogOut,
   UserCog,
   Users,

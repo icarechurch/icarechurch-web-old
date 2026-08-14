@@ -1,4 +1,4 @@
-import { BookOpen, Facebook, Mail, Phone, Target } from "lucide-react";
+import { Facebook, Mail, Phone} from "lucide-react";
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Layout } from "@/components/layout/Layout";
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { CORE_VALUES } from "@/constant/core-values";
 import { type Pastor, usePastors } from "@/hooks/useChurchData";
+import { MissionVision } from "./pageconstants/MissionVision";
 
 export default function About() {
   const { data: pastors } = usePastors();
@@ -73,33 +74,7 @@ export default function About() {
       <section className="section-padding bg-secondary/30" id="mission">
         <div className="container mx-auto px-4">
           <div className="grid gap-8 md:grid-cols-2">
-            <Card className="border-none shadow-lg">
-              <CardContent className="space-y-4 p-8">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                  <Target className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-bold font-display text-2xl">Our Mission</h3>
-                <p className="text-muted-foreground">
-                  The Refuge Church is determined to Share the Gospel, teach
-                  Biblical Truth, and encourage disciples to grow in Godly
-                  obedience until the return of our Lord Jesus Christ.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="border-none shadow-lg">
-              <CardContent className="space-y-4 p-8">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                  <BookOpen className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-bold font-display text-2xl">Our Vision</h3>
-                <p className="text-muted-foreground">
-                  The Refuge Church is a unified Church body committed to be a
-                  reflection of God's love as a Refuge for the lost to come and
-                  be Cared for, Lifted up, and Encouraged to Grow in personal
-                  relationship with the Lord Jesus Christ for the Glory of God.
-                </p>
-              </CardContent>
-            </Card>
+            <MissionVision />
           </div>
         </div>
       </section>
@@ -113,8 +88,8 @@ export default function About() {
             </h2>
           </div>
           <div className="mx-auto grid max-w-4xl gap-8 md:grid-cols-2">
-            {CORE_VALUES.map((value, i) => (
-              <Card className="border-none shadow-lg" key={i}>
+            {CORE_VALUES.map((value) => (
+              <Card className="border-none shadow-lg" key={value.title}>
                 <CardContent className="space-y-4 p-8 text-center">
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                     <value.icon className="h-8 w-8 text-primary" />

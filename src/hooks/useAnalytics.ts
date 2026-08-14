@@ -30,8 +30,11 @@ const getSessionId = (): string => {
   return sessionId;
 };
 
-// Track a page visit
+// Track a page visit — only if the user has granted analytics consent
+export const ANALYTICS_CONSENT_KEY = "analytics_consent";
+
 export const trackPageVisit = async (pagePath: string) => {
+  if (localStorage.getItem(ANALYTICS_CONSENT_KEY) !== "true") return;
   try {
     const visitorId = getVisitorId();
     const sessionId = getSessionId();

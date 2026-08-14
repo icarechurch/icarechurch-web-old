@@ -160,7 +160,6 @@ export const logActivity = async (
 
     if (error) {
       // Silently fail - logging should not break the application
-      console.error("Failed to log activity:", error);
     }
   } catch (_error) {
     // Silently fail

@@ -17,6 +17,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { formatChartData, formatPagePath } from "@/components/admin/adminconstants/analytics/adminanalytics";
 import {
   Card,
   CardContent,
@@ -47,26 +48,7 @@ export function ModeratorAnalytics() {
     );
   }
 
-  const formatPagePath = (path: string) => {
-    const pageMappings: Record<string, string> = {
-      "/": "Home",
-      "/about": "About",
-      "/ministries": "Ministries",
-      "/services": "Services",
-      "/events": "Events",
-      "/contact": "Contact",
-      "/auth": "Authentication",
-      "/admin": "Admin Dashboard",
-      "/moderator": "Moderator Dashboard",
-    };
-    return pageMappings[path] || path;
-  };
-
-  const formatChartData = (data: any[]) =>
-    data?.map((item) => ({
-      ...item,
-      date: format(new Date(item.date), "MMM dd"),
-    })) || [];
+  const formattedDailyVisits = formatChartData(dailyVisits || [], format);
 
   return (
     <div className="max-w-full space-y-6 overflow-x-hidden pb-6">
@@ -169,7 +151,7 @@ export function ModeratorAnalytics() {
             <div className="w-full">
               <ResponsiveContainer height={250} width="100%">
                 <LineChart
-                  data={formatChartData(dailyVisits || [])}
+                  data={formattedDailyVisits}
                   margin={{ left: -20, right: 10, top: 5, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />

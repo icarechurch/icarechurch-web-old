@@ -3,11 +3,12 @@ import {
   Calendar,
   CalendarX,
   CheckCircle,
+  Info,
   Pencil,
   Plus,
   Trash2,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -37,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
   type Event,
@@ -44,39 +46,57 @@ import {
   useEventMutations,
   useEvents,
 } from "@/hooks/useChurchData";
+import {
+  useEventPopupSettings,
+  useUpdateEventPopupSettings,
+} from "@/hooks/useEventPopup";
 import { ImageUpload } from "./ImageUpload";
+import {
+  type EventFormState,
+  createDefaultEventForm,
+  eventToFormState,
+  getErrorMessage,
+  getStatusBadgeVariant,
+  validateEventForm,
+} from "./adminconstants/events/adminevents";
 
 export function AdminEvents() {
   const { data: events, isLoading } = useEvents();
   const { createEvent, updateEvent, deleteEvent } = useEventMutations();
+  const { data: popupSettings, isLoading: popupSettingsLoading } =
+    useEventPopupSettings();
+  const updateEventPopupSettings = useUpdateEventPopupSettings();
+
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Event | null>(null);
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    event_date: "",
-    event_time: "",
-    location: "",
-    image_url: "",
-    status: "scheduled" as "scheduled" | "postponed" | "done",
-  });
+  const [form, setForm] = useState<EventFormState>(createDefaultEventForm());
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [popupEnabled, setPopupEnabled] = useState(false);
+  const [popupEventId, setPopupEventId] = useState<string>("none");
+
+  useEffect(() => {
+    if (!popupSettings) return;
+
+    setPopupEnabled(popupSettings.is_enabled);
+    setPopupEventId(popupSettings.event_id ?? "none");
+  }, [popupSettings]);
+
+  const hasPopupSettingsChanges = useMemo(() => {
+    if (!popupSettings) return false;
+
+    const currentEventId = popupSettings.event_id ?? "none";
+    return (
+      popupEnabled !== popupSettings.is_enabled || popupEventId !== currentEventId
+    );
+  }, [popupEnabled, popupEventId, popupSettings]);
 
   const resetForm = () => {
-    setForm({
-      title: "",
-      description: "",
-      event_date: "",
-      event_time: "",
-      location: "",
-      image_url: "",
-      status: "scheduled",
-    });
+    setForm(createDefaultEventForm());
     setEditing(null);
   };
 
   const handleSave = async () => {
-    if (!(form.title && form.event_date)) {
+    if (!validateEventForm(form)) {
       toast.error("Title and date are required");
       return;
     }
@@ -90,8 +110,8 @@ export function AdminEvents() {
       }
       setOpen(false);
       resetForm();
-    } catch (e: any) {
-      toast.error(e.message);
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error));
     }
   };
 
@@ -104,25 +124,34 @@ export function AdminEvents() {
     try {
       await deleteEvent.mutateAsync(deleteId);
       toast.success("Deleted");
-    } catch (e: any) {
-      toast.error(e.message);
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error));
     } finally {
       setDeleteId(null);
     }
   };
 
-  const openEdit = (e: Event) => {
-    setEditing(e);
-    setForm({
-      title: e.title,
-      description: e.description || "",
-      event_date: e.event_date,
-      event_time: e.event_time || "",
-      location: e.location || "",
-      image_url: e.image_url || "",
-      status: e.status || "scheduled",
-    });
+  const openEdit = (event: Event) => {
+    setEditing(event);
+    setForm(eventToFormState(event));
     setOpen(true);
+  };
+
+  const handleSavePopupSettings = async () => {
+    if (popupEnabled && popupEventId === "none") {
+      toast.error("Please select an event before enabling the popup.");
+      return;
+    }
+
+    try {
+      await updateEventPopupSettings.mutateAsync({
+        event_id: popupEventId === "none" ? null : popupEventId,
+        is_enabled: popupEnabled,
+      });
+      toast.success("Popup settings updated.");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error));
+    }
   };
 
   return (
@@ -213,6 +242,60 @@ export function AdminEvents() {
           </DialogContent>
         </Dialog>
       </div>
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-xl">Homepage Event Popup</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between rounded-lg border bg-muted/20 p-4">
+            <div>
+              <p className="font-medium">Enable popup</p>
+              <p className="text-muted-foreground text-sm">
+                Show a selected event popup to visitors on the homepage.
+              </p>
+            </div>
+            <Switch checked={popupEnabled} onCheckedChange={setPopupEnabled} />
+          </div>
+
+          <div>
+            <label className="mb-2 block font-medium text-sm">
+              Featured Event
+            </label>
+            <Select onValueChange={setPopupEventId} value={popupEventId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select an event" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No event selected</SelectItem>
+                {events?.map((event) => (
+                  <SelectItem key={event.id} value={event.id}>
+                    {event.title} - {format(new Date(event.event_date), "MMM d, yyyy")}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-start gap-2 rounded-md border border-dashed p-3 text-muted-foreground text-sm">
+            <Info className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>
+              Moderators and admins can update this popup. Visitors can close it,
+              and it will stay hidden until the popup content changes.
+            </p>
+          </div>
+
+          <Button
+            disabled={
+              popupSettingsLoading ||
+              updateEventPopupSettings.isLoading ||
+              !hasPopupSettingsChanges
+            }
+            onClick={handleSavePopupSettings}
+          >
+            Save Popup Settings
+          </Button>
+        </CardContent>
+      </Card>
       {isLoading ? (
         <p>Loading...</p>
       ) : (
@@ -233,13 +316,7 @@ export function AdminEvents() {
                   <CardTitle className="text-lg">{e.title}</CardTitle>
                   <Badge
                     className="flex items-center gap-1"
-                    variant={
-                      e.status === "done"
-                        ? "default"
-                        : e.status === "postponed"
-                          ? "destructive"
-                          : "secondary"
-                    }
+                    variant={getStatusBadgeVariant(e.status)}
                   >
                     {e.status === "done" && <CheckCircle className="h-3 w-3" />}
                     {e.status === "postponed" && (

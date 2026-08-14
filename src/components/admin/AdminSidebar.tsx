@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
   BookOpen,
@@ -36,8 +37,16 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
+import type { TabKey } from "@/pages/pageconstants/admin-tabs";
 
-const menuItems = [
+interface MenuItem {
+  id: TabKey;
+  label: string;
+  icon: LucideIcon;
+  roles: string[];
+}
+
+const menuItems: MenuItem[] = [
   { id: "analytics", label: "Analytics", icon: BarChart3, roles: ["admin"] },
   {
     id: "ministries",
@@ -71,8 +80,8 @@ const menuItems = [
 ];
 
 interface Props {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+  activeTab: TabKey;
+  setActiveTab: (tab: TabKey) => void;
 }
 
 export function AdminSidebar({ activeTab, setActiveTab }: Props) {
@@ -84,7 +93,7 @@ export function AdminSidebar({ activeTab, setActiveTab }: Props) {
     (item) => role && item.roles.includes(role)
   );
 
-  const handleMenuItemClick = (tabId: string) => {
+  const handleMenuItemClick = (tabId: TabKey) => {
     setActiveTab(tabId);
     setOpenMobile(false);
   };

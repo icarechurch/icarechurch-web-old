@@ -1,9 +1,9 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { CareGrid } from "@/components/CareGrid";
+import { EventPopup } from "@/components/EventPopup";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-// import { Card, CardContent } from '@/components/ui/card';
 import { useChurchInfo } from "@/hooks/useChurchData";
 
 const Index = () => {
@@ -23,7 +23,8 @@ const Index = () => {
         />
         <link href="https://icarecenter.netlify.app/" rel="canonical" />
       </Helmet>
-      {/* Hero Section */}
+      <EventPopup />
+
       <section
         className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-church-navy via-church-navy/95 to-church-gold/20"
         id="hero"
@@ -31,46 +32,47 @@ const Index = () => {
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=1920')] bg-center bg-cover opacity-40" />
         <div className="absolute inset-0 bg-black/40" />
         <div className="container relative z-10 mx-auto px-4 text-center">
-          <h1 className="mb-6 animate-fade-in font-bold font-display text-5xl text-white md:text-8xl">
+          <p className="mb-4 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 font-medium text-sm text-white/90">
+            You're welcome here
+          </p>
+          <h1 className="mb-6 animate-fade-in font-bold font-display text-5xl leading-tight text-white md:text-7xl">
             Welcome to
             <br />
             <span className="text-church-gold">
-              I Care Center - the Refuge Church
+              I Care Center - The Refuge Church
             </span>
           </h1>
           <p className="mx-auto mb-8 max-w-2xl text-white/80 text-xl md:text-2xl">
-            Miracles happen when someone cares
+            A Christ-centered church family in Olongapo City where people
+            worship, grow, and serve together.
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            {/* Ghost → Solid on hover - Orange variant */}
             <Button
               asChild
-              className="border-0 bg-transparent font-semibold text-church-orange transition-all duration-300 hover:bg-church-orange hover:text-church-navy"
+              className="bg-church-orange font-semibold text-white transition-colors duration-300 hover:bg-church-orange/90"
               size="lg"
             >
               <Link to="/services">Join Us This Sunday</Link>
             </Button>
-            {/* Ghost → Solid on hover - White variant */}
             <Button
               asChild
-              className="border-0 bg-transparent font-semibold text-white transition-all duration-300 hover:bg-white hover:text-church-navy"
+              className="border border-white/40 bg-transparent font-semibold text-white transition-colors duration-300 hover:bg-white hover:text-church-navy"
               size="lg"
             >
-              <Link to="/sermons">Join Online</Link>
+              <Link to="/sermons">Watch Online</Link>
             </Button>
-            {/* Ghost → Solid on hover - White variant */}
-            <Button
-              asChild
-              className="border-0 bg-transparent font-semibold text-white transition-all duration-300 hover:bg-white hover:text-church-navy"
-              size="lg"
+          </div>
+          <div className="mt-6">
+            <Link
+              className="font-medium text-white/90 underline-offset-4 transition-colors hover:text-white hover:underline"
+              to="/about"
             >
-              <Link to="/about">Learn More</Link>
-            </Button>
+              Learn more about our church
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* About Section */}
       <section className="bg-church-cream py-20" id="about">
         <div className="container mx-auto px-4">
           <div className="grid items-center gap-12 md:grid-cols-2">
@@ -79,15 +81,11 @@ const Index = () => {
                 About Our Church
               </h2>
               <p className="mb-6 text-lg text-muted-foreground leading-relaxed">
-                I Care Center welcomes all individuals seeking God’s love, and
-                keep our doors open to every soul seeking to welcome Jesus into
-                their hearts. We invite you to open your heart and allow His
-                grace to penetrate into your soul. Our church stands as a beacon
-                of hope in Olongapo City. We are a place of acceptance, peace
-                and joy to all who are moved to join us. Our church family is
-                richly diverse, with people of different ages and backgrounds
-                coming together to worship and serve together. Get in touch to
-                find out more or join us for a service.
+                I Care Center welcomes everyone seeking God's love. We are a
+                place of acceptance, peace, and joy in Olongapo City where
+                people of different ages and backgrounds worship and serve
+                together. Join us as we grow in faith and follow Jesus as one
+                family.
               </p>
               <Button
                 asChild
@@ -98,8 +96,9 @@ const Index = () => {
             </div>
             <div className="relative">
               <img
-                alt="Church community"
+                alt="Church community worshiping together"
                 className="rounded-lg shadow-2xl"
+                loading="lazy"
                 src="/during worship 2.jpeg"
               />
               <div className="absolute -bottom-6 -left-6 rounded-lg bg-church-gold p-6 text-church-navy shadow-xl">
@@ -113,13 +112,11 @@ const Index = () => {
         </div>
       </section>
 
-      {/* C.A.R.E. Pathway Section */}
       <section
         className="bg-gradient-to-b from-church-cream to-white py-24"
         id="care"
       >
         <div className="container mx-auto px-4">
-          {/* Section Header */}
           <div className="mx-auto mb-16 max-w-3xl text-center">
             <span className="mb-4 inline-block rounded-full bg-church-gold/10 px-4 py-2 font-semibold text-church-gold text-sm">
               Your Journey With Us
@@ -133,19 +130,16 @@ const Index = () => {
             </p>
           </div>
 
-          {/* C.A.R.E. Grid */}
           <CareGrid />
 
-          {/* Bible Verse Card */}
           <div className="mx-auto mt-16 max-w-2xl rounded-2xl bg-white p-8 text-center shadow-2xl md:p-12">
             <p className="mb-4 font-display text-church-navy text-xl italic md:text-2xl">
               "Come to me, all you who are weary and burdened, and I will give
               you rest."
             </p>
-            <p className="font-semibold text-church-gold">— Matthew 11:28</p>
+            <p className="font-semibold text-church-gold">- Matthew 11:28</p>
           </div>
 
-          {/* CTA Button */}
           <div className="mt-12 text-center">
             <Button
               asChild

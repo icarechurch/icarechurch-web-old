@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface UseQueryOptions<T> {
   queryKey: any[];
@@ -34,7 +34,8 @@ export function useQuery<T>({
   const fnRef = useRef(queryFn);
   fnRef.current = queryFn; // Keep latest ref
 
-  const stableKey = JSON.stringify(queryKey);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const stableKey = useMemo(() => JSON.stringify(queryKey), queryKey);
 
   const fetchData = useCallback(async () => {
     if (!enabled) return;

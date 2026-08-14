@@ -28,6 +28,17 @@ import {
   useServiceTimeMutations,
   useServiceTimes,
 } from "@/hooks/useChurchData";
+import {
+  INITIAL_FORM_STATE,
+  REQUIRED_FIELDS,
+  getItemsToDisplay,
+  getResetForm,
+  handleDragLeave,
+  handleDragOver,
+  isFormValid,
+  prepareSortOrderUpdates,
+  swapItems,
+} from "./adminconstants/servicetimes/adminservicetimes";
 
 export function AdminServiceTimes() {
   const { data: serviceTimes, isLoading } = useServiceTimes();
@@ -39,24 +50,21 @@ export function AdminServiceTimes() {
   } = useServiceTimeMutations();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ServiceTime | null>(null);
-  const [form, setForm] = useState({
-    name: "",
-    time: "",
-    description: "",
-    audience: "",
-  });
+  const [form, setForm] = useState(INITIAL_FORM_STATE);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [orderedItems, setOrderedItems] = useState<ServiceTime[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const resetForm = () => {
-    setForm({ name: "", time: "", description: "", audience: "" });
+    setForm(getResetForm());
     setEditing(null);
   };
 
   const handleSave = async () => {
-    if (!(form.name && form.time)) {
-      toast.error("Name and time are required");
+    if (!isFormValid(form)) {
+      toast.error(
+        `${REQUIRED_FIELDS.join(" and ")} are required`
+      );
       return;
     }
     try {
@@ -103,44 +111,26 @@ export function AdminServiceTimes() {
 
   const handleDragStart = (id: string) => setDraggedItem(id);
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    (e.currentTarget as HTMLElement).style.opacity = "0.5";
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    (e.currentTarget as HTMLElement).style.opacity = "1";
-  };
-
   const handleDrop = (e: React.DragEvent, targetId: string) => {
     e.preventDefault();
-    (e.currentTarget as HTMLElement).style.opacity = "1";
+    const element = e.currentTarget as HTMLElement;
+    element.style.opacity = "1";
 
     if (!draggedItem || draggedItem === targetId || !serviceTimes) return;
 
-    const items = [...serviceTimes];
-    const draggedIdx = items.findIndex((s) => s.id === draggedItem);
-    const targetIdx = items.findIndex((s) => s.id === targetId);
-
-    [items[draggedIdx], items[targetIdx]] = [
-      items[targetIdx],
-      items[draggedIdx],
-    ];
+    const items = swapItems(serviceTimes, draggedItem, targetId);
     setOrderedItems(items);
     setDraggedItem(null);
 
     // Save the new order to database
-    const sortUpdates = items.map((item, index) => ({
-      id: item.id,
-      sort_order: index + 1,
-    }));
+    const sortUpdates = prepareSortOrderUpdates(items);
     updateSortOrder
       .mutateAsync(sortUpdates)
       .then(() => toast.success("Order saved"))
       .catch((e) => toast.error(e.message));
   };
 
-  const itemsToDisplay = orderedItems.length > 0 ? orderedItems : serviceTimes;
+  const itemsToDisplay = getItemsToDisplay(orderedItems, serviceTimes);
 
   return (
     <div>

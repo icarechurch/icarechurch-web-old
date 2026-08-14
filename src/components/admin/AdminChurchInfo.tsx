@@ -33,6 +33,13 @@ import {
   usePastors,
 } from "@/hooks/useChurchData";
 import { ImageUpload } from "./ImageUpload";
+import {
+  createDefaultPastorForm,
+  DEFAULT_CHURCH_INFO_FORM,
+  getErrorMessage,
+  getInitials,
+  pastorToFormState,
+} from "./adminconstants/churchinfo/adminchurchinfo";
 
 export function AdminChurchInfo() {
   const { data: churchInfo, isLoading } = useChurchInfo();
@@ -40,28 +47,11 @@ export function AdminChurchInfo() {
   const { data: pastors, isLoading: pastorsLoading } = usePastors();
   const { createPastor, updatePastor, deletePastor } = usePastorMutations();
 
-  const [form, setForm] = useState({
-    church_name: "",
-    address: "",
-    city: "",
-    state: "",
-    zip: "",
-    phone: "",
-    email: "",
-    office_hours: "",
-    fallback_stream_url: "",
-  });
+  const [form, setForm] = useState(DEFAULT_CHURCH_INFO_FORM);
 
-  const [pastorForm, setPastorForm] = useState<PastorInsert>({
-    name: "",
-    email: "",
-    phone: "",
-    title: "Pastor",
-    bio: "",
-    image_url: "",
-    facebook_url: "",
-    sort_order: 0,
-  });
+  const [pastorForm, setPastorForm] = useState<PastorInsert>(
+    createDefaultPastorForm()
+  );
 
   const [editingPastor, setEditingPastor] = useState<Pastor | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -88,39 +78,32 @@ export function AdminChurchInfo() {
     try {
       await mutation.mutateAsync({ id: churchInfo.id, ...form });
       toast.success("Church info updated");
-    } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : "An error occurred";
-      toast.error(errorMessage);
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error));
     }
   };
 
   const resetPastorForm = () => {
-    setPastorForm({
-      name: "",
-      email: "",
-      phone: "",
-      title: "Pastor",
-      bio: "",
-      image_url: "",
-      facebook_url: "",
-      sort_order: pastors?.length || 0,
-    });
+    setPastorForm(createDefaultPastorForm(pastors?.length || 0));
     setEditingPastor(null);
   };
+
+  const handlePastorFieldChange =
+    (field: keyof PastorInsert) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setPastorForm((prev) => ({ ...prev, [field]: e.target.value }));
+    };
+
+  const handleChurchFieldChange =
+    (field: keyof typeof form) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    };
 
   const handleOpenDialog = (pastor?: Pastor) => {
     if (pastor) {
       setEditingPastor(pastor);
-      setPastorForm({
-        name: pastor.name,
-        email: pastor.email || "",
-        phone: pastor.phone || "",
-        title: pastor.title || "Pastor",
-        bio: pastor.bio || "",
-        image_url: pastor.image_url || "",
-        facebook_url: pastor.facebook_url || "",
-        sort_order: pastor.sort_order || 0,
-      });
+      setPastorForm(pastorToFormState(pastor));
     } else {
       resetPastorForm();
     }
@@ -146,9 +129,8 @@ export function AdminChurchInfo() {
       }
       setDialogOpen(false);
       resetPastorForm();
-    } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : "An error occurred";
-      toast.error(errorMessage);
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error));
     }
   };
 
@@ -156,9 +138,8 @@ export function AdminChurchInfo() {
     try {
       await deletePastor.mutateAsync(id);
       toast.success("Pastor deleted");
-    } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : "An error occurred";
-      toast.error(errorMessage);
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error));
     }
   };
 
@@ -189,9 +170,7 @@ export function AdminChurchInfo() {
                 <div className="space-y-2">
                   <label className="font-medium text-sm">Name *</label>
                   <Input
-                    onChange={(e) =>
-                      setPastorForm({ ...pastorForm, name: e.target.value })
-                    }
+                    onChange={handlePastorFieldChange("name")}
                     placeholder="Pastor Name"
                     value={pastorForm.name}
                   />
@@ -199,9 +178,7 @@ export function AdminChurchInfo() {
                 <div className="space-y-2">
                   <label className="font-medium text-sm">Title</label>
                   <Input
-                    onChange={(e) =>
-                      setPastorForm({ ...pastorForm, title: e.target.value })
-                    }
+                    onChange={handlePastorFieldChange("title")}
                     placeholder="e.g., Senior Pastor, Associate Pastor"
                     value={pastorForm.title || ""}
                   />
@@ -209,9 +186,7 @@ export function AdminChurchInfo() {
                 <div className="space-y-2">
                   <label className="font-medium text-sm">Email</label>
                   <Input
-                    onChange={(e) =>
-                      setPastorForm({ ...pastorForm, email: e.target.value })
-                    }
+                    onChange={handlePastorFieldChange("email")}
                     placeholder="pastor@church.com"
                     type="email"
                     value={pastorForm.email || ""}
@@ -220,9 +195,7 @@ export function AdminChurchInfo() {
                 <div className="space-y-2">
                   <label className="font-medium text-sm">Phone</label>
                   <Input
-                    onChange={(e) =>
-                      setPastorForm({ ...pastorForm, phone: e.target.value })
-                    }
+                    onChange={handlePastorFieldChange("phone")}
                     placeholder="Phone Number"
                     value={pastorForm.phone || ""}
                   />
@@ -230,9 +203,7 @@ export function AdminChurchInfo() {
                 <div className="space-y-2">
                   <label className="font-medium text-sm">Bio</label>
                   <Textarea
-                    onChange={(e) =>
-                      setPastorForm({ ...pastorForm, bio: e.target.value })
-                    }
+                    onChange={handlePastorFieldChange("bio")}
                     placeholder="Short biography..."
                     rows={3}
                     value={pastorForm.bio || ""}
@@ -251,9 +222,7 @@ export function AdminChurchInfo() {
                 <div className="space-y-2">
                   <label className="font-medium text-sm">Facebook URL</label>
                   <Input
-                    onChange={(e) =>
-                      setPastorForm({ ...pastorForm, facebook_url: e.target.value })
-                    }
+                    onChange={handlePastorFieldChange("facebook_url")}
                     placeholder="https://facebook.com/pastor.profile"
                     value={pastorForm.facebook_url || ""}
                   />
@@ -295,7 +264,7 @@ export function AdminChurchInfo() {
                         />
                       ) : (
                         <span className="font-bold text-lg text-primary">
-                          {pastor.name.charAt(0)}
+                          {getInitials(pastor.name)}
                         </span>
                       )}
                     </div>
@@ -374,25 +343,25 @@ export function AdminChurchInfo() {
         <CardContent className="space-y-4">
           <h5>Church Name</h5>
           <Input
-            onChange={(e) => setForm({ ...form, church_name: e.target.value })}
+            onChange={handleChurchFieldChange("church_name")}
             placeholder="Church Name"
             value={form.church_name}
           />
           <h5>Contact Information</h5>
           <Input
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            onChange={handleChurchFieldChange("phone")}
             placeholder="Phone"
             value={form.phone}
           />
           <h5>Email</h5>
           <Input
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            onChange={handleChurchFieldChange("email")}
             placeholder="Email"
             value={form.email}
           />
           <h5>Office Hours</h5>
           <Input
-            onChange={(e) => setForm({ ...form, office_hours: e.target.value })}
+            onChange={handleChurchFieldChange("office_hours")}
             placeholder="Office Hours"
             value={form.office_hours}
           />
@@ -408,9 +377,7 @@ export function AdminChurchInfo() {
           <div className="space-y-2">
             <h5>Fallback Stream URL</h5>
             <Input
-              onChange={(e) =>
-                setForm({ ...form, fallback_stream_url: e.target.value })
-              }
+              onChange={handleChurchFieldChange("fallback_stream_url")}
               placeholder="https://www.facebook.com/your-page/videos/..."
               value={form.fallback_stream_url}
             />
@@ -431,7 +398,7 @@ export function AdminChurchInfo() {
           <div className="space-y-2">
             <h5>Address</h5>
             <Input
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
+              onChange={handleChurchFieldChange("address")}
               placeholder="Address"
               value={form.address}
             />
@@ -440,7 +407,7 @@ export function AdminChurchInfo() {
             <div className="space-y-2">
               <h5>City</h5>
               <Input
-                onChange={(e) => setForm({ ...form, city: e.target.value })}
+                onChange={handleChurchFieldChange("city")}
                 placeholder="City"
                 value={form.city}
               />
@@ -448,7 +415,7 @@ export function AdminChurchInfo() {
             <div className="space-y-2">
               <h5>State</h5>
               <Input
-                onChange={(e) => setForm({ ...form, state: e.target.value })}
+                onChange={handleChurchFieldChange("state")}
                 placeholder="State"
                 value={form.state}
               />
@@ -456,7 +423,7 @@ export function AdminChurchInfo() {
             <div className="space-y-2">
               <h5>Zip</h5>
               <Input
-                onChange={(e) => setForm({ ...form, zip: e.target.value })}
+                onChange={handleChurchFieldChange("zip")}
                 placeholder="Zip"
                 value={form.zip}
               />

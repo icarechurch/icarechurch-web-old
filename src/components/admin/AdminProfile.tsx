@@ -12,12 +12,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { useProfileUpdater } from "@/hooks/useProfileUpdater";
+import { profileService } from "@/integrations/supabase/services";
 
 export function AdminProfile() {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
   const [fullName, setFullName] = useState("");
+  const { updateProfile, updatePassword, updatingProfile, updatingPassword } =
+    useProfileUpdater(user?.id);
 
   // Password state
   const [newPassword, setNewPassword] = useState("");
@@ -32,71 +34,31 @@ export function AdminProfile() {
   }, [user]);
 
   const fetchProfile = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", user!.id)
-        .single();
+    if (!user?.id) {
+      return;
+    }
 
-      if (error) throw error;
-      if (data) {
-        setFullName(data.full_name || "");
+    try {
+      const data = await profileService.getProfile(user.id);
+      if (data.full_name) {
+        setFullName(data.full_name);
       }
-    } catch (_error) {
+    } catch {
       // Profile fetch failed silently
     }
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ full_name: fullName })
-        .eq("id", user!.id);
-
-      if (error) throw error;
-      toast.success("Profile updated successfully");
-    } catch (error: any) {
-      toast.error("Failed to update profile. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    await updateProfile(fullName);
   };
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (newPassword !== confirmPassword) {
-      toast.error("Passwords don't match");
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword,
-      });
-
-      if (error) throw error;
-
-      toast.success("Password updated successfully");
+    await updatePassword(newPassword, confirmPassword, () => {
       setNewPassword("");
       setConfirmPassword("");
-    } catch (error: any) {
-      toast.error("Failed to update password. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   return (
@@ -140,8 +102,8 @@ export function AdminProfile() {
                   value={fullName}
                 />
               </div>
-              <Button disabled={loading} type="submit">
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button disabled={updatingProfile} type="submit">
+                {updatingProfile && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save Changes
               </Button>
             </form>
@@ -208,8 +170,8 @@ export function AdminProfile() {
                   </button>
                 </div>
               </div>
-              <Button disabled={loading} type="submit">
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button disabled={updatingPassword} type="submit">
+                {updatingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Update Password
               </Button>
             </form>

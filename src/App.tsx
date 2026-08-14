@@ -1,18 +1,20 @@
-import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Route, Routes } from "react-router-dom";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PageTracker } from "@/components/PageTracker";
 import ScrollToTop from "@/components/ScrollToTop";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BIBLE_VERSES } from "@/constant/bible-verses";
 import { AuthProvider } from "@/hooks/useAuth";
+import { useBibleVerseRotator } from "@/hooks/useBibleVerseRotator";
 import {
   useEvents,
   useMinistries,
   useServiceTimes,
 } from "@/hooks/useChurchData";
+import { useInternetStatus } from "@/hooks/useInternetStatus";
+import { useLoadingProgress } from "@/hooks/useLoadingProgress";
 import About from "./pages/About";
 import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
@@ -31,34 +33,8 @@ import UpdatePassword from "./pages/UpdatePassword";
 
 // Component to check internet connectivity and initial data loading
 function AppInitializer({ children }: { children: React.ReactNode }) {
-  // Use deterministic initial values to avoid hydration mismatches
-  const [isOnline, setIsOnline] = useState(true);
-  const [hasInitialData, setHasInitialData] = useState(false);
-  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
-  // Use first verse as deterministic initial value for SSR
-  const [currentVerse, setCurrentVerse] = useState(BIBLE_VERSES[0]);
-  const [progress, setProgress] = useState(0);
-  const [hasMounted, setHasMounted] = useState(false);
-
-  // Check internet connectivity - only on client after mount
-  useEffect(() => {
-    setHasMounted(true);
-    // Update status on mount - only access navigator after hydration
-    if (typeof navigator !== "undefined") {
-      setIsOnline(navigator.onLine);
-    }
-
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
-
-    return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
-    };
-  }, []);
+  const { isOnline } = useInternetStatus();
+  const currentVerse = useBibleVerseRotator();
 
   // Fetch critical data for initial load
   const ministriesQuery = useMinistries();
@@ -66,84 +42,20 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
   const serviceTimesQuery = useServiceTimes();
 
   const criticalQueries = [ministriesQuery, eventsQuery, serviceTimesQuery];
-  const allQueriesLoaded = criticalQueries.every(
-    (query) => query.isSuccess || query.isError
-  );
   const anyQueryLoading = criticalQueries.some((query) => query.isLoading);
 
-  // Update progress based on query states
-  useEffect(() => {
-    if (!isOnline) {
-      setProgress(0);
-      return;
-    }
-
-    const successfulQueries = criticalQueries.filter(
-      (query) => query.isSuccess
-    ).length;
-    const errorQueries = criticalQueries.filter(
-      (query) => query.isError
-    ).length;
-    const completedQueries = successfulQueries + errorQueries;
-    const totalQueries = criticalQueries.length;
-
-    const calculatedProgress = (completedQueries / totalQueries) * 100;
-
-    // Smooth progress transition
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        const target = calculatedProgress;
-        if (Math.abs(prev - target) < 1) {
-          clearInterval(progressInterval);
-          return target;
-        }
-        return prev + (target - prev) * 0.1;
-      });
-    }, 50);
-
-    return () => clearInterval(progressInterval);
-  }, [criticalQueries.map((q) => q.status).join(","), isOnline]);
-
-  // Check if initial data loading is complete
-  useEffect(() => {
-    if (isOnline && allQueriesLoaded && !anyQueryLoading) {
-      // Add a small delay to ensure smooth UX
-      const timer = setTimeout(() => {
-        setHasInitialData(true);
-        setHasLoadedOnce(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isOnline, allQueriesLoaded, anyQueryLoading]);
-
-  // Bible verse rotation
-  useEffect(() => {
-    // Set initial random verse
-    const randomIndex = Math.floor(Math.random() * BIBLE_VERSES.length);
-    setCurrentVerse(BIBLE_VERSES[randomIndex]);
-
-    // Change verse every 3 seconds
-    const verseInterval = setInterval(() => {
-      const randomIndex = Math.floor(Math.random() * BIBLE_VERSES.length);
-      setCurrentVerse(BIBLE_VERSES[randomIndex]);
-    }, 3000);
-
-    return () => clearInterval(verseInterval);
-  }, []);
+  const { progress, hasInitialData, hasLoadedOnce } = useLoadingProgress(
+    criticalQueries,
+    isOnline,
+  );
 
   const showLoading = !((isOnline && hasInitialData) || hasLoadedOnce);
 
-  const getLoadingText = () => {
-    if (!isOnline) {
-      return "Connecting...";
-    }
-    if (anyQueryLoading) {
-      return "Loading church data...";
-    }
-    return "Loading.";
-  };
-
-  const loadingText = getLoadingText();
+  const loadingText = !isOnline
+    ? "Connecting..."
+    : anyQueryLoading
+      ? "Loading church data..."
+      : "Loading.";
 
   return (
     <>
@@ -202,7 +114,8 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
 }
 
 const App = () => (
-  <TooltipProvider>
+  <ErrorBoundary>
+    <TooltipProvider>
     <AuthProvider>
       <AppInitializer>
         <Toaster />
@@ -232,6 +145,7 @@ const App = () => (
       </AppInitializer>
     </AuthProvider>
   </TooltipProvider>
+</ErrorBoundary>
 );
 
 export default App;

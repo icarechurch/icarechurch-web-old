@@ -1,43 +1,18 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { TabGuard } from "@/pages/auth/TabGuard";
+import { TAB_COMPONENTS, type TabKey } from "@/pages/pageconstants/admin-tabs";
 import { Navigate } from "react-router-dom";
-import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
-import { AdminChurchInfo } from "@/components/admin/AdminChurchInfo";
-import { AdminEvents } from "@/components/admin/AdminEvents";
-import { AdminGallery } from "@/components/admin/AdminGallery";
-import AdminGiving from "@/components/admin/AdminGiving";
-import { AdminLogs } from "@/components/admin/AdminLogs";
-import { AdminMinistries } from "@/components/admin/AdminMinistries";
-import { AdminProfile } from "@/components/admin/AdminProfile";
-import { AdminSermons } from "@/components/admin/AdminSermons";
-import { AdminServiceTimes } from "@/components/admin/AdminServiceTimes";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
-import { AdminUsers } from "@/components/admin/AdminUsers";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 export default function Admin() {
-  const { isAdmin, isModerator, loading, role } = useAuth();
-  const [activeTab, setActiveTab] = useState("analytics");
+  const { isAdmin, loading, role } = useAuth();
+  const [activeTab, setActiveTab] = useState<TabKey>("analytics");
 
   // Enable real-time updates for all admin data
   useRealtimeSubscription();
-
-  useEffect(() => {
-    // Redirect moderators to a safe tab if they land on 'analytics' (default) or restricted tabs
-    if (role === "moderator" && activeTab !== "profile") {
-      const allowedTabs = [
-        "events",
-        "sermons",
-        "ministries",
-        "gallery",
-        "profile",
-      ];
-      if (!allowedTabs.includes(activeTab)) {
-        setActiveTab("events");
-      }
-    }
-  }, [role, activeTab]);
 
   if (loading)
     return (
@@ -51,11 +26,7 @@ export default function Admin() {
 
   if (!isAdmin) return <Navigate replace to="/auth" />;
 
-  const isTabAllowed = (tab: string) => {
-    if (tab === "profile") return true;
-    if (isAdmin) return true;
-    return false;
-  };
+  const ActiveComponent = TAB_COMPONENTS[activeTab];
 
   return (
     <SidebarProvider
@@ -73,39 +44,9 @@ export default function Admin() {
               Admin Dashboard
             </h1>
 
-            {activeTab === "analytics" && isTabAllowed("analytics") && (
-              <AdminAnalytics />
-            )}
-            {activeTab === "ministries" && isTabAllowed("ministries") && (
-              <AdminMinistries />
-            )}
-            {activeTab === "events" && isTabAllowed("events") && (
-              <AdminEvents />
-            )}
-            {activeTab === "sermons" && isTabAllowed("sermons") && (
-              <AdminSermons />
-            )}
-            {activeTab === "services" && isTabAllowed("services") && (
-              <AdminServiceTimes />
-            )}
-            {activeTab === "church-info" && isTabAllowed("church-info") && (
-              <AdminChurchInfo />
-            )}
-            {activeTab === "gallery" && isTabAllowed("gallery") && (
-              <AdminGallery />
-            )}
-            {activeTab === "giving" && isTabAllowed("giving") && (
-              <AdminGiving />
-            )}
-            {activeTab === "users" && isTabAllowed("users") && <AdminUsers />}
-            {activeTab === "logs" && isTabAllowed("logs") && <AdminLogs />}
-            {activeTab === "profile" && <AdminProfile />}
-
-            {!isTabAllowed(activeTab) && (
-              <div className="flex h-full items-center justify-center text-muted-foreground">
-                Access Denied or Invalid Tab
-              </div>
-            )}
+            <TabGuard tab={activeTab}>
+              <ActiveComponent />
+            </TabGuard>
           </div>
         </main>
       </div>
