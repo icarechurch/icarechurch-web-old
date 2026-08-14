@@ -3,7 +3,7 @@ import About from "@/pages/About";
 import Admin from "@/pages/Admin";
 import Auth from "@/user/auth/pages/AuthPage";
 import Contact from "@/pages/Contact";
-import Events from "@/pages/Events";
+import Events from "@/user/events/pages/EventsPage";
 import Gallery from "@/pages/Gallery";
 import Giving from "@/pages/Giving";
 import Index from "@/pages/Index";
@@ -22,7 +22,7 @@ export function AppRoutes() {
       <Route element={<About />} path="/about" />
       <Route element={<Services />} path="/services" />
       <Route element={<Ministries />} path="/ministries" />
-      <Route element={<Events />} path="/events" />
+      <Route element={<EventsPage />} path="/events" />
       <Route element={<Sermons />} path="/sermons" />
       <Route element={<Contact />} path="/contact" />
       <Route element={<Giving />} path="/giving" />

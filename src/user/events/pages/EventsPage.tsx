@@ -4,7 +4,7 @@ import { Layout } from "@/shared/components/layout/Layout";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { useEvents } from "@/domains/events/hooks/useEvents";
 
-export default function Events() {
+export default function EventsPage() {
   const { data: events, isLoading } = useEvents();
 
   return (
