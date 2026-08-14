@@ -54,11 +54,11 @@ import {
   MINISTRY_CATEGORIES,
   SECTION_TITLES,
   TOAST_MESSAGES,
-} from "./adminconstants/ministries/adminministries";
-import { ImageUpload } from "./ImageUpload";
-import { SortableMinistryCard } from "./SortableMinistryCard";
+} from "@/admin/ministries/ministries.constants";
+import { ImageUpload } from "@/shared/components/media/ImageUpload";
+import { SortableMinistryCard } from "@/admin/ministries/components/SortableMinistryCard";
 
-export function AdminMinistries() {
+export function AdminMinistriesPage() {
   const { data: ministries, isLoading } = useMinistries();
   const { createMinistry, updateMinistry, deleteMinistry, updateSortOrder } =
     useMinistryMutations();

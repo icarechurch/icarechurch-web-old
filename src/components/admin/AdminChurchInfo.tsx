@@ -32,7 +32,7 @@ import {
   usePastorMutations,
   usePastors,
 } from "@/hooks/useChurchData";
-import { ImageUpload } from "./ImageUpload";
+import { ImageUpload } from "@/shared/components/media/ImageUpload";
 import {
   createDefaultPastorForm,
   DEFAULT_CHURCH_INFO_FORM,

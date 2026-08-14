@@ -5,7 +5,7 @@ import { AdminEventsPage } from "@/admin/events/pages/AdminEventsPage";
 import { AdminGallery } from "@/components/admin/AdminGallery";
 import { AdminGiving } from "@/components/admin/AdminGiving";
 import { AdminLogs } from "@/components/admin/AdminLogs";
-import { AdminMinistries } from "@/components/admin/AdminMinistries";
+import { AdminMinistriesPage } from "@/admin/ministries/pages/AdminMinistriesPagePage";
 import { AdminProfile } from "@/components/admin/AdminProfile";
 import { AdminSermons } from "@/components/admin/AdminSermons";
 import { AdminServiceTimes } from "@/components/admin/AdminServiceTimes";
@@ -13,7 +13,7 @@ import { AdminUsers } from "@/components/admin/AdminUsers";
 
 export const TAB_COMPONENTS = {
   analytics: AdminAnalytics,
-  ministries: AdminMinistries,
+  ministries: AdminMinistriesPage,
   events: AdminEventsPage,
   sermons: AdminSermons,
   services: AdminServiceTimes,

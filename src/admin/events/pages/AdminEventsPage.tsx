@@ -47,7 +47,7 @@ import {
   useEventPopupSettings,
   useUpdateEventPopupSettings,
 } from "@/hooks/useEventPopup";
-import { ImageUpload } from "@/components/admin/ImageUpload";
+import { ImageUpload } from "@/shared/components/media/ImageUpload";
 import {
   type EventFormState,
   createDefaultEventForm,
