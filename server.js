@@ -76,6 +76,14 @@ export async function createServer({
     app.use(vite.middlewares);
   }
 
+  app.use((req, res, next) => {
+    if (req.path.startsWith("/assets/")) {
+      return res.status(404).type("text/plain").send("Asset not found");
+    }
+
+    return next();
+  });
+
   app.use(async (req, res, _next) => {
     try {
       const url = req.originalUrl;
@@ -119,7 +127,13 @@ export async function createServer({
       let finalHtml = template.replace("<!--app-head-->", htmlParts);
       finalHtml = finalHtml.replace("<!--app-html-->", html);
 
-      res.status(200).set({ "Content-Type": "text/html" }).end(finalHtml);
+      res
+        .status(200)
+        .set({
+          "Cache-Control": "public, max-age=0, must-revalidate",
+          "Content-Type": "text/html",
+        })
+        .end(finalHtml);
     } catch (e) {
       if (!isProd) {
         vite.ssrFixStacktrace(e);
