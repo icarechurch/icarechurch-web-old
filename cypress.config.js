@@ -2,10 +2,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { defineConfig } from "cypress";
 
-const frontendDataDirectories = [
-  join(process.cwd(), "src", "hooks"),
-  join(process.cwd(), "src", "integrations", "supabase", "services"),
-];
+const frontendDataDirectories = [join(process.cwd(), "src")];
 
 const getFrontendDataSources = () =>
   frontendDataDirectories.flatMap((directory) =>
