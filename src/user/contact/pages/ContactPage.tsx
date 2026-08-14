@@ -2,7 +2,7 @@ import { Car, Clock, Mail, MapPin, Phone } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Layout } from "@/shared/components/layout/Layout";
-import { Map } from "@/components/Map";
+import { Map } from "@/user/contact/components/Map";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";

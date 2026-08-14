@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { BookOpen, Calendar, Clock, Music, Play, Video } from "lucide-react";
-import { FacebookLiveEmbed } from "@/components/FacebookLiveEmbed";
+import { FacebookLiveEmbed } from "@/user/sermons/components/FacebookLiveEmbed";
 import { Layout } from "@/shared/components/layout/Layout";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";

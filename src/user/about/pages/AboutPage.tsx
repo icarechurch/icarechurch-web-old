@@ -13,7 +13,7 @@ import {
 import { CORE_VALUES } from "@/shared/constants/core-values";
 import { usePastors } from "@/domains/pastors/hooks/usePastors";
 import type { Pastor } from "@/domains/pastors/model/pastors.types";
-import { MissionVision } from "./pageconstants/MissionVision";
+import { MissionVision } from "@/user/about/components/MissionVision";
 
 export default function About() {
   const { data: pastors } = usePastors();
