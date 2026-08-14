@@ -1,13 +1,7 @@
 import { invokeFunction } from "@/infrastructure/supabase/functions";
+import type { GivingSettings } from "@/domains/giving/model/giving.types";
 
-export type GivingSettings = {
-  id: string;
-  gcash_qr_url: string | null;
-  donation_platform_name: string;
-  donation_platform_url: string | null;
-  created_at: string;
-  updated_at: string;
-};
+export type { GivingSettings } from "@/domains/giving/model/giving.types";
 
 export const givingService = {
   async getGivingSettings(): Promise<GivingSettings> {

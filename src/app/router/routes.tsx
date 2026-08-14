@@ -5,7 +5,7 @@ import Auth from "@/user/auth/pages/AuthPage";
 import Contact from "@/pages/Contact";
 import Events from "@/user/events/pages/EventsPage";
 import Gallery from "@/user/gallery/pages/GalleryPage";
-import Giving from "@/pages/Giving";
+import Giving from "@/user/giving/pages/GivingPage";
 import Index from "@/pages/Index";
 import Ministries from "@/user/ministries/pages/MinistriesPage";
 import Moderator from "@/pages/Moderator";
@@ -25,7 +25,7 @@ export function AppRoutes() {
       <Route element={<Events />} path="/events" />
       <Route element={<Sermons />} path="/sermons" />
       <Route element={<Contact />} path="/contact" />
-      <Route element={<Giving />} path="/giving" />
+      <Route element={<GivingPage />} path="/giving" />
       <Route element={<GalleryPage />} path="/gallery" />
       <Route element={<Auth />} path="/auth" />
       <Route element={<UpdatePassword />} path="/update-password" />

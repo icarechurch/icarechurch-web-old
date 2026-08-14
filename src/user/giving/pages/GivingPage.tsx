@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { Layout } from "@/shared/components/layout/Layout";
 import { Button } from "@/shared/components/ui/button";
 import { useToast } from "@/shared/hooks/use-toast";
-import { GivingHeader } from "@/components/giving/GivingHeader";
-import { GivingOptionCard } from "@/components/giving/GivingOptionCard";
-import { GivingQuote } from "@/components/giving/GivingQuote";
-import { useGivingSettings } from "@/hooks/useGiving";
+import { GivingHeader } from "@/user/giving/components/GivingHeader";
+import { GivingOptionCard } from "@/user/giving/components/GivingOptionCard";
+import { GivingQuote } from "@/user/giving/components/GivingQuote";
+import { useGivingSettings } from "@/domains/giving/hooks/useGiving";
 
 const Giving = () => {
   const { data: givingSettings, isLoading, error } = useGivingSettings();
