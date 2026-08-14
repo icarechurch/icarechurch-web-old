@@ -47,13 +47,19 @@
 
 ### Activity logs and content reads
 
-- Create: `supabase/migrations/mainstream/20260814000001_add_query_performance_indexes.sql` — composite indexes matching existing filters/order clauses.
+- Create: `supabase/migrations/mainstream/20260814000002_add_query_performance_indexes.sql` — activity-log indexes and database-side reductions.
+- Create: `supabase/migrations/mainstream/20260814000003_add_content_query_indexes.sql` — indexes matching public content ordering.
+- Create: `supabase/migrations/mainstream/20260814000004_add_admin_users_query.sql` — indexed admin profile/role join.
+- Create: `supabase/migrations/mainstream/20260814000005_add_exact_activity_log_rollups.sql` — exact activity-log counters and type keys.
 - Modify: `supabase/functions/activity-logs/queries.ts` — explicit list projection, bounded input, and database-side distinct/summary queries.
 - Modify: `supabase/functions/activity-logs/activity-log-queries.test.ts` — query shape and bounds tests.
 - Modify: `src/domains/activity-logs/api/activity-logs.api.ts` — adapt summary/filter response types if needed.
 - Modify: `src/domains/activity-logs/hooks/useActivityLogs.ts` — remove client-side full-table reduction for summaries and enforce safe page sizes.
 - Modify: `supabase/functions/content-data/*.ts` — explicit list projections, limits/cursors where response contracts permit, and no `select("*")` on read paths.
 - Modify: `supabase/functions/content-data/resource-queries.test.ts` — update assertions from wildcard reads to explicit projections and bounds.
+- Create: `supabase/functions/content-data/resource-columns.ts` — shared content read projections and list bounds.
+- Create: `supabase/functions/content-data/content-index-migration.test.ts` — ordering index contract.
+- Create: `supabase/functions/user-data/admin-query-migration.test.ts` — admin join/index contract.
 - Modify: affected `src/domains/*/api/*.api.ts` and hooks — preserve response contracts while passing pagination parameters where introduced.
 - Create/modify: `cypress/e2e/performance/bounded-data-requests.cy.js` — verify public/admin lists remain usable and request parameters stay bounded.
 
@@ -345,7 +351,7 @@
 ## Task 6: Optimize Activity Log Queries
 
 **Files:**
-- Create: `supabase/migrations/mainstream/20260814000001_add_query_performance_indexes.sql`
+- Create: `supabase/migrations/mainstream/20260814000002_add_query_performance_indexes.sql`
 - Modify: `supabase/functions/activity-logs/queries.ts`
 - Modify: `supabase/functions/activity-logs/activity-log-queries.test.ts`
 - Modify: `src/domains/activity-logs/api/activity-logs.api.ts`
@@ -379,7 +385,7 @@
 
   ```powershell
   npm run test:edge
-  git add supabase/migrations/mainstream/20260814000001_add_query_performance_indexes.sql supabase/functions/activity-logs src/domains/activity-logs
+  git add supabase/migrations/mainstream/20260814000002_add_query_performance_indexes.sql supabase/functions/activity-logs src/domains/activity-logs
   git commit -m "perf: optimize activity log reads"
   ```
 
