@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { AdminEvents } from "@/admin/events/pages/AdminEventsPage";
-import { AdminGallery } from "@/components/admin/AdminGallery";
+import { AdminGallery } from "@/admin/gallery/pages/AdminGalleryPage";
 import { AdminMinistries } from "@/admin/ministries/pages/AdminMinistriesPage";
 import { AdminProfile } from "@/components/admin/AdminProfile";
 import { AdminSermons } from "@/admin/sermons/pages/AdminSermonsPage";

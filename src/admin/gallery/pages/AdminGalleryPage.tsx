@@ -24,9 +24,9 @@ import {
   getSubtitle,
   isGalleryFull,
   UI_TEXT,
-} from "./adminconstants/gallery/admingallery";
+} from "@/admin/gallery/gallery.constants";
 
-export function AdminGallery() {
+export function AdminGalleryPage() {
   const { data: images, isLoading } = useGallery();
   const { uploadImage, deleteImage } = useGalleryMutations();
   const { toast } = useToast();

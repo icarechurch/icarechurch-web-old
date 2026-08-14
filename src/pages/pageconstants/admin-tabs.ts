@@ -2,7 +2,7 @@ import type { ComponentType } from "react";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
 import { AdminChurchInfo } from "@/components/admin/AdminChurchInfo";
 import { AdminEventsPage } from "@/admin/events/pages/AdminEventsPage";
-import { AdminGallery } from "@/components/admin/AdminGallery";
+import { AdminGalleryPage } from "@/admin/gallery/pages/AdminGalleryPage";
 import { AdminGiving } from "@/components/admin/AdminGiving";
 import { AdminLogs } from "@/components/admin/AdminLogs";
 import { AdminMinistriesPage } from "@/admin/ministries/pages/AdminMinistriesPage";
@@ -18,7 +18,7 @@ export const TAB_COMPONENTS = {
   sermons: AdminSermonsPage,
   services: AdminServiceTimesPage,
   "church-info": AdminChurchInfo,
-  gallery: AdminGallery,
+  gallery: AdminGalleryPage,
   giving: AdminGiving,
   users: AdminUsers,
   logs: AdminLogs,
