@@ -44,11 +44,7 @@ const getSessionId = (): string => {
   return sessionId;
 };
 
-export const ANALYTICS_CONSENT_KEY = "analytics_consent";
-
 export const trackPageVisit = async (pagePath: string): Promise<void> => {
-  if (localStorage.getItem(ANALYTICS_CONSENT_KEY) !== "true") return;
-
   try {
     const payload: AnalyticsVisitPayload = {
       page_path: pagePath,
