@@ -25,11 +25,11 @@ export function AppRoutes() {
       <Route element={<Events />} path="/events" />
       <Route element={<Sermons />} path="/sermons" />
       <Route element={<ContactPage />} path="/contact" />
-      <Route element={<GivingPage />} path="/giving" />
-      <Route element={<GalleryPage />} path="/gallery" />
+      <Route element={<Giving />} path="/giving" />
+      <Route element={<Gallery />} path="/gallery" />
       <Route element={<Auth />} path="/auth" />
       <Route element={<UpdatePassword />} path="/update-password" />
-      <Route element={<ProfilePage />} path="/profile" />
+      <Route element={<Profile />} path="/profile" />
       <Route element={<AdminDashboardPage />} path="/admin" />
       <Route element={<ModeratorPage />} path="/moderator" />
       <Route element={<NotFoundPage />} path="*" />
