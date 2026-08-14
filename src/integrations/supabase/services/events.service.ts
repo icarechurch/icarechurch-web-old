@@ -24,36 +24,26 @@ export const eventsService = {
   },
 
   async create(event: EventInsert): Promise<Event> {
-    const { data, error } = await supabase
-      .from("events")
-      .insert([event])
-      .select()
-      .single();
-    if (error) {
-      throw error;
-    }
-    return data as Event;
+    return invokeFunction<Event>("content-data", {
+      resource: "events",
+      operation: "create",
+      input: event,
+    });
   },
 
   async update(params: Partial<Event> & { id: string }): Promise<Event> {
-    const { id, ...updates } = params;
-    const { data, error } = await supabase
-      .from("events")
-      .update(updates)
-      .eq("id", id)
-      .select()
-      .single();
-    if (error) {
-      throw error;
-    }
-    return data as Event;
+    return invokeFunction<Event>("content-data", {
+      resource: "events",
+      operation: "update",
+      input: params,
+    });
   },
 
   async deleteEvent(id: string): Promise<string> {
-    const { error } = await supabase.from("events").delete().eq("id", id);
-    if (error) {
-      throw error;
-    }
-    return id;
+    return invokeFunction<string>("content-data", {
+      resource: "events",
+      operation: "delete",
+      input: { id },
+    });
   },
 };

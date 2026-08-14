@@ -23,27 +23,18 @@ export const galleryService = {
   },
 
   async create(image: GalleryImageInsert): Promise<GalleryImage> {
-    const { data, error } = await supabase
-      .from("gallery_images")
-      .insert([image])
-      .select()
-      .single();
-
-    if (error) {
-      throw error;
-    }
-    return data as GalleryImage;
+    return invokeFunction<GalleryImage>("content-data", {
+      resource: "gallery",
+      operation: "create",
+      input: image,
+    });
   },
 
   async deleteGalleryImage(id: string): Promise<string> {
-    const { error } = await supabase
-      .from("gallery_images")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      throw error;
-    }
-    return id;
+    return invokeFunction<string>("content-data", {
+      resource: "gallery",
+      operation: "delete",
+      input: { id },
+    });
   },
 };

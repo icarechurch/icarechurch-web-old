@@ -23,5 +23,36 @@ export function createSermonHandlers(client: SupabaseClient) {
       if (error) throw error;
       return data;
     },
+
+    async create(sermon: unknown) {
+      const { data, error } = await client
+        .from("sermons")
+        .insert([sermon])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+
+    async update(input: { id: string } & Record<string, unknown>) {
+      const { id, ...updates } = input;
+      const { data, error } = await client
+        .from("sermons")
+        .update(updates)
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+
+    async delete(input: { id: string }) {
+      const { error } = await client.from("sermons").delete().eq("id", input.id);
+
+      if (error) throw error;
+      return input.id;
+    },
   };
 }

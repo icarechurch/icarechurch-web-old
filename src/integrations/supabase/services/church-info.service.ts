@@ -29,17 +29,10 @@ export const churchInfoService = {
   async update(
     params: Partial<ChurchInfo> & { id: string }
   ): Promise<ChurchInfo> {
-    const { id, ...updates } = params;
-    const { data, error } = await supabase
-      .from("church_info")
-      .update(updates)
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) {
-      throw error;
-    }
-    return data as ChurchInfo;
+    return invokeFunction<ChurchInfo>("content-data", {
+      resource: "church-info",
+      operation: "update",
+      input: params,
+    });
   },
 };

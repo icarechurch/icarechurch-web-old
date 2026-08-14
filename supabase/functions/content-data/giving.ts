@@ -11,5 +11,17 @@ export function createGivingHandlers(client: SupabaseClient) {
       if (error) throw error;
       return data;
     },
+
+    async update(input: {
+      id: string;
+      updates: Record<string, unknown>;
+    }) {
+      const { error } = await client
+        .from("giving_settings")
+        .update(input.updates)
+        .eq("id", input.id);
+
+      if (error) throw error;
+    },
   };
 }

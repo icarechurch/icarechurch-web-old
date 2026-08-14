@@ -13,7 +13,7 @@ import { createPastorHandlers } from "./pastors.ts";
 import { createSermonHandlers } from "./sermons.ts";
 import { createServiceTimeHandlers } from "./service-times.ts";
 
-export type ContentHandler = (input?: unknown) => Promise<unknown>;
+export type ContentHandler = (...args: never[]) => Promise<unknown>;
 export type ContentHandlers = Record<
   string,
   Record<string, ContentHandler>
@@ -33,7 +33,7 @@ export async function dispatchContentRequest(
     );
   }
 
-  return handler(request.input);
+  return handler(request.input as never);
 }
 
 export function createContentHandlers(client: SupabaseClient): ContentHandlers {

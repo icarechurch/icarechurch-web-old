@@ -22,22 +22,10 @@ export const eventPopupService = {
   async upsertSettings(
     params: UpdateEventPopupSettingsParams
   ): Promise<EventPopupSettings> {
-    const payload: EventPopupSettingsInsert = {
-      singleton_key: true,
-      event_id: params.event_id,
-      is_enabled: params.is_enabled,
-    };
-
-    const { data, error } = await supabase
-      .from("event_popup_settings")
-      .upsert(payload, { onConflict: "singleton_key" })
-      .select("*")
-      .single();
-
-    if (error) {
-      throw error;
-    }
-
-    return data;
+    return invokeFunction<EventPopupSettings>("content-data", {
+      resource: "event-popup",
+      operation: "upsert",
+      input: params,
+    });
   },
 };

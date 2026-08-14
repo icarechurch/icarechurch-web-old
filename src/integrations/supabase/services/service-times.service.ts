@@ -14,61 +14,37 @@ export const serviceTimesService = {
   },
 
   async create(serviceTime: ServiceTimeInsert): Promise<ServiceTime> {
-    const { data, error } = await supabase
-      .from("service_times")
-      .insert([serviceTime])
-      .select()
-      .single();
-
-    if (error) {
-      throw error;
-    }
-    return data;
+    return invokeFunction<ServiceTime>("content-data", {
+      resource: "service-times",
+      operation: "create",
+      input: serviceTime,
+    });
   },
 
   async update(
     params: Partial<ServiceTimeUpdate> & { id: string }
   ): Promise<ServiceTime> {
-    const { id, ...updates } = params;
-    const { data, error } = await supabase
-      .from("service_times")
-      .update(updates)
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) {
-      throw error;
-    }
-    return data;
+    return invokeFunction<ServiceTime>("content-data", {
+      resource: "service-times",
+      operation: "update",
+      input: params,
+    });
   },
 
   async deleteServiceTime(id: string): Promise<string> {
-    const { error } = await supabase
-      .from("service_times")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      throw error;
-    }
-    return id;
+    return invokeFunction<string>("content-data", {
+      resource: "service-times",
+      operation: "delete",
+      input: { id },
+    });
   },
 
   async updateSortOrder(
     items: Array<{ id: string; sort_order: number }>
   ): Promise<Array<{ id: string; sort_order: number }>> {
-    const updates = items.map((item) =>
-      supabase
-        .from("service_times")
-        .update({ sort_order: item.sort_order })
-        .eq("id", item.id)
+    return invokeFunction<Array<{ id: string; sort_order: number }>>(
+      "content-data",
+      { resource: "service-times", operation: "sort", input: items },
     );
-    const results = await Promise.all(updates.map((u) => u));
-    const errors = results.filter((r) => r.error);
-    if (errors.length > 0) {
-      throw errors[0].error;
-    }
-    return items;
   },
 };

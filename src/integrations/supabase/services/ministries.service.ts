@@ -23,53 +23,35 @@ export const ministriesService = {
   },
 
   async create(ministry: MinistryInsert): Promise<Ministry> {
-    const { data, error } = await supabase
-      .from("ministries")
-      .insert([ministry])
-      .select()
-      .single();
-    if (error) {
-      throw error;
-    }
-    return data as Ministry;
+    return invokeFunction<Ministry>("content-data", {
+      resource: "ministries",
+      operation: "create",
+      input: ministry,
+    });
   },
 
   async update(params: Partial<Ministry> & { id: string }): Promise<Ministry> {
-    const { id, ...updates } = params;
-    const { data, error } = await supabase
-      .from("ministries")
-      .update(updates)
-      .eq("id", id)
-      .select()
-      .single();
-    if (error) {
-      throw error;
-    }
-    return data as Ministry;
+    return invokeFunction<Ministry>("content-data", {
+      resource: "ministries",
+      operation: "update",
+      input: params,
+    });
   },
 
   async deleteMinistry(id: string): Promise<string> {
-    const { error } = await supabase.from("ministries").delete().eq("id", id);
-    if (error) {
-      throw error;
-    }
-    return id;
+    return invokeFunction<string>("content-data", {
+      resource: "ministries",
+      operation: "delete",
+      input: { id },
+    });
   },
 
   async updateSortOrder(
     items: Array<{ id: string; sort_order: number }>
   ): Promise<Array<{ id: string; sort_order: number }>> {
-    const updates = items.map((item) =>
-      supabase
-        .from("ministries")
-        .update({ sort_order: item.sort_order })
-        .eq("id", item.id)
+    return invokeFunction<Array<{ id: string; sort_order: number }>>(
+      "content-data",
+      { resource: "ministries", operation: "sort", input: items },
     );
-    const results = await Promise.all(updates.map((u) => u));
-    const errors = results.filter((r) => r.error);
-    if (errors.length > 0) {
-      throw errors[0].error;
-    }
-    return items;
   },
 };

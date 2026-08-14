@@ -19,16 +19,7 @@ export const useUpdateGivingSettings = () => {
     }: {
       id: string;
       updates: Partial<GivingSettings>;
-    }) => {
-      const { error } = await supabase
-        .from("giving_settings")
-        .update(updates)
-        .eq("id", id);
-
-      if (error) {
-        throw error;
-      }
-    },
+    }) => givingService.updateGivingSettings(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["giving-settings"] });
     },

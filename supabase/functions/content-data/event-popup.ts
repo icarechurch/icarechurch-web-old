@@ -23,5 +23,21 @@ export function createEventPopupHandlers(client: SupabaseClient) {
       if (error) throw error;
       return data;
     },
+
+    async upsert(params: { event_id: string | null; is_enabled: boolean }) {
+      const payload = {
+        singleton_key: true,
+        event_id: params.event_id,
+        is_enabled: params.is_enabled,
+      };
+      const { data, error } = await client
+        .from("event_popup_settings")
+        .upsert(payload, { onConflict: "singleton_key" })
+        .select("*")
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
   };
 }

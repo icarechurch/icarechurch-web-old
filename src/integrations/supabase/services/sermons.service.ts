@@ -30,36 +30,26 @@ export const sermonsService = {
   },
 
   async create(sermon: SermonInsert): Promise<Sermon> {
-    const { data, error } = await supabase
-      .from("sermons")
-      .insert([sermon])
-      .select()
-      .single();
-    if (error) {
-      throw error;
-    }
-    return data as Sermon;
+    return invokeFunction<Sermon>("content-data", {
+      resource: "sermons",
+      operation: "create",
+      input: sermon,
+    });
   },
 
   async update(params: Partial<Sermon> & { id: string }): Promise<Sermon> {
-    const { id, ...updates } = params;
-    const { data, error } = await supabase
-      .from("sermons")
-      .update(updates)
-      .eq("id", id)
-      .select()
-      .single();
-    if (error) {
-      throw error;
-    }
-    return data as Sermon;
+    return invokeFunction<Sermon>("content-data", {
+      resource: "sermons",
+      operation: "update",
+      input: params,
+    });
   },
 
   async deleteSermon(id: string): Promise<string> {
-    const { error } = await supabase.from("sermons").delete().eq("id", id);
-    if (error) {
-      throw error;
-    }
-    return id;
+    return invokeFunction<string>("content-data", {
+      resource: "sermons",
+      operation: "delete",
+      input: { id },
+    });
   },
 };

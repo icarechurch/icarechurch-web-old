@@ -16,4 +16,15 @@ export const givingService = {
       operation: "get",
     });
   },
+
+  async updateGivingSettings(
+    id: string,
+    updates: Partial<GivingSettings>,
+  ): Promise<void> {
+    await invokeFunction<null>("content-data", {
+      resource: "giving",
+      operation: "update",
+      input: { id, updates },
+    });
+  },
 };

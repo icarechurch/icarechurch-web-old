@@ -1,4 +1,5 @@
 import { supabase } from "../client";
+import { invokeFunction } from "../functions";
 
 export type AdminUserProfile = {
   id: string;
@@ -59,13 +60,10 @@ export const adminService = {
       donation_platform_url?: string | null;
     }
   ): Promise<void> {
-    const { error } = await supabase
-      .from("giving_settings")
-      .update(updates)
-      .eq("id", id);
-
-    if (error) {
-      throw error;
-    }
+    await invokeFunction<null>("content-data", {
+      resource: "giving",
+      operation: "update",
+      input: { id, updates },
+    });
   },
 };
