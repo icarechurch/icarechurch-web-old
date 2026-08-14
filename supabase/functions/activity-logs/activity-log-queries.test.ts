@@ -1,4 +1,5 @@
 import { createActivityLogHandlers } from "./queries.ts";
+import { HttpError } from "../_shared/errors.ts";
 
 type Action = { method: string; args: unknown[] };
 
@@ -57,6 +58,10 @@ function createClient() {
     from() {
       return createQuery(actions, { data: [], error: null, count: 0 });
     },
+    rpc(name: string, args: unknown) {
+      actions.push({ method: "rpc", args: [name, args] });
+      return Promise.resolve({ data: [], error: null });
+    },
   };
 
   return { actions, client };
@@ -82,7 +87,13 @@ Deno.test("preserves filtered activity log query clauses", async () => {
   });
 
   if (JSON.stringify(actions) !== JSON.stringify([
-    { method: "select", args: ["*", { count: "exact" }] },
+    {
+      method: "select",
+      args: [
+        "id, action_type, action_description, entity_type, entity_id, user_id, user_email, metadata, ip_address, user_agent, page_path, created_at",
+        { count: "exact" },
+      ],
+    },
     { method: "order", args: ["created_at", { ascending: false }] },
     { method: "range", args: [50, 74] },
     { method: "gte", args: ["created_at", "2026-01-01T00:00:00.000Z"] },
@@ -102,7 +113,7 @@ Deno.test("preserves the activity log summary query", async () => {
   await operation(handlers, "summary")();
 
   if (JSON.stringify(actions) !== JSON.stringify([
-    { method: "select", args: ["action_type"] },
+    { method: "rpc", args: ["get_activity_log_summary", {}] },
   ])) {
     throw new Error("Activity log summary query changed");
   }
@@ -144,9 +155,23 @@ Deno.test("preserves action and entity type queries", async () => {
   await operation(handlers, "entity-types")();
 
   if (JSON.stringify(actions) !== JSON.stringify([
-    { method: "select", args: ["action_type"] },
-    { method: "select", args: ["entity_type"] },
+    { method: "rpc", args: ["get_activity_log_action_types", {}] },
+    { method: "rpc", args: ["get_activity_log_entity_types", {}] },
   ])) {
     throw new Error("Activity log type queries changed");
   }
+});
+
+Deno.test("rejects activity log pages outside the supported bounds", async () => {
+  const { client } = createClient();
+  const handler = createActivityLogHandlers(client as never).list;
+
+  try {
+    await handler({ limit: 101, offset: 0 });
+  } catch (error) {
+    if (error instanceof HttpError && error.status === 400) return;
+    throw error;
+  }
+
+  throw new Error("Expected oversized activity log page to be rejected");
 });

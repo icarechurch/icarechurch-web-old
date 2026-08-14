@@ -10,7 +10,6 @@ import {
 } from "@/domains/activity-logs/api/activity-logs.api";
 import { useQuery } from "@/shared/hooks/simple-query-hooks";
 
-
 export interface LogFilters {
   startDate?: Date;
   endDate?: Date;
@@ -25,10 +24,27 @@ export type LogsResult = ActivityLogsResult;
 
 // Hook to fetch logs with filtering
 export const useLogs = (filters: LogFilters = {}) => {
-  const { startDate, endDate, actionType, entityType, userId, limit = 50, offset = 0 } = filters;
+  const {
+    startDate,
+    endDate,
+    actionType,
+    entityType,
+    userId,
+    limit = 50,
+    offset = 0,
+  } = filters;
 
   return useQuery({
-    queryKey: ["activity-logs", startDate?.toISOString(), endDate?.toISOString(), actionType, entityType, userId, limit, offset],
+    queryKey: [
+      "activity-logs",
+      startDate?.toISOString(),
+      endDate?.toISOString(),
+      actionType,
+      entityType,
+      userId,
+      limit,
+      offset,
+    ],
     queryFn: async (): Promise<LogsResult> => {
       const input: ActivityLogQuery = { limit, offset };
 
@@ -65,17 +81,11 @@ export const useLogSummary = () => {
   return useQuery({
     queryKey: ["log-summary"],
     queryFn: async () => {
-      const data = await activityLogsService.getActionTypeRows();
-
-      // Count by action type
-      const counts: Record<string, number> = {};
-      for (const log of data || []) {
-        counts[log.action_type] = (counts[log.action_type] || 0) + 1;
-      }
+      const summary = await activityLogsService.getSummary();
 
       return {
-        total: data?.length || 0,
-        byActionType: counts,
+        total: summary.total,
+        byActionType: summary.by_action_type,
       };
     },
     refetchInterval: 60_000,
@@ -118,7 +128,7 @@ export const logActivity = async (
     userEmail?: string;
     metadata?: Record<string, unknown>;
     pagePath?: string;
-  } = {}
+  } = {},
 ) => {
   try {
     const payload: ActivityLogInsert = {
@@ -128,9 +138,11 @@ export const logActivity = async (
       entity_id: options.entityId,
       user_id: options.userId,
       user_email: options.userEmail,
-      metadata: options.metadata || {},
+      metadata: options.metadata ?? {},
       user_agent: typeof navigator !== "undefined" ? navigator.userAgent : null,
-      page_path: options.pagePath || (typeof window !== "undefined" ? window.location.pathname : null),
+      page_path:
+        options.pagePath ??
+        (typeof window !== "undefined" ? window.location.pathname : null),
     };
 
     await activityLogsService.logActivity(payload);
@@ -146,8 +158,9 @@ export const useLogActionTypes = () => {
     queryFn: async () => {
       const data = await activityLogsService.getActionTypeRows();
 
-      // Get unique action types
-      const uniqueTypes = [...new Set(data?.map((log) => log.action_type) || [])];
+      const uniqueTypes = [
+        ...new Set(data?.map((log) => log.action_type) ?? []),
+      ];
       return uniqueTypes.sort();
     },
     refetchInterval: 300_000, // Refetch every 5 minutes
@@ -161,9 +174,15 @@ export const useLogEntityTypes = () => {
     queryFn: async () => {
       const data = await activityLogsService.getEntityTypeRows();
 
-      // Get unique entity types, filtering out nulls
-      const uniqueTypes = [...new Set(data?.map((log) => log.entity_type).filter(Boolean) || [])];
-      return uniqueTypes.sort() as string[];
+      const uniqueTypes = [
+        ...new Set(
+          data
+            ?.map((log) => log.entity_type)
+            .filter((entityType): entityType is string => Boolean(entityType)) ??
+            [],
+        ),
+      ];
+      return uniqueTypes.sort();
     },
     refetchInterval: 300_000,
   });

@@ -19,12 +19,24 @@ export type ActivityLogsResult = {
   totalCount: number;
 };
 
+export type ActivityLogSummary = {
+  total: number;
+  by_action_type: Record<string, number>;
+};
+
 export const activityLogsService = {
   getLogs(input: ActivityLogQuery): Promise<ActivityLogsResult> {
     return invokeFunction<ActivityLogsResult>("activity-logs", {
       resource: "activity-logs",
       operation: "list",
       input,
+    });
+  },
+
+  getSummary(): Promise<ActivityLogSummary> {
+    return invokeFunction<ActivityLogSummary>("activity-logs", {
+      resource: "activity-logs",
+      operation: "summary",
     });
   },
 
