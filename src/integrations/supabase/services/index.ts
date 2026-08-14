@@ -4,8 +4,8 @@
 
 export type { AdminUserProfile } from "./admin.service";
 export { adminService } from "./admin.service";
-export type { UserRole, UserRoleData } from "./auth.service";
-export { authService } from "./auth.service";
+export type { UserRole, UserRoleData } from "@/domains/auth/api/auth.api";
+export { authService } from "@/domains/auth/api/auth.api";
 export type { ChurchInfo } from "./church-info.service";
 export { churchInfoService } from "./church-info.service";
 export type { EventPopupSettings } from "./event-popup.service";

@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useState } from "react";
-import { authService } from "@/integrations/supabase/services";
+import { authService } from "@/domains/auth/api/auth.api";
 
 interface TabGuardProps {
   tab: string;

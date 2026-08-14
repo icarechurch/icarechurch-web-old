@@ -1,10 +1,7 @@
 import { invokeFunction } from "@/infrastructure/supabase/functions";
+import type { UserRole } from "@/domains/auth/model/auth.types";
 
-export type UserRole = "admin" | "moderator" | "user" | null;
-
-export type UserRoleData = {
-  role: UserRole;
-};
+export type { UserRole, UserRoleData } from "@/domains/auth/model/auth.types";
 
 export const authService = {
   async getUserRole(userId: string): Promise<UserRole> {
