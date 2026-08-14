@@ -8,14 +8,14 @@ import { createUserHandlers } from "./users.ts";
 export function createUserDataHandlers(client: SupabaseClient) {
   return {
     "admin-list": createAdminHandlers(client).list,
-    "profile-get": createProfileHandlers(client).get,
-    "profile-upsert": createProfileHandlers(client).upsert,
-    "profile-update-name": createProfileHandlers(client)["update-name"],
-    "role-get": createRoleHandlers(client).get,
-    "role-create": createRoleHandlers(client).create,
-    "role-delete": createRoleHandlers(client).delete,
-    "role-replace": createRoleHandlers(client).replace,
-    "allowed-tabs": createPermissionHandlers(client)["allowed-tabs"],
-    "user-delete": createUserHandlers(client).delete,
+    "profiles-get": createProfileHandlers(client).get,
+    "profiles-upsert": createProfileHandlers(client).upsert,
+    "profiles-update-name": createProfileHandlers(client)["update-name"],
+    "roles-get": createRoleHandlers(client).get,
+    "roles-create": createRoleHandlers(client).create,
+    "roles-delete": createRoleHandlers(client).delete,
+    "roles-replace": createRoleHandlers(client).replace,
+    "permissions-allowed-tabs": createPermissionHandlers(client)["allowed-tabs"],
+    "users-delete": createUserHandlers(client).delete,
   };
 }

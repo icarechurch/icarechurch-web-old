@@ -86,13 +86,13 @@ Deno.test("preserves profile read and update queries", async () => {
   const { actions, client } = createClient();
   const handlers = createUserDataHandlers(client as never);
 
-  await operation(handlers, "profile-get")({ userId: "user-1" });
-  await operation(handlers, "profile-upsert")({
+  await operation(handlers, "profiles-get")({ userId: "user-1" });
+  await operation(handlers, "profiles-upsert")({
     id: "user-1",
     full_name: "Ada",
     updated_at: "2026-01-01T00:00:00.000Z",
   });
-  await operation(handlers, "profile-update-name")({ userId: "user-1", fullName: "Ada" });
+  await operation(handlers, "profiles-update-name")({ userId: "user-1", fullName: "Ada" });
 
   const queryActions = actions.map(({ table, method, args }) => ({ table, method, args }));
   if (JSON.stringify(queryActions) !== JSON.stringify([
@@ -111,10 +111,10 @@ Deno.test("preserves role queries and replacement order", async () => {
   const { actions, client } = createClient();
   const handlers = createUserDataHandlers(client as never);
 
-  await operation(handlers, "role-get")({ userId: "user-1" });
-  await operation(handlers, "role-create")({ user_id: "user-1", role: "admin" });
-  await operation(handlers, "role-delete")({ userId: "user-1" });
-  await operation(handlers, "role-replace")({ user_id: "user-1", role: "moderator" });
+  await operation(handlers, "roles-get")({ userId: "user-1" });
+  await operation(handlers, "roles-create")({ user_id: "user-1", role: "admin" });
+  await operation(handlers, "roles-delete")({ userId: "user-1" });
+  await operation(handlers, "roles-replace")({ user_id: "user-1", role: "moderator" });
 
   const queryActions = actions.map(({ table, method, args }) => ({ table, method, args }));
   if (JSON.stringify(queryActions) !== JSON.stringify([
@@ -136,8 +136,8 @@ Deno.test("preserves permission and user deletion RPCs", async () => {
   const { actions, client } = createClient();
   const handlers = createUserDataHandlers(client as never);
 
-  await operation(handlers, "allowed-tabs")();
-  await operation(handlers, "user-delete")({ target_user_id: "user-2" });
+  await operation(handlers, "permissions-allowed-tabs")();
+  await operation(handlers, "users-delete")({ target_user_id: "user-2" });
 
   if (JSON.stringify(actions) !== JSON.stringify([
     { table: "rpc", method: "get_allowed_tabs", args: [null] },
