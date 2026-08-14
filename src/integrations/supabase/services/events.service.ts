@@ -1,19 +1,5 @@
 import { invokeFunction } from "@/infrastructure/supabase/functions";
-
-type EventInsert = {
-  title: string;
-  description: string | null;
-  event_date: string;
-  location: string | null;
-  image_url: string | null;
-  event_time: string | null;
-  status: "scheduled" | "postponed" | "done";
-};
-
-type Event = EventInsert & {
-  id: string;
-  created_at: string;
-};
+import type { Event, EventInsert } from "@/domains/events/model/events.types";
 
 export const eventsService = {
   async getAll(): Promise<Event[]> {

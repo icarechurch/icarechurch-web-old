@@ -1,4 +1,4 @@
-import type { Event } from "@/hooks/useChurchData";
+import type { Event } from "@/domains/events/model/events.types";
 
 export interface EventFormState {
   title: string;

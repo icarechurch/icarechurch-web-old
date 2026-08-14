@@ -41,11 +41,10 @@ import {
 import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
 import {
-  type Event,
-  type EventInsert,
   useEventMutations,
   useEvents,
 } from "@/hooks/useChurchData";
+import type { Event, EventInsert } from "@/domains/events/model/events.types";
 import {
   useEventPopupSettings,
   useUpdateEventPopupSettings,

@@ -10,6 +10,7 @@ import {
   serviceTimesService,
 } from "@/integrations/supabase/services";
 import { useMutation, useQuery, useQueryClient } from "@/shared/hooks/simple-query-hooks";
+import type { Event, EventInsert } from "@/domains/events/model/events.types";
 
 // Types
 export type Ministry = {
@@ -30,23 +31,7 @@ export type MinistryInsert = Omit<
   "id" | "created_at" | "updated_at"
 > & { id?: string };
 
-export type Event = {
-  id: string;
-  title: string;
-  description: string | null;
-  event_date: string;
-  event_time: string | null;
-  location: string | null;
-  image_url: string | null;
-  status: "scheduled" | "postponed" | "done";
-  created_at: string;
-  updated_at: string;
-};
-
-export type EventInsert = Omit<Event, "id" | "created_at" | "updated_at"> & {
-  id?: string;
-  status?: "scheduled" | "postponed" | "done";
-};
+export type { Event, EventInsert } from "@/domains/events/model/events.types";
 
 export type ServiceTime = {
   id: string;
