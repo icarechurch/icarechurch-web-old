@@ -270,7 +270,7 @@ export function Navbar({ isVisible = true }: NavbarProps) {
         {/* Mobile Nav */}
         {isOpen && (
           <div
-            className="max-h-[calc(100vh-4rem)] overflow-y-auto border-t py-4 2xl:hidden"
+            className="max-h-[calc(100vh-4rem)] overflow-y-auto border-t bg-background py-4 2xl:hidden"
             id="mobile-site-menu"
           >
             <div className="flex flex-col space-y-2 px-4">
