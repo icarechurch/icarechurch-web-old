@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:edge": "deno test -A supabase/functions",
     "typecheck": "tsc --noEmit",
     "test:e2e": "cypress open",
     "dev:ssr": "node server.js",
