@@ -1,6 +1,6 @@
 // Service layer exports
 // Import these directly from specific service files for best performance
-// Example: import { profileService } from '@/integrations/supabase/services/profiles.service'
+// Example: import { profileService } from '@/domains/auth/api/profile.api'
 
 export type { AdminUserProfile } from "./admin.service";
 export { adminService } from "./admin.service";
@@ -17,8 +17,8 @@ export type { GivingSettings } from "@/domains/giving/model/giving.types";
 export { givingService } from "@/domains/giving/api/giving.api";
 export { ministriesService } from "./ministries.service";
 export { pastorsApi } from "@/domains/pastors/api/pastors.api";
-export type { ProfileData, UpdateProfileParams } from "./profiles.service";
-export { profileService } from "./profiles.service";
+export type { ProfileData, UpdateProfileParams } from "@/domains/auth/model/profile.types";
+export { profileService } from "@/domains/auth/api/profile.api";
 export { sermonsApi } from "@/domains/sermons/api/sermons.api";
 export type { ServiceTime } from "@/domains/service-times/model/service-times.types";
 export { serviceTimesApi } from "@/domains/service-times/api/service-times.api";

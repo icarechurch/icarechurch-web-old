@@ -10,7 +10,7 @@ import HomePage from "@/user/home/pages/HomePage";
 import Ministries from "@/user/ministries/pages/MinistriesPage";
 import Moderator from "@/pages/Moderator";
 import NotFound from "@/pages/NotFound";
-import Profile from "@/pages/Profile";
+import Profile from "@/user/profile/pages/ProfilePage";
 import Sermons from "@/user/sermons/pages/SermonsPage";
 import Services from "@/user/service-times/pages/ServicesPage";
 import UpdatePassword from "@/user/auth/pages/UpdatePasswordPage";
@@ -29,7 +29,7 @@ export function AppRoutes() {
       <Route element={<GalleryPage />} path="/gallery" />
       <Route element={<Auth />} path="/auth" />
       <Route element={<UpdatePassword />} path="/update-password" />
-      <Route element={<Profile />} path="/profile" />
+      <Route element={<ProfilePage />} path="/profile" />
       <Route element={<Admin />} path="/admin" />
       <Route element={<Moderator />} path="/moderator" />
       <Route element={<NotFound />} path="*" />

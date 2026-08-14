@@ -12,7 +12,7 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { useAuth } from "@/domains/auth/hooks/useAuth";
-import { useProfileUpdater } from "@/hooks/useProfileUpdater";
+import { useProfileUpdater } from "@/domains/auth/hooks/useProfileUpdater";
 import { profileService } from "@/integrations/supabase/services";
 
 export function AdminProfile() {
