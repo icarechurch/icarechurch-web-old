@@ -6,7 +6,7 @@ describe("Frontend data access architecture", () => {
         const hasRpcCall = /\.rpc\(/u.test(source);
 
         if (!hasTableQuery && !hasRpcCall) return false;
-        return !filePath.endsWith("storage.service.ts") || hasRpcCall;
+        return !filePath.replaceAll("\\", "/").endsWith("infrastructure/supabase/storage.ts") || hasRpcCall;
       });
 
       expect(violations).to.deep.equal([]);
