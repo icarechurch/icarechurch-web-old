@@ -56,9 +56,9 @@ import {
   createPieChartData,
   formatChartData,
   formatPagePath,
-} from "./adminconstants/analytics/adminanalytics";
+} from "@/admin/analytics/analytics.constants";
 
-export function AdminAnalytics() {
+export function AdminAnalyticsPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const { data: summary, isLoading: summaryLoading } = useAnalyticsSummary(30);
   const { data: dailyVisits, isLoading: dailyLoading } = useDailyVisits(30);

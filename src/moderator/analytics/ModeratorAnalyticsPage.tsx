@@ -17,7 +17,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { formatChartData, formatPagePath } from "@/components/admin/adminconstants/analytics/adminanalytics";
+import { formatChartData, formatPagePath } from "@/admin/analytics/analytics.constants";
 import {
   Card,
   CardContent,
@@ -32,7 +32,7 @@ import {
   useRecentVisits,
 } from "@/domains/analytics/hooks/useAnalytics";
 
-export function ModeratorAnalytics() {
+export function ModeratorAnalyticsPage() {
   // Fetching slightly less data potentially, but reusing hooks is fine
   const { data: summary, isLoading: summaryLoading } = useAnalyticsSummary(30);
   const { data: dailyVisits, isLoading: dailyLoading } = useDailyVisits(30);
