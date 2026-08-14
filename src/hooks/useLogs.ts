@@ -1,10 +1,13 @@
 import { useState, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import {
-  type ActivityLog,
   type ActivityLogInsert,
   type LogActionType,
 } from "@/integrations/supabase/loggingTypes";
+import {
+  activityLogsService,
+  type ActivityLogQuery,
+  type ActivityLogsResult,
+} from "@/integrations/supabase/services/activity-logs.service";
 import { useQuery } from "./simple-query-hooks";
 
 
@@ -18,10 +21,7 @@ export interface LogFilters {
   offset?: number;
 }
 
-export interface LogsResult {
-  logs: ActivityLog[];
-  totalCount: number;
-}
+export type LogsResult = ActivityLogsResult;
 
 // Hook to fetch logs with filtering
 export const useLogs = (filters: LogFilters = {}) => {
@@ -30,43 +30,31 @@ export const useLogs = (filters: LogFilters = {}) => {
   return useQuery({
     queryKey: ["activity-logs", startDate?.toISOString(), endDate?.toISOString(), actionType, entityType, userId, limit, offset],
     queryFn: async (): Promise<LogsResult> => {
-      let query = supabase
-        .from("activity_logs")
-        .select("*", { count: "exact" })
-        .order("created_at", { ascending: false })
-        .range(offset, offset + limit - 1);
+      const input: ActivityLogQuery = { limit, offset };
 
       if (startDate) {
-        query = query.gte("created_at", startDate.toISOString());
+        input.startDate = startDate.toISOString();
       }
 
       if (endDate) {
-        // Set end of day for the end date
         const endOfDay = new Date(endDate);
         endOfDay.setHours(23, 59, 59, 999);
-        query = query.lte("created_at", endOfDay.toISOString());
+        input.endDate = endOfDay.toISOString();
       }
 
       if (actionType) {
-        query = query.eq("action_type", actionType);
+        input.actionType = actionType;
       }
 
       if (entityType) {
-        query = query.eq("entity_type", entityType);
+        input.entityType = entityType;
       }
 
       if (userId) {
-        query = query.eq("user_id", userId);
+        input.userId = userId;
       }
 
-      const { data, error, count } = await query;
-
-      if (error) throw error;
-
-      return {
-        logs: data || [],
-        totalCount: count || 0,
-      };
+      return activityLogsService.getLogs(input);
     },
     refetchInterval: 30_000, // Refetch every 30 seconds
   });
@@ -77,11 +65,7 @@ export const useLogSummary = () => {
   return useQuery({
     queryKey: ["log-summary"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("activity_logs")
-        .select("action_type");
-
-      if (error) throw error;
+      const data = await activityLogsService.getActionTypeRows();
 
       // Count by action type
       const counts: Record<string, number> = {};
@@ -109,12 +93,7 @@ export const useClearLogs = () => {
 
     try {
       // Delete all logs - we need a condition, so we delete where id is not null
-      const { error: deleteError } = await supabase
-        .from("activity_logs")
-        .delete()
-        .neq("id", "00000000-0000-0000-0000-000000000000");
-
-      if (deleteError) throw deleteError;
+      await activityLogsService.clearLogs();
 
       return true;
     } catch (err) {
@@ -154,13 +133,7 @@ export const logActivity = async (
       page_path: options.pagePath || (typeof window !== "undefined" ? window.location.pathname : null),
     };
 
-    const { error } = await supabase
-      .from("activity_logs")
-      .insert(payload);
-
-    if (error) {
-      // Silently fail - logging should not break the application
-    }
+    await activityLogsService.logActivity(payload);
   } catch (_error) {
     // Silently fail
   }
@@ -171,11 +144,7 @@ export const useLogActionTypes = () => {
   return useQuery({
     queryKey: ["log-action-types"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("activity_logs")
-        .select("action_type");
-
-      if (error) throw error;
+      const data = await activityLogsService.getActionTypeRows();
 
       // Get unique action types
       const uniqueTypes = [...new Set(data?.map((log) => log.action_type) || [])];
@@ -190,11 +159,7 @@ export const useLogEntityTypes = () => {
   return useQuery({
     queryKey: ["log-entity-types"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("activity_logs")
-        .select("entity_type");
-
-      if (error) throw error;
+      const data = await activityLogsService.getEntityTypeRows();
 
       // Get unique entity types, filtering out nulls
       const uniqueTypes = [...new Set(data?.map((log) => log.entity_type).filter(Boolean) || [])];
