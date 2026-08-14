@@ -1,21 +1,117 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+const DEFAULT_STALE_TIME = 30_000;
+const CACHE_RETENTION_TIME = 5 * 60_000;
+
 interface UseQueryOptions<T> {
-  queryKey: any[];
+  queryKey: unknown[];
   queryFn: () => Promise<T>;
   enabled?: boolean;
   refetchInterval?: number;
   retry?: number;
+  staleTime?: number;
 }
 
-interface UseQueryResult<T> {
+interface QuerySnapshot<T> {
   data: T | undefined;
-  error: any;
+  error: unknown;
   isLoading: boolean;
+  status: "pending" | "error" | "success";
+}
+
+interface QueryCacheEntry<T> extends QuerySnapshot<T> {
+  expiresAt: number;
+  promise?: Promise<T>;
+  listeners: Set<() => void>;
+  cleanupTimer?: ReturnType<typeof setTimeout>;
+}
+
+interface UseQueryResult<T> extends QuerySnapshot<T> {
   isError: boolean;
   isSuccess: boolean;
   refetch: () => Promise<void>;
-  status: "pending" | "error" | "success";
+}
+
+const queryCache = new Map<string, QueryCacheEntry<unknown>>();
+
+function getCacheEntry<T>(key: string): QueryCacheEntry<T> {
+  const existing = queryCache.get(key) as QueryCacheEntry<T> | undefined;
+  if (existing) return existing;
+
+  const entry: QueryCacheEntry<T> = {
+    data: undefined,
+    error: null,
+    isLoading: false,
+    status: "pending",
+    expiresAt: 0,
+    listeners: new Set(),
+  };
+  queryCache.set(key, entry as QueryCacheEntry<unknown>);
+  return entry;
+}
+
+function notify<T>(entry: QueryCacheEntry<T>): void {
+  for (const listener of entry.listeners) {
+    listener();
+  }
+}
+
+function scheduleCacheCleanup(key: string, entry: QueryCacheEntry<unknown>): void {
+  if (entry.cleanupTimer) clearTimeout(entry.cleanupTimer);
+
+  entry.cleanupTimer = setTimeout(() => {
+    if (
+      entry.listeners.size === 0 &&
+      !entry.promise &&
+      entry.expiresAt <= Date.now()
+    ) {
+      queryCache.delete(key);
+    }
+  }, CACHE_RETENTION_TIME);
+}
+
+async function loadQuery<T>(
+  key: string,
+  queryFn: () => Promise<T>,
+  staleTime: number,
+  force: boolean,
+): Promise<T | undefined> {
+  const entry = getCacheEntry<T>(key);
+
+  if (entry.promise) return entry.promise;
+  if (!force && entry.status === "success" && entry.expiresAt > Date.now()) {
+    return entry.data;
+  }
+
+  entry.isLoading = true;
+  entry.status = "pending";
+  entry.error = null;
+  notify(entry);
+
+  const promise = queryFn()
+    .then((result) => {
+      entry.data = result;
+      entry.error = null;
+      entry.isLoading = false;
+      entry.status = "success";
+      entry.expiresAt = Date.now() + staleTime;
+      return result;
+    })
+    .catch((error: unknown) => {
+      entry.error = error;
+      entry.isLoading = false;
+      entry.status = "error";
+      entry.expiresAt = 0;
+      throw error;
+    })
+    .finally(() => {
+      if (entry.promise === promise) entry.promise = undefined;
+      notify(entry);
+    });
+
+  entry.promise = promise;
+  notify(entry);
+  return promise;
 }
 
 export function useQuery<T>({
@@ -23,72 +119,88 @@ export function useQuery<T>({
   queryFn,
   enabled = true,
   refetchInterval,
+  staleTime = DEFAULT_STALE_TIME,
 }: UseQueryOptions<T>): UseQueryResult<T> {
-  const [data, setData] = useState<T | undefined>(undefined);
-  const [error, setError] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(enabled);
-  const [status, setStatus] = useState<"pending" | "error" | "success">(
-    "pending"
-  );
+  const stableKey = useMemo(() => JSON.stringify(queryKey), queryKey);
+  const entry = getCacheEntry<T>(stableKey);
+  const [snapshot, setSnapshot] = useState<QuerySnapshot<T>>(() => ({
+    data: entry.data,
+    error: entry.error,
+    isLoading: enabled && entry.status !== "success",
+    status: entry.status,
+  }));
 
   const fnRef = useRef(queryFn);
-  fnRef.current = queryFn; // Keep latest ref
+  fnRef.current = queryFn;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const stableKey = useMemo(() => JSON.stringify(queryKey), queryKey);
+  const syncSnapshot = useCallback(() => {
+    const current = getCacheEntry<T>(stableKey);
+    setSnapshot({
+      data: current.data,
+      error: current.error,
+      isLoading: current.isLoading,
+      status: current.status,
+    });
+  }, [stableKey]);
 
-  const fetchData = useCallback(async () => {
-    if (!enabled) return;
+  const fetchData = useCallback(
+    async (force = false): Promise<void> => {
+      if (!enabled) return;
 
-    setIsLoading(true);
-    setStatus("pending");
-    try {
-      const result = await fnRef.current();
-      setData(result);
-      setError(null);
-      setStatus("success");
-    } catch (err) {
-      setError(err);
-      setStatus("error");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [enabled, stableKey]);
+      try {
+        await loadQuery(stableKey, () => fnRef.current(), staleTime, force);
+      } catch {
+        // The cache stores the error and subscribers receive it through syncSnapshot.
+      }
+    },
+    [enabled, stableKey, staleTime],
+  );
 
   useEffect(() => {
-    fetchData();
+    const current = getCacheEntry<T>(stableKey);
+    current.listeners.add(syncSnapshot);
+    syncSnapshot();
+
+    return () => {
+      current.listeners.delete(syncSnapshot);
+      if (current.listeners.size === 0) {
+        scheduleCacheCleanup(stableKey, current as QueryCacheEntry<unknown>);
+      }
+    };
+  }, [stableKey, syncSnapshot]);
+
+  useEffect(() => {
+    void fetchData();
   }, [fetchData]);
 
   useEffect(() => {
-    if (refetchInterval && enabled) {
-      const interval = setInterval(fetchData, refetchInterval);
-      return () => clearInterval(interval);
-    }
-  }, [refetchInterval, fetchData, enabled]);
+    if (!refetchInterval || !enabled) return;
 
-  // Listen for real-time invalidation events
+    const interval = setInterval(() => {
+      void fetchData(true);
+    }, refetchInterval);
+    return () => clearInterval(interval);
+  }, [enabled, fetchData, refetchInterval]);
+
   useEffect(() => {
     const primaryKey = queryKey[0];
     if (typeof primaryKey !== "string") return;
 
     const handleInvalidate = () => {
-      fetchData();
+      void fetchData(true);
     };
 
     window.addEventListener(`invalidate-${primaryKey}`, handleInvalidate);
     return () => {
       window.removeEventListener(`invalidate-${primaryKey}`, handleInvalidate);
     };
-  }, [queryKey, fetchData]);
+  }, [fetchData, queryKey]);
 
   return {
-    data,
-    error,
-    isLoading,
-    isError: status === "error",
-    isSuccess: status === "success",
-    refetch: fetchData,
-    status,
+    ...snapshot,
+    isError: snapshot.status === "error",
+    isSuccess: snapshot.status === "success",
+    refetch: async () => fetchData(true),
   };
 }
 
@@ -100,14 +212,14 @@ export function useMutation<TVariables, TData>({
   onSuccess?: (data: TData) => void;
 }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<unknown>(null);
 
   const mutate = async (variables: TVariables) => {
     setIsLoading(true);
     setError(null);
     try {
       const result = await mutationFn(variables);
-      if (onSuccess) onSuccess(result);
+      onSuccess?.(result);
       return result;
     } catch (err) {
       setError(err);
@@ -122,11 +234,7 @@ export function useMutation<TVariables, TData>({
 
 export function useQueryClient() {
   return {
-    invalidateQueries: ({ queryKey }: { queryKey: any[] }) => {
-      // Dispatch event to trigger refetch
-      // In a real simplified implementation, we might use a global event bus or context to trigger refetches.
-      // For now, we accept that data might be stale until page reload or manual refetch.
-      // A simple hack is dispatching a window event.
+    invalidateQueries: ({ queryKey }: { queryKey: unknown[] }) => {
       window.dispatchEvent(new Event(`invalidate-${queryKey[0]}`));
     },
   };
