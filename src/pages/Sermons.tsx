@@ -2,9 +2,9 @@ import { format } from "date-fns";
 import { BookOpen, Calendar, Clock, Music, Play, Video } from "lucide-react";
 import { FacebookLiveEmbed } from "@/components/FacebookLiveEmbed";
 import { Layout } from "@/components/layout/Layout";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import { useChurchInfo, useSermons } from "@/hooks/useChurchData";
 
 const Sermons = () => {

@@ -3,10 +3,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Layout } from "@/components/layout/Layout";
 import { Map } from "@/components/Map";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import { Textarea } from "@/shared/components/ui/textarea";
 import { useChurchInfo } from "@/hooks/useChurchData";
 
 export default function Contact() {

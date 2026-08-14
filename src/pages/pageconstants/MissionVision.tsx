@@ -1,5 +1,5 @@
 import { BookOpen, Target } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/shared/components/ui/card";
 
 export function MissionVision() {
   return (

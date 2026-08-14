@@ -2,14 +2,14 @@ import { Facebook, Mail, Phone} from "lucide-react";
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Layout } from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/shared/components/ui/dialog";
 import { CORE_VALUES } from "@/constant/core-values";
 import { type Pastor, usePastors } from "@/hooks/useChurchData";
 import { MissionVision } from "./pageconstants/MissionVision";

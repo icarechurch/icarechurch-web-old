@@ -1,5 +1,5 @@
 import { ImageUpload } from "@/components/admin/ImageUpload";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/shared/components/ui/label";
 
 interface AdminGivingQRSectionProps {
   qrUrl: string;

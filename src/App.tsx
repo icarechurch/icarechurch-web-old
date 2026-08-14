@@ -3,9 +3,9 @@ import { Route, Routes } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PageTracker } from "@/components/PageTracker";
 import ScrollToTop from "@/components/ScrollToTop";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster as Sonner } from "@/shared/components/ui/sonner";
+import { Toaster } from "@/shared/components/ui/toaster";
+import { TooltipProvider } from "@/shared/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { useBibleVerseRotator } from "@/hooks/useBibleVerseRotator";
 import {

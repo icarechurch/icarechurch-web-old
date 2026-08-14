@@ -3,7 +3,7 @@ import { TabGuard } from "@/pages/auth/TabGuard";
 import { TAB_COMPONENTS, type TabKey } from "@/pages/pageconstants/admin-tabs";
 import { Navigate } from "react-router-dom";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/shared/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 

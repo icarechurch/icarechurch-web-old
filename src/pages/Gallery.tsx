@@ -1,8 +1,8 @@
 import { Image as ImageIcon, Loader2 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
-import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Marquee } from "@/components/ui/marquee";
+import { Card } from "@/shared/components/ui/card";
+import { Dialog, DialogContent, DialogTrigger } from "@/shared/components/ui/dialog";
+import { Marquee } from "@/shared/components/ui/marquee";
 import { useGallery } from "@/hooks/useChurchData";
 
 const Gallery = () => {

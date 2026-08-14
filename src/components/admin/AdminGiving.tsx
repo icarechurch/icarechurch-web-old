@@ -1,13 +1,13 @@
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/shared/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useGivingSettings, useUpdateGivingSettings } from "@/hooks/useGiving";
 import { AdminGivingPlatformSection } from "@/components/admin/admingiving/AdminGivingPlatformSection";

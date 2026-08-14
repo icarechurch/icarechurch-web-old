@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { CareGrid } from "@/components/CareGrid";
 import { EventPopup } from "@/components/EventPopup";
 import { Layout } from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { useChurchInfo } from "@/hooks/useChurchData";
 
 const Index = () => {
