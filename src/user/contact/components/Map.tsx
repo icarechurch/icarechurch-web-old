@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import type { Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 interface MapProps {
@@ -14,16 +15,20 @@ export function Map({
   address,
   className = "",
 }: MapProps) {
-  const mapRef = useRef<any>(null);
+  const mapRef = useRef<LeafletMap | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!mapContainerRef.current) return;
+    const container = mapContainerRef.current;
+    if (!container) return;
 
-    let mapInstance: any = null;
+    let mapInstance: LeafletMap | null = null;
+    let isCancelled = false;
 
     const initMap = async () => {
       const L = (await import("leaflet")).default;
+
+      if (isCancelled || mapRef.current || !container.isConnected) return;
 
       // Fix for default markers in Leaflet with bundlers
       // Check if function exists before deleting to be safe, though unexpected in fresh import
@@ -41,9 +46,15 @@ export function Map({
       });
 
       // Initialize map
-      mapInstance = L.map(mapContainerRef.current!, {
+      mapInstance = L.map(container, {
         zoomControl: true, // explicit option to ensure it works
       }).setView([latitude, longitude], 16);
+
+      if (isCancelled) {
+        mapInstance.remove();
+        mapInstance = null;
+        return;
+      }
 
       // Add tile layer
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -66,14 +77,22 @@ export function Map({
       mapRef.current = mapInstance;
     };
 
-    initMap();
+    void initMap();
 
     // Cleanup function
     return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
+      isCancelled = true;
+      const activeMap = mapRef.current ?? mapInstance;
+
+      if (activeMap) {
+        activeMap.remove();
+      }
+
+      if (mapRef.current === activeMap) {
         mapRef.current = null;
       }
+
+      mapInstance = null;
     };
   }, [latitude, longitude, address]);
 
