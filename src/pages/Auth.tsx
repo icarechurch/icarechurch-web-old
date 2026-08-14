@@ -14,7 +14,7 @@ import {
 } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/infrastructure/supabase/client";
 
 const authSchema = z.object({
   email: z.string().email("Please enter a valid email"),

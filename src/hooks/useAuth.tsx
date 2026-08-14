@@ -7,9 +7,9 @@ import {
   useRef,
   useState,
 } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/infrastructure/supabase/client";
 import { authService } from "@/integrations/supabase/services";
-import type { Database } from "@/integrations/supabase/types";
+import type { Database } from "@/infrastructure/supabase/types";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 

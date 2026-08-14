@@ -1,6 +1,6 @@
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { useEffect, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/infrastructure/supabase/client";
 
 // Tables that should have real-time subscriptions
 const REALTIME_TABLES = [

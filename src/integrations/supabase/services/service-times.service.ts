@@ -1,4 +1,4 @@
-import type { Database } from "../types";
+import type { Database } from "@/infrastructure/supabase/types";
 import { invokeFunction } from "../functions";
 
 export type ServiceTime = Database["public"]["Tables"]["service_times"]["Row"];

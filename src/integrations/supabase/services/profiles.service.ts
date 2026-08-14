@@ -1,4 +1,4 @@
-import { supabase } from "../client";
+import { supabase } from "@/infrastructure/supabase/client";
 import { invokeFunction } from "../functions";
 
 export type UpdateProfileParams = {

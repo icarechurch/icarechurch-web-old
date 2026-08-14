@@ -47,7 +47,7 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/infrastructure/supabase/client";
 import { adminService, usersService } from "@/integrations/supabase/services";
 
 interface UserProfile {
