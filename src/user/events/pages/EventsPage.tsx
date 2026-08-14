@@ -6,6 +6,7 @@ import { useEvents } from "@/domains/events/hooks/useEvents";
 
 export default function EventsPage() {
   const { data: events, isLoading } = useEvents();
+  const upcomingEvents = events?.filter((event) => event.status !== "done");
 
   return (
     <Layout>
@@ -33,9 +34,9 @@ export default function EventsPage() {
                 <p className="text-muted-foreground">Loading events...</p>
               </div>
             </div>
-          ) : events && events.length > 0 ? (
+          ) : upcomingEvents && upcomingEvents.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {events.map((event) => (
+              {upcomingEvents.map((event) => (
                 <Card
                   className="group overflow-hidden border-none shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                   key={event.id}
