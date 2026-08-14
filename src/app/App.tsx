@@ -1,5 +1,4 @@
 import { Helmet } from "react-helmet-async";
-import { Route, Routes } from "react-router-dom";
 import { ErrorBoundary } from "@/shared/components/system/ErrorBoundary";
 import { PageTracker } from "@/components/PageTracker";
 import ScrollToTop from "@/shared/components/navigation/ScrollToTop";
@@ -15,21 +14,7 @@ import {
 } from "@/hooks/useChurchData";
 import { useInternetStatus } from "@/hooks/useInternetStatus";
 import { useLoadingProgress } from "@/hooks/useLoadingProgress";
-import About from "@/pages/About";
-import Admin from "@/pages/Admin";
-import Auth from "@/pages/Auth";
-import Contact from "@/pages/Contact";
-import Events from "@/pages/Events";
-import Gallery from "@/pages/Gallery";
-import Giving from "@/pages/Giving";
-import Index from "@/pages/Index";
-import Ministries from "@/pages/Ministries";
-import Moderator from "@/pages/Moderator";
-import NotFound from "@/pages/NotFound";
-import Profile from "@/pages/Profile";
-import Sermons from "@/pages/Sermons";
-import Services from "@/pages/Services";
-import UpdatePassword from "@/pages/UpdatePassword";
+import { AppRoutes } from "@/app/router/routes";
 
 // Component to check internet connectivity and initial data loading
 function AppInitializer({ children }: { children: React.ReactNode }) {
@@ -125,23 +110,7 @@ const App = () => (
         <Helmet>
           <link href="/favicon.ico" rel="icon" type="image/x-icon" />
         </Helmet>
-        <Routes>
-          <Route element={<Index />} path="/" />
-          <Route element={<About />} path="/about" />
-          <Route element={<Services />} path="/services" />
-          <Route element={<Ministries />} path="/ministries" />
-          <Route element={<Events />} path="/events" />
-          <Route element={<Sermons />} path="/sermons" />
-          <Route element={<Contact />} path="/contact" />
-          <Route element={<Giving />} path="/giving" />
-          <Route element={<Gallery />} path="/gallery" />
-          <Route element={<Auth />} path="/auth" />
-          <Route element={<UpdatePassword />} path="/update-password" />
-          <Route element={<Profile />} path="/profile" />
-          <Route element={<Admin />} path="/admin" />
-          <Route element={<Moderator />} path="/moderator" />
-          <Route element={<NotFound />} path="*" />
-        </Routes>
+        <AppRoutes />
       </AppInitializer>
     </AuthProvider>
   </TooltipProvider>
