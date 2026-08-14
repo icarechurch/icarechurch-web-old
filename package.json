@@ -2,6 +2,10 @@
   "name": "vite_react_shadcn_ts",
   "private": true,
   "version": "0.0.0",
+  "engines": {
+    "node": "22.x",
+    "npm": "10.x"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -109,6 +113,9 @@
     },
     "vite": {
       "esbuild": "0.27.7"
+    },
+    "strip-ansi@7.2.0": {
+      "ansi-regex": "6.2.2"
     }
   }
 }
