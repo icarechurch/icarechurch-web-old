@@ -8,7 +8,7 @@ import {
   type ActivityLogQuery,
   type ActivityLogsResult,
 } from "@/integrations/supabase/services/activity-logs.service";
-import { useQuery } from "./simple-query-hooks";
+import { useQuery } from "@/shared/hooks/simple-query-hooks";
 
 
 export interface LogFilters {

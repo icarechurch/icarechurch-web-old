@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BIBLE_VERSES } from "@/constant/bible-verses";
+import { BIBLE_VERSES } from "@/shared/constants/bible-verses";
 
 export function useBibleVerseRotator() {
   const [currentVerse, setCurrentVerse] = useState(BIBLE_VERSES[0]);

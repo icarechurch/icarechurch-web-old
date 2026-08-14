@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { CORE_VALUES } from "@/constant/core-values";
+import { CORE_VALUES } from "@/shared/constants/core-values";
 import { type Pastor, usePastors } from "@/hooks/useChurchData";
 import { MissionVision } from "./pageconstants/MissionVision";
 

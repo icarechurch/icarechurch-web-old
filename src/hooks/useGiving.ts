@@ -1,5 +1,5 @@
 import { givingService } from "@/integrations/supabase/services/giving.service";
-import { useMutation, useQuery, useQueryClient } from "./simple-query-hooks";
+import { useMutation, useQuery, useQueryClient } from "@/shared/hooks/simple-query-hooks";
 import type { GivingSettings } from "@/components/admin/adminconstants/giving/admingiving";
 
 export const useGivingSettings = () => {

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/shared/components/layout/Layout";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { expectItems } from "@/constant/expect-items";
+import { expectItems } from "@/shared/constants/expect-items";
 import { useServiceTimes } from "@/hooks/useChurchData";
 
 export default function Services() {

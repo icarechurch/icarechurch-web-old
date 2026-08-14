@@ -1,4 +1,4 @@
-import { careItems } from "@/constant/care";
+import { careItems } from "@/shared/constants/care";
 
 export function CareGrid() {
   return (

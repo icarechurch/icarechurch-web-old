@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { analyticsService } from "@/integrations/supabase/services/analytics.service";
-import { useQuery } from "./simple-query-hooks";
+import { useQuery } from "@/shared/hooks/simple-query-hooks";
 
 export interface ContentAnalytics {
   total_ministries: number;

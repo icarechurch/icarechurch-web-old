@@ -1,5 +1,5 @@
 import { eventPopupService } from "@/integrations/supabase/services";
-import { useMutation, useQuery, useQueryClient } from "./simple-query-hooks";
+import { useMutation, useQuery, useQueryClient } from "@/shared/hooks/simple-query-hooks";
 
 type UpdateEventPopupSettingsParams = {
   event_id: string | null;
