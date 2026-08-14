@@ -48,7 +48,8 @@ import {
 } from "@/shared/components/ui/table";
 import { useAuth } from "@/domains/auth/hooks/useAuth";
 import { supabase } from "@/infrastructure/supabase/client";
-import { adminService, usersService } from "@/domains/auth/api/users.api";
+import { adminService } from "@/domains/auth/api/users.api";
+import { usersService } from "@/domains/auth/api/user-roles.api";
 
 interface UserProfile {
   id: string;

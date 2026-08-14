@@ -13,7 +13,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { useAuth } from "@/domains/auth/hooks/useAuth";
 import { useProfileUpdater } from "@/domains/auth/hooks/useProfileUpdater";
-import { profileService } from "@/domains/auth/api";
+import { profileService } from "@/domains/auth/api/profile.api";
 
 export function AdminProfile() {
   const { user } = useAuth();

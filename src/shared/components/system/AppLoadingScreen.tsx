@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BIBLE_VERSES } from "../constant/bible-verses";
+import { BIBLE_VERSES } from "@/shared/constants/bible-verses";
 
 interface AppLoadingScreenProps {
   isVisible: boolean;

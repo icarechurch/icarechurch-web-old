@@ -5,7 +5,7 @@ import { AdminGalleryPage } from "@/admin/gallery/pages/AdminGalleryPage";
 import { AdminMinistriesPage } from "@/admin/ministries/pages/AdminMinistriesPage";
 import { AdminProfile } from "@/admin/users/components/AdminProfile";
 import { AdminSermonsPage } from "@/admin/sermons/pages/AdminSermonsPage";
-import { ModeratorAnalytics } from "@/moderator/analytics/ModeratorAnalyticsPage";
+import { ModeratorAnalyticsPage } from "@/moderator/analytics/ModeratorAnalyticsPage";
 import { ModeratorSidebar } from "@/moderator/layout/ModeratorSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/shared/components/ui/sidebar";
 import { useAuth } from "@/domains/auth/hooks/useAuth";
