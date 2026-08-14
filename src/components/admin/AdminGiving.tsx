@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/shared/hooks/use-toast";
 import { useGivingSettings, useUpdateGivingSettings } from "@/hooks/useGiving";
 import { AdminGivingPlatformSection } from "@/components/admin/admingiving/AdminGivingPlatformSection";
 import { AdminGivingQRSection } from "@/components/admin/admingiving/AdminGivingQRSection";

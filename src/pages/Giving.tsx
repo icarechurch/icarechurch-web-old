@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/shared/components/layout/Layout";
 import { Button } from "@/shared/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/shared/hooks/use-toast";
 import { GivingHeader } from "@/components/giving/GivingHeader";
 import { GivingOptionCard } from "@/components/giving/GivingOptionCard";
 import { GivingQuote } from "@/components/giving/GivingQuote";

@@ -51,8 +51,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import { useToast } from "@/hooks/use-toast";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useToast } from "@/shared/hooks/use-toast";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 import {
   useLogs,
   useClearLogs,
