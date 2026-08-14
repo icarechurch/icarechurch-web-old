@@ -1,12 +1,18 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
+import {
+  MAX_PUBLIC_CONTENT_ROWS,
+  SERMON_COLUMNS,
+} from "./resource-columns.ts";
 
 export function createSermonHandlers(client: SupabaseClient) {
   return {
     async list() {
       const { data, error } = await client
         .from("sermons")
-        .select("*")
-        .order("sermon_date", { ascending: false });
+        .select(SERMON_COLUMNS)
+        .order("sermon_date", { ascending: false })
+        .order("id", { ascending: false })
+        .limit(MAX_PUBLIC_CONTENT_ROWS);
 
       if (error) throw error;
       return data;
@@ -15,8 +21,9 @@ export function createSermonHandlers(client: SupabaseClient) {
     async latest() {
       const { data, error } = await client
         .from("sermons")
-        .select("*")
+        .select(SERMON_COLUMNS)
         .order("sermon_date", { ascending: false })
+        .order("id", { ascending: false })
         .limit(1)
         .maybeSingle();
 

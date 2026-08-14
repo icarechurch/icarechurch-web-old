@@ -1,12 +1,18 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
+import {
+  GALLERY_COLUMNS,
+  MAX_PUBLIC_CONTENT_ROWS,
+} from "./resource-columns.ts";
 
 export function createGalleryHandlers(client: SupabaseClient) {
   return {
     async list() {
       const { data, error } = await client
         .from("gallery_images")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select(GALLERY_COLUMNS)
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
+        .limit(MAX_PUBLIC_CONTENT_ROWS);
 
       if (error) throw error;
       return data;

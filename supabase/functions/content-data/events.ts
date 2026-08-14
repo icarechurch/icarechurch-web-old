@@ -1,12 +1,15 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
+import { EVENT_COLUMNS, MAX_PUBLIC_CONTENT_ROWS } from "./resource-columns.ts";
 
 export function createEventHandlers(client: SupabaseClient) {
   return {
     async list() {
       const { data, error } = await client
         .from("events")
-        .select("*")
-        .order("event_date", { ascending: true });
+        .select(EVENT_COLUMNS)
+        .order("event_date", { ascending: true })
+        .order("id", { ascending: true })
+        .limit(MAX_PUBLIC_CONTENT_ROWS);
 
       if (error) throw error;
       return data;

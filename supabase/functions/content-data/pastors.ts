@@ -1,12 +1,18 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
+import {
+  MAX_PUBLIC_CONTENT_ROWS,
+  PASTOR_COLUMNS,
+} from "./resource-columns.ts";
 
 export function createPastorHandlers(client: SupabaseClient) {
   return {
     async list() {
       const { data, error } = await client
         .from("pastors")
-        .select("*")
-        .order("sort_order", { ascending: true });
+        .select(PASTOR_COLUMNS)
+        .order("sort_order", { ascending: true })
+        .order("id", { ascending: true })
+        .limit(MAX_PUBLIC_CONTENT_ROWS);
 
       if (error) throw error;
       return data;

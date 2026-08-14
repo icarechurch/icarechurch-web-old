@@ -1,12 +1,18 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
+import {
+  MAX_PUBLIC_CONTENT_ROWS,
+  SERVICE_TIME_COLUMNS,
+} from "./resource-columns.ts";
 
 export function createServiceTimeHandlers(client: SupabaseClient) {
   return {
     async list() {
       const { data, error } = await client
         .from("service_times")
-        .select("*")
-        .order("sort_order", { ascending: true });
+        .select(SERVICE_TIME_COLUMNS)
+        .order("sort_order", { ascending: true })
+        .order("id", { ascending: true })
+        .limit(MAX_PUBLIC_CONTENT_ROWS);
 
       if (error) throw error;
       return data;

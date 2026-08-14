@@ -1,11 +1,12 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
+import { EVENT_POPUP_COLUMNS } from "./resource-columns.ts";
 
 export function createEventPopupHandlers(client: SupabaseClient) {
   return {
     async get() {
       const { data, error } = await client
         .from("event_popup_settings")
-        .select("*")
+        .select(EVENT_POPUP_COLUMNS)
         .eq("singleton_key", true)
         .single();
 
