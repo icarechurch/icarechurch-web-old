@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useBibleVerseRotator } from "@/hooks/useBibleVerseRotator";
+import { useBibleVerseRotator } from "@/app/initialization/useBibleVerseRotator";
 import { useEvents } from "@/domains/events/hooks/useEvents";
 import { useMinistries } from "@/domains/ministries/hooks/useMinistries";
 import { useServiceTimes } from "@/domains/service-times/hooks/useServiceTimes";

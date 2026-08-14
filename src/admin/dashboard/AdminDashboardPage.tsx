@@ -4,7 +4,7 @@ import { AdminDashboardContent } from "@/admin/dashboard/AdminDashboardContent";
 import { AdminLayout } from "@/admin/layout/AdminLayout";
 import { type TabKey } from "@/admin/layout/admin-tabs";
 import { useAuth } from "@/domains/auth/hooks/useAuth";
-import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
+import { useRealtimeSubscription } from "@/shared/hooks/useRealtimeSubscription";
 
 export default function AdminDashboardPage() {
   const { isAdmin, loading, role } = useAuth();

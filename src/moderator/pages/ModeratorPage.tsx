@@ -9,7 +9,7 @@ import { ModeratorAnalytics } from "@/moderator/analytics/ModeratorAnalyticsPage
 import { ModeratorSidebar } from "@/moderator/layout/ModeratorSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/shared/components/ui/sidebar";
 import { useAuth } from "@/domains/auth/hooks/useAuth";
-import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
+import { useRealtimeSubscription } from "@/shared/hooks/useRealtimeSubscription";
 
 export default function ModeratorPage() {
   const { isModerator, isAdmin, loading } = useAuth();
