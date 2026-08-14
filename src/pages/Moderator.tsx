@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { AdminEvents } from "@/admin/events/pages/AdminEventsPage";
-import { AdminGallery } from "@/admin/gallery/pages/AdminGalleryPage";
-import { AdminMinistries } from "@/admin/ministries/pages/AdminMinistriesPage";
+import { AdminEventsPage } from "@/admin/events/pages/AdminEventsPage";
+import { AdminGalleryPage } from "@/admin/gallery/pages/AdminGalleryPage";
+import { AdminMinistriesPage } from "@/admin/ministries/pages/AdminMinistriesPage";
 import { AdminProfile } from "@/components/admin/AdminProfile";
-import { AdminSermons } from "@/admin/sermons/pages/AdminSermonsPage";
+import { AdminSermonsPage } from "@/admin/sermons/pages/AdminSermonsPage";
 import { ModeratorAnalytics } from "@/components/moderator/ModeratorAnalytics";
 import { ModeratorSidebar } from "@/components/moderator/ModeratorSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/shared/components/ui/sidebar";
@@ -53,7 +53,7 @@ export default function Moderator() {
             {activeTab === "events" && <AdminEventsPage />}
             {activeTab === "sermons" && <AdminSermonsPage />}
             {activeTab === "ministries" && <AdminMinistriesPage />}
-            {activeTab === "gallery" && <AdminGallery />}
+            {activeTab === "gallery" && <AdminGalleryPage />}
             {activeTab === "profile" && <AdminProfile />}
           </div>
         </main>

@@ -3,7 +3,7 @@ import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
 import { AdminChurchInfo } from "@/components/admin/AdminChurchInfo";
 import { AdminEventsPage } from "@/admin/events/pages/AdminEventsPage";
 import { AdminGalleryPage } from "@/admin/gallery/pages/AdminGalleryPage";
-import { AdminGiving } from "@/components/admin/AdminGiving";
+import { AdminGivingPage } from "@/admin/giving/pages/AdminGivingPage";
 import { AdminLogs } from "@/components/admin/AdminLogs";
 import { AdminMinistriesPage } from "@/admin/ministries/pages/AdminMinistriesPage";
 import { AdminProfile } from "@/components/admin/AdminProfile";
@@ -19,7 +19,7 @@ export const TAB_COMPONENTS = {
   services: AdminServiceTimesPage,
   "church-info": AdminChurchInfo,
   gallery: AdminGalleryPage,
-  giving: AdminGiving,
+  giving: AdminGivingPage,
   users: AdminUsers,
   logs: AdminLogs,
   profile: AdminProfile,

@@ -10,10 +10,10 @@ import {
 } from "@/shared/components/ui/card";
 import { useToast } from "@/shared/hooks/use-toast";
 import { useGivingSettings, useUpdateGivingSettings } from "@/domains/giving/hooks/useGiving";
-import { AdminGivingPlatformSection } from "@/components/admin/admingiving/AdminGivingPlatformSection";
-import { AdminGivingQRSection } from "@/components/admin/admingiving/AdminGivingQRSection";
+import { AdminGivingPlatformSection } from "@/admin/giving/components/AdminGivingPlatformSection";
+import { AdminGivingQRSection } from "@/admin/giving/components/AdminGivingQRSection";
 
-export function AdminGiving() {
+export function AdminGivingPage() {
   const { data: settings, isLoading } = useGivingSettings();
   const updateSettings = useUpdateGivingSettings();
   const { toast } = useToast();
