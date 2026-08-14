@@ -32,6 +32,24 @@ function getBoundedInteger(
   return value;
 }
 
+export function validateAnalyticsDaysBack(value: unknown): number {
+  return getBoundedInteger(
+    { daysBack: value },
+    "daysBack",
+    0,
+    MAX_ANALYTICS_DAYS,
+  );
+}
+
+export function validateRecentVisitLimit(value: unknown): number {
+  return getBoundedInteger(
+    { limit: value },
+    "limit",
+    1,
+    MAX_RECENT_VISITS,
+  );
+}
+
 export function getAnalyticsStartDate(daysBack: number): string {
   return new Date(Date.now() - daysBack * MILLISECONDS_PER_DAY)
     .toISOString()
@@ -49,12 +67,7 @@ export function createAnalyticsHandlers(client: SupabaseClient) {
     },
 
     async summary(input: { daysBack: number }) {
-      const daysBack = getBoundedInteger(
-        input,
-        "daysBack",
-        0,
-        MAX_ANALYTICS_DAYS,
-      );
+      const daysBack = validateAnalyticsDaysBack(input?.daysBack);
       const { data, error } = await client.rpc("get_analytics_summary", {
         days_back: daysBack,
       });
@@ -64,12 +77,7 @@ export function createAnalyticsHandlers(client: SupabaseClient) {
     },
 
     async "daily-visits"(input: { daysBack: number }) {
-      const daysBack = getBoundedInteger(
-        input,
-        "daysBack",
-        0,
-        MAX_ANALYTICS_DAYS,
-      );
+      const daysBack = validateAnalyticsDaysBack(input?.daysBack);
       const { data, error } = await client
         .from("analytics_daily_stats")
         .select("date, total_visits, unique_visitors, page_path")
@@ -81,12 +89,7 @@ export function createAnalyticsHandlers(client: SupabaseClient) {
     },
 
     async "page-popularity"(input: { daysBack: number }) {
-      const daysBack = getBoundedInteger(
-        input,
-        "daysBack",
-        0,
-        MAX_ANALYTICS_DAYS,
-      );
+      const daysBack = validateAnalyticsDaysBack(input?.daysBack);
       const { data, error } = await client
         .from("analytics_daily_stats")
         .select("page_path, total_visits, unique_visitors")
@@ -98,7 +101,7 @@ export function createAnalyticsHandlers(client: SupabaseClient) {
     },
 
     async "recent-visits"(input: { limit: number }) {
-      const limit = getBoundedInteger(input, "limit", 1, MAX_RECENT_VISITS);
+      const limit = validateRecentVisitLimit(input?.limit);
       const { data, error } = await client
         .from("analytics_visits")
         .select("id, page_path, visited_at, user_agent, referrer")
