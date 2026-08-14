@@ -3,7 +3,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { type Ministry } from "@/hooks/useChurchData";
+import type { Ministry } from "@/domains/ministries/model/ministries.types";
 import { CARD_LABELS } from "./adminconstants/ministries/adminministries";
 
 export function SortableMinistryCard({

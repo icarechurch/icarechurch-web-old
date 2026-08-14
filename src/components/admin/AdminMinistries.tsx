@@ -40,11 +40,10 @@ import { Label } from "@/shared/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { Textarea } from "@/shared/components/ui/textarea";
 import {
-  type Ministry,
-  type MinistryInsert,
   useMinistries,
   useMinistryMutations,
-} from "@/hooks/useChurchData";
+} from "@/domains/ministries/hooks/useMinistries";
+import type { Ministry, MinistryInsert } from "@/domains/ministries/model/ministries.types";
 import {
   CATEGORY_LABELS,
   DEFAULT_FORM_STATE,

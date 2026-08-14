@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/shared/components/layout/Layout";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { useMinistries } from "@/hooks/useChurchData";
+import { useMinistries } from "@/domains/ministries/hooks/useMinistries";
 
 export default function Ministries() {
   const { data: ministries, isLoading } = useMinistries();

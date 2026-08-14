@@ -3,7 +3,6 @@ import { LOG_ACTION_TYPES } from "@/integrations/supabase/loggingTypes";
 import {
   churchInfoService,
   galleryService,
-  ministriesService,
   pastorsService,
   sermonsService,
   serviceTimesService,
@@ -11,25 +10,6 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@/shared/hooks/simple-query-hooks";
 
 // Types
-export type Ministry = {
-  id: string;
-  name: string;
-  description: string | null;
-  leader: string | null;
-  meeting_time: string | null;
-  image_url: string | null;
-  sort_order: number | null;
-  category: "ministry" | "outreach";
-  created_at: string;
-  updated_at: string;
-};
-
-export type MinistryInsert = Omit<
-  Ministry,
-  "id" | "created_at" | "updated_at"
-> & { id?: string };
-
-
 export type ServiceTime = {
   id: string;
   name: string;
@@ -114,69 +94,6 @@ export type Pastor = {
 export type PastorInsert = Omit<Pastor, "id" | "created_at" | "updated_at"> & {
   id?: string;
 };
-
-// Ministries
-export function useMinistries() {
-  return useQuery({
-    queryKey: ["ministries"],
-    queryFn: async () => ministriesService.getAll(),
-  });
-}
-
-export function useMinistryMutations() {
-  const queryClient = useQueryClient();
-
-  const createMinistry = useMutation({
-    mutationFn: async (ministry: MinistryInsert) =>
-      ministriesService.create(ministry),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["ministries"] });
-      logActivity(LOG_ACTION_TYPES.CREATE_MINISTRY, {
-        description: `Created ministry: ${data.name}`,
-        entityType: "ministry",
-        entityId: data.id,
-      });
-    },
-  });
-
-  const updateMinistry = useMutation({
-    mutationFn: async ({
-      id,
-      ...updates
-    }: Partial<Ministry> & { id: string }) =>
-      ministriesService.update({ id, ...updates }),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["ministries"] });
-      logActivity(LOG_ACTION_TYPES.UPDATE_MINISTRY, {
-        description: `Updated ministry: ${data.name}`,
-        entityType: "ministry",
-        entityId: data.id,
-      });
-    },
-  });
-
-  const deleteMinistry = useMutation({
-    mutationFn: async (id: string) => ministriesService.deleteMinistry(id),
-    onSuccess: (id) => {
-      queryClient.invalidateQueries({ queryKey: ["ministries"] });
-      logActivity(LOG_ACTION_TYPES.DELETE_MINISTRY, {
-        description: "Deleted a ministry",
-        entityType: "ministry",
-        entityId: id,
-      });
-    },
-  });
-
-  const updateSortOrder = useMutation({
-    mutationFn: async (items: Array<{ id: string; sort_order: number }>) =>
-      ministriesService.updateSortOrder(items),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["ministries"] }),
-  });
-
-  return { createMinistry, updateMinistry, deleteMinistry, updateSortOrder };
-}
-
 // Service Times
 export function useServiceTimes() {
   return useQuery({
