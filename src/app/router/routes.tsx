@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import AboutPage from "@/user/about/pages/AboutPage";
-import Admin from "@/pages/Admin";
+import AdminDashboardPage from "@/admin/dashboard/AdminDashboardPage";
 import Auth from "@/user/auth/pages/AuthPage";
 import ContactPage from "@/user/contact/pages/ContactPage";
 import Events from "@/user/events/pages/EventsPage";
@@ -30,7 +30,7 @@ export function AppRoutes() {
       <Route element={<Auth />} path="/auth" />
       <Route element={<UpdatePassword />} path="/update-password" />
       <Route element={<ProfilePage />} path="/profile" />
-      <Route element={<Admin />} path="/admin" />
+      <Route element={<AdminDashboardPage />} path="/admin" />
       <Route element={<Moderator />} path="/moderator" />
       <Route element={<NotFound />} path="*" />
     </Routes>
