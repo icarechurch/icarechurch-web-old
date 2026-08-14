@@ -11,7 +11,8 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { CORE_VALUES } from "@/shared/constants/core-values";
-import { type Pastor, usePastors } from "@/hooks/useChurchData";
+import { usePastors } from "@/domains/pastors/hooks/usePastors";
+import type { Pastor } from "@/domains/pastors/model/pastors.types";
 import { MissionVision } from "./pageconstants/MissionVision";
 
 export default function About() {

@@ -1,6 +1,6 @@
 import { Mail, MapPin, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useChurchInfo } from "@/hooks/useChurchData";
+import { useChurchInfo } from "@/domains/church-info/hooks/useChurchInfo";
 
 export function Footer() {
   const { data: churchInfo } = useChurchInfo();

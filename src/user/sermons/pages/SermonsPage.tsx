@@ -6,7 +6,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { useSermons } from "@/domains/sermons/hooks/useSermons";
-import { useChurchInfo } from "@/hooks/useChurchData";
+import { useChurchInfo } from "@/domains/church-info/hooks/useChurchInfo";
 
 const Sermons = () => {
   const { data: sermons, isLoading } = useSermons();

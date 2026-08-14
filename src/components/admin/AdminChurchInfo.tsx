@@ -24,14 +24,9 @@ import {
 } from "@/shared/components/ui/dialog";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
-import {
-  type Pastor,
-  type PastorInsert,
-  useChurchInfo,
-  useChurchInfoMutation,
-  usePastorMutations,
-  usePastors,
-} from "@/hooks/useChurchData";
+import { useChurchInfo, useChurchInfoMutation } from "@/domains/church-info/hooks/useChurchInfo";
+import { usePastorMutations, usePastors } from "@/domains/pastors/hooks/usePastors";
+import type { Pastor, PastorInsert } from "@/domains/pastors/model/pastors.types";
 import { ImageUpload } from "@/shared/components/media/ImageUpload";
 import {
   createDefaultPastorForm,

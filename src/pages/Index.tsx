@@ -4,7 +4,7 @@ import { CareGrid } from "@/user/ministries/components/CareGrid";
 import { EventPopup } from "@/components/EventPopup";
 import { Layout } from "@/shared/components/layout/Layout";
 import { Button } from "@/shared/components/ui/button";
-import { useChurchInfo } from "@/hooks/useChurchData";
+import { useChurchInfo } from "@/domains/church-info/hooks/useChurchInfo";
 
 const Index = () => {
   const { data: churchInfo } = useChurchInfo();
