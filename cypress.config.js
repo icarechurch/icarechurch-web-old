@@ -22,7 +22,10 @@ const getFrontendDataSources = () =>
 
 export default defineConfig({
   e2e: {
-    baseUrl: "http://localhost:8080",
+    baseUrl:
+      process.env.CYPRESS_SKIP_BASE_URL === "true"
+        ? undefined
+        : "http://localhost:8080",
     screenshotsFolder: "cypress/screenshots",
     trashAssetsBeforeRuns: true,
     setupNodeEvents(on, config) {

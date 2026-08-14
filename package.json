@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "test": "cypress run",
     "test:edge": "deno test -A supabase/functions",
+    "test:architecture": "cross-env CYPRESS_SKIP_BASE_URL=true cypress run --spec cypress/e2e/architecture/frontend-data-access.cy.js",
     "typecheck": "tsc --noEmit",
     "test:e2e": "cypress open",
     "dev:ssr": "node server.js",
