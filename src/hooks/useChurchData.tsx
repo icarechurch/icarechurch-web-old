@@ -3,7 +3,6 @@ import { logActivity } from "@/hooks/useLogs";
 import { LOG_ACTION_TYPES } from "@/integrations/supabase/loggingTypes";
 import {
   churchInfoService,
-  galleryService,
   pastorsService,
 } from "@/integrations/supabase/services";
 import { useMutation, useQuery, useQueryClient } from "@/shared/hooks/simple-query-hooks";
@@ -25,18 +24,6 @@ export type ChurchInfo = {
   fallback_stream_url: string | null;
   created_at: string;
   updated_at: string;
-};
-
-export type GalleryImage = {
-  id: string;
-  title: string;
-  description: string | null;
-  image_url: string;
-  created_at: string;
-};
-
-export type GalleryImageInsert = Omit<GalleryImage, "id" | "created_at"> & {
-  id?: string;
 };
 
 export type Pastor = {
@@ -82,45 +69,6 @@ export function useChurchInfoMutation() {
       });
     },
   });
-}
-
-// Gallery
-export function useGallery() {
-  return useQuery({
-    queryKey: ["gallery"],
-    queryFn: async () => galleryService.getGalleryImages(),
-  });
-}
-
-export function useGalleryMutations() {
-  const queryClient = useQueryClient();
-
-  const uploadImage = useMutation({
-    mutationFn: async (image: GalleryImageInsert) =>
-      galleryService.create(image),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["gallery"] });
-      logActivity(LOG_ACTION_TYPES.UPLOAD_IMAGE, {
-        description: `Uploaded image: ${data.title}`,
-        entityType: "gallery_image",
-        entityId: data.id,
-      });
-    },
-  });
-
-  const deleteImage = useMutation({
-    mutationFn: async (id: string) => galleryService.deleteGalleryImage(id),
-    onSuccess: (id) => {
-      queryClient.invalidateQueries({ queryKey: ["gallery"] });
-      logActivity(LOG_ACTION_TYPES.DELETE_IMAGE, {
-        description: "Deleted a gallery image",
-        entityType: "gallery_image",
-        entityId: id,
-      });
-    },
-  });
-
-  return { uploadImage, deleteImage };
 }
 
 // Pastors
