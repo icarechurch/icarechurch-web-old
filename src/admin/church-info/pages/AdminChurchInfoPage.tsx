@@ -34,9 +34,9 @@ import {
   getErrorMessage,
   getInitials,
   pastorToFormState,
-} from "./adminconstants/churchinfo/adminchurchinfo";
+} from "@/admin/church-info/adminchurchinfo";
 
-export function AdminChurchInfo() {
+export function AdminChurchInfoPage() {
   const { data: churchInfo, isLoading } = useChurchInfo();
   const mutation = useChurchInfoMutation();
   const { data: pastors, isLoading: pastorsLoading } = usePastors();

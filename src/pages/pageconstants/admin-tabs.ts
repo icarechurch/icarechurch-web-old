@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
-import { AdminChurchInfo } from "@/components/admin/AdminChurchInfo";
+import { AdminChurchInfoPage } from "@/admin/church-info/pages/AdminChurchInfoPage";
 import { AdminEventsPage } from "@/admin/events/pages/AdminEventsPage";
 import { AdminGalleryPage } from "@/admin/gallery/pages/AdminGalleryPage";
 import { AdminGivingPage } from "@/admin/giving/pages/AdminGivingPage";
@@ -17,7 +17,7 @@ export const TAB_COMPONENTS = {
   events: AdminEventsPage,
   sermons: AdminSermonsPage,
   services: AdminServiceTimesPage,
-  "church-info": AdminChurchInfo,
+  "church-info": AdminChurchInfoPage,
   gallery: AdminGalleryPage,
   giving: AdminGivingPage,
   users: AdminUsers,
