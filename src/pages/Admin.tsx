@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { TabGuard } from "@/admin/layout/TabGuard";
-import { TAB_COMPONENTS, type TabKey } from "@/pages/pageconstants/admin-tabs";
+import { TAB_COMPONENTS, type TabKey } from "@/admin/layout/admin-tabs";
 import { Navigate } from "react-router-dom";
-import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminSidebar } from "@/admin/layout/AdminSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/shared/components/ui/sidebar";
 import { useAuth } from "@/domains/auth/hooks/useAuth";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";

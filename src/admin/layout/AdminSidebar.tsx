@@ -37,7 +37,7 @@ import {
   useSidebar,
 } from "@/shared/components/ui/sidebar";
 import { useAuth } from "@/domains/auth/hooks/useAuth";
-import type { TabKey } from "@/pages/pageconstants/admin-tabs";
+import type { TabKey } from "@/admin/layout/admin-tabs";
 
 interface MenuItem {
   id: TabKey;
