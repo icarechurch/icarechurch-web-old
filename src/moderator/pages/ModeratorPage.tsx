@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { AdminEventsPage } from "@/admin/events/pages/AdminEventsPage";
 import { AdminGalleryPage } from "@/admin/gallery/pages/AdminGalleryPage";
 import { AdminMinistriesPage } from "@/admin/ministries/pages/AdminMinistriesPage";
-import { AdminProfile } from "@/components/admin/AdminProfile";
+import { AdminProfile } from "@/admin/users/components/AdminProfile";
 import { AdminSermonsPage } from "@/admin/sermons/pages/AdminSermonsPage";
 import { ModeratorAnalytics } from "@/moderator/analytics/ModeratorAnalyticsPage";
 import { ModeratorSidebar } from "@/moderator/layout/ModeratorSidebar";

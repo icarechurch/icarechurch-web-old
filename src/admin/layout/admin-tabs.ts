@@ -6,7 +6,7 @@ import { AdminGalleryPage } from "@/admin/gallery/pages/AdminGalleryPage";
 import { AdminGivingPage } from "@/admin/giving/pages/AdminGivingPage";
 import { AdminLogsPage } from "@/admin/activity-logs/pages/AdminLogsPage";
 import { AdminMinistriesPage } from "@/admin/ministries/pages/AdminMinistriesPage";
-import { AdminProfile } from "@/components/admin/AdminProfile";
+import { AdminProfile } from "@/admin/users/components/AdminProfile";
 import { AdminSermonsPage } from "@/admin/sermons/pages/AdminSermonsPage";
 import { AdminServiceTimesPage } from "@/admin/service-times/pages/AdminServiceTimesPage";
 import { AdminUsersPage } from "@/admin/users/pages/AdminUsersPage";
