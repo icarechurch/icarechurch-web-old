@@ -6,12 +6,12 @@ import { AdminMinistriesPage } from "@/admin/ministries/pages/AdminMinistriesPag
 import { AdminProfile } from "@/components/admin/AdminProfile";
 import { AdminSermonsPage } from "@/admin/sermons/pages/AdminSermonsPage";
 import { ModeratorAnalytics } from "@/moderator/analytics/ModeratorAnalyticsPage";
-import { ModeratorSidebar } from "@/components/moderator/ModeratorSidebar";
+import { ModeratorSidebar } from "@/moderator/layout/ModeratorSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/shared/components/ui/sidebar";
 import { useAuth } from "@/domains/auth/hooks/useAuth";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
-export default function Moderator() {
+export default function ModeratorPage() {
   const { isModerator, isAdmin, loading } = useAuth();
   const [activeTab, setActiveTab] = useState("analytics");
 
