@@ -1,5 +1,5 @@
 import { supabase } from "@/infrastructure/supabase/client";
-import { invokeFunction } from "../functions";
+import { invokeFunction } from "@/infrastructure/supabase/functions";
 
 export type UpdateProfileParams = {
   id: string;

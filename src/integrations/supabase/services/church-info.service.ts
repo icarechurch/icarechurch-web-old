@@ -1,4 +1,4 @@
-import { invokeFunction } from "../functions";
+import { invokeFunction } from "@/infrastructure/supabase/functions";
 
 export type ChurchInfo = {
   id: string;

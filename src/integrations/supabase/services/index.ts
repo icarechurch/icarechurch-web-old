@@ -25,8 +25,8 @@ export { serviceTimesService } from "./service-times.service";
 export type {
   UploadImageParams,
   UploadImageResult,
-} from "./storage.service";
-export { storageService } from "./storage.service";
+} from "@/infrastructure/supabase/storage";
+export { storageService } from "@/infrastructure/supabase/storage";
 export type {
   CreateUserRoleParams,
   DeleteUserParams,

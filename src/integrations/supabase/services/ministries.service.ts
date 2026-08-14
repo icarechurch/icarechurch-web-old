@@ -1,4 +1,4 @@
-import { invokeFunction } from "../functions";
+import { invokeFunction } from "@/infrastructure/supabase/functions";
 
 type MinistryInsert = {
   name: string;

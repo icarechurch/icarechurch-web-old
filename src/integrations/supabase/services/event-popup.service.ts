@@ -1,5 +1,5 @@
 import type { Database } from "@/infrastructure/supabase/types";
-import { invokeFunction } from "../functions";
+import { invokeFunction } from "@/infrastructure/supabase/functions";
 
 export type EventPopupSettings =
   Database["public"]["Tables"]["event_popup_settings"]["Row"];
