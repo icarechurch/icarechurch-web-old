@@ -1,5 +1,5 @@
 import { Image as ImageIcon, Loader2 } from "lucide-react";
-import { Layout } from "@/components/layout/Layout";
+import { Layout } from "@/shared/components/layout/Layout";
 import { Card } from "@/shared/components/ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/shared/components/ui/dialog";
 import { Marquee } from "@/shared/components/ui/marquee";

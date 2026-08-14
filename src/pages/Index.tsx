@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { CareGrid } from "@/components/CareGrid";
 import { EventPopup } from "@/components/EventPopup";
-import { Layout } from "@/components/layout/Layout";
+import { Layout } from "@/shared/components/layout/Layout";
 import { Button } from "@/shared/components/ui/button";
 import { useChurchInfo } from "@/hooks/useChurchData";
 

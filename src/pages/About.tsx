@@ -1,7 +1,7 @@
 import { Facebook, Mail, Phone} from "lucide-react";
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Layout } from "@/components/layout/Layout";
+import { Layout } from "@/shared/components/layout/Layout";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import {

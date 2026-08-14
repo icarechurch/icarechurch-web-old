@@ -1,7 +1,7 @@
 import { Download, ExternalLink, MapPin } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Layout } from "@/components/layout/Layout";
+import { Layout } from "@/shared/components/layout/Layout";
 import { Button } from "@/shared/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { GivingHeader } from "@/components/giving/GivingHeader";

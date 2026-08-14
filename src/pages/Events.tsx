@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { Calendar, Clock, MapPin } from "lucide-react";
-import { Layout } from "@/components/layout/Layout";
+import { Layout } from "@/shared/components/layout/Layout";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { useEvents } from "@/hooks/useChurchData";
 
