@@ -3,7 +3,7 @@ import { Calendar, Clock, Image as ImageIcon, MapPin } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useEvents } from "@/domains/events/hooks/useEvents";
-import { useEventPopupSettings } from "@/hooks/useEventPopup";
+import { useEventPopupSettings } from "@/domains/event-popup/hooks/useEventPopup";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";

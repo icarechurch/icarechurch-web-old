@@ -46,7 +46,7 @@ import type { Event, EventInsert } from "@/domains/events/model/events.types";
 import {
   useEventPopupSettings,
   useUpdateEventPopupSettings,
-} from "@/hooks/useEventPopup";
+} from "@/domains/event-popup/hooks/useEventPopup";
 import { ImageUpload } from "@/shared/components/media/ImageUpload";
 import {
   type EventFormState,
