@@ -1,4 +1,5 @@
 import { supabase } from "../client";
+import { invokeFunction } from "../functions";
 
 export type UpdateProfileParams = {
   id: string;
@@ -11,28 +12,23 @@ export type ProfileData = {
 
 export const profileService = {
   async getProfile(userId: string): Promise<ProfileData> {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("full_name")
-      .eq("id", userId)
-      .single();
-
-    if (error) {
-      throw error;
-    }
-    return data as ProfileData;
+    return invokeFunction<ProfileData>("user-data", {
+      resource: "profiles",
+      operation: "get",
+      input: { userId },
+    });
   },
 
   async updateProfile(params: UpdateProfileParams): Promise<void> {
-    const { error } = await supabase.from("profiles").upsert({
-      id: params.id,
-      full_name: params.full_name,
-      updated_at: new Date().toISOString(),
+    await invokeFunction<null>("user-data", {
+      resource: "profiles",
+      operation: "upsert",
+      input: {
+        id: params.id,
+        full_name: params.full_name,
+        updated_at: new Date().toISOString(),
+      },
     });
-
-    if (error) {
-      throw error;
-    }
   },
 
   async updatePassword(newPassword: string): Promise<void> {

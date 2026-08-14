@@ -1,4 +1,4 @@
-import { supabase } from "../client";
+import { invokeFunction } from "../functions";
 
 export type CreateUserRoleParams = {
   user_id: string;
@@ -16,49 +16,34 @@ export type DeleteUserParams = {
 
 export const usersService = {
   async createUserRole(params: CreateUserRoleParams): Promise<void> {
-    const { error } = await supabase.from("user_roles").insert({
-      user_id: params.user_id,
-      role: params.role,
+    await invokeFunction<null>("user-data", {
+      resource: "roles",
+      operation: "create",
+      input: params,
     });
-
-    if (error) {
-      throw error;
-    }
   },
 
   async deleteUserRole(userId: string): Promise<void> {
-    const { error } = await supabase
-      .from("user_roles")
-      .delete()
-      .eq("user_id", userId);
-
-    if (error) {
-      throw error;
-    }
+    await invokeFunction<null>("user-data", {
+      resource: "roles",
+      operation: "delete",
+      input: { userId },
+    });
   },
 
   async updateUserRole(params: UpdateUserRoleParams): Promise<void> {
-    // First, delete any existing roles for this user
-    await supabase.from("user_roles").delete().eq("user_id", params.user_id);
-
-    // Then insert the new role
-    const { error } = await supabase.from("user_roles").insert({
-      user_id: params.user_id,
-      role: params.role,
+    await invokeFunction<null>("user-data", {
+      resource: "roles",
+      operation: "replace",
+      input: params,
     });
-
-    if (error) {
-      throw error;
-    }
   },
 
   async deleteUser(params: DeleteUserParams): Promise<void> {
-    const { error } = await supabase.rpc("delete_user", {
-      target_user_id: params.target_user_id,
+    await invokeFunction<null>("user-data", {
+      resource: "users",
+      operation: "delete",
+      input: params,
     });
-
-    if (error) {
-      throw error;
-    }
   },
 };
