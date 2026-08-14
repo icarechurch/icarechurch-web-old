@@ -4,7 +4,7 @@ import { AdminEvents } from "@/admin/events/pages/AdminEventsPage";
 import { AdminGallery } from "@/components/admin/AdminGallery";
 import { AdminMinistries } from "@/admin/ministries/pages/AdminMinistriesPage";
 import { AdminProfile } from "@/components/admin/AdminProfile";
-import { AdminSermons } from "@/components/admin/AdminSermons";
+import { AdminSermons } from "@/admin/sermons/pages/AdminSermonsPage";
 import { ModeratorAnalytics } from "@/components/moderator/ModeratorAnalytics";
 import { ModeratorSidebar } from "@/components/moderator/ModeratorSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/shared/components/ui/sidebar";
@@ -51,7 +51,7 @@ export default function Moderator() {
 
             {activeTab === "analytics" && <ModeratorAnalytics />}
             {activeTab === "events" && <AdminEventsPage />}
-            {activeTab === "sermons" && <AdminSermons />}
+            {activeTab === "sermons" && <AdminSermonsPage />}
             {activeTab === "ministries" && <AdminMinistriesPage />}
             {activeTab === "gallery" && <AdminGallery />}
             {activeTab === "profile" && <AdminProfile />}

@@ -31,7 +31,7 @@ import {
   useChurchInfoMutation,
   usePastorMutations,
   usePastors,
-} from "@/domains/sermons/hooks/useSermons";
+} from "@/hooks/useChurchData";
 import { ImageUpload } from "@/shared/components/media/ImageUpload";
 import {
   createDefaultPastorForm,

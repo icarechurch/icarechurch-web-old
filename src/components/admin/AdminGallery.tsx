@@ -15,7 +15,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { useToast } from "@/shared/components/ui/use-toast";
-import { useGallery, useGalleryMutations } from "@/domains/sermons/hooks/useSermons";
+import { useGallery, useGalleryMutations } from "@/hooks/useChurchData";
 import { storageService } from "@/integrations/supabase/services";
 import {
   FORM_LABELS,

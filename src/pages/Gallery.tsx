@@ -3,7 +3,7 @@ import { Layout } from "@/shared/components/layout/Layout";
 import { Card } from "@/shared/components/ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/shared/components/ui/dialog";
 import { Marquee } from "@/shared/components/ui/marquee";
-import { useGallery } from "@/domains/sermons/hooks/useSermons";
+import { useGallery } from "@/hooks/useChurchData";
 
 const Gallery = () => {
   const { data: images, isLoading } = useGallery();

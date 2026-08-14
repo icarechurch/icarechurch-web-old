@@ -1,4 +1,4 @@
-import type { Pastor, PastorInsert } from "@/domains/sermons/hooks/useSermons";
+import type { Pastor, PastorInsert } from "@/hooks/useChurchData";
 
 /**
  * Default empty church info form state

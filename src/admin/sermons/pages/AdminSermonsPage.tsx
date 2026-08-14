@@ -46,22 +46,10 @@ import {
   useSermons,
 } from "@/domains/sermons/hooks/useSermons";
 import type { Sermon, SermonInsert } from "@/domains/sermons/model/sermons.types";
+import { INITIAL_SERMON_FORM_DATA } from "@/admin/sermons/sermons.constants";
 
-const INITIAL_FORM_DATA: SermonInsert = {
-  title: "",
-  description: "",
-  speaker: "",
-  sermon_date: "",
-  video_url: "",
-  audio_url: "",
-  scripture_reference: "",
-  series_name: "",
-  thumbnail_url: "",
-  duration_minutes: null,
-  is_featured: false,
-};
-
-export function AdminSermons() {
+const INITIAL_FORM_DATA = INITIAL_SERMON_FORM_DATA;
+export function AdminSermonsPage() {
   const { data: sermons, isLoading } = useSermons();
   const { createSermon, updateSermon, deleteSermon } = useSermonMutations();
   const [isOpen, setIsOpen] = useState(false);

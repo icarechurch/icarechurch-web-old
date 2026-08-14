@@ -5,17 +5,17 @@ import { AdminEventsPage } from "@/admin/events/pages/AdminEventsPage";
 import { AdminGallery } from "@/components/admin/AdminGallery";
 import { AdminGiving } from "@/components/admin/AdminGiving";
 import { AdminLogs } from "@/components/admin/AdminLogs";
-import { AdminMinistriesPage } from "@/admin/ministries/pages/AdminMinistriesPagePage";
+import { AdminMinistriesPage } from "@/admin/ministries/pages/AdminMinistriesPage";
 import { AdminProfile } from "@/components/admin/AdminProfile";
-import { AdminSermons } from "@/components/admin/AdminSermons";
-import { AdminServiceTimesPage } from "@/admin/service-times/pages/AdminServiceTimesPagePage";
+import { AdminSermonsPage } from "@/admin/sermons/pages/AdminSermonsPage";
+import { AdminServiceTimesPage } from "@/admin/service-times/pages/AdminServiceTimesPage";
 import { AdminUsers } from "@/components/admin/AdminUsers";
 
 export const TAB_COMPONENTS = {
   analytics: AdminAnalytics,
   ministries: AdminMinistriesPage,
   events: AdminEventsPage,
-  sermons: AdminSermons,
+  sermons: AdminSermonsPage,
   services: AdminServiceTimesPage,
   "church-info": AdminChurchInfo,
   gallery: AdminGallery,

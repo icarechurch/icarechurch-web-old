@@ -1,4 +1,5 @@
 import { logActivity } from "@/hooks/useLogs";
+import { logActivity } from "@/hooks/useLogs";
 import { LOG_ACTION_TYPES } from "@/integrations/supabase/loggingTypes";
 import {
   churchInfoService,
@@ -54,7 +55,9 @@ export type Pastor = {
 
 export type PastorInsert = Omit<Pastor, "id" | "created_at" | "updated_at"> & {
   id?: string;
-};`n// Church Info
+};
+
+// Church Info
 export function useChurchInfo() {
   return useQuery({
     queryKey: ["church_info"],
