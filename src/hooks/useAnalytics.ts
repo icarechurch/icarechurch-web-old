@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { analyticsService } from "@/integrations/supabase/services/analytics.service";
 import { useQuery } from "./simple-query-hooks";
 
 export interface ContentAnalytics {
@@ -47,13 +47,7 @@ export const trackPageVisit = async (pagePath: string) => {
       referrer: document.referrer || null,
     };
 
-    const { data, error } = await supabase
-      .from("analytics_visits")
-      .insert(payload);
-
-    if (error) {
-      // Analytics tracking failed silently
-    }
+    await analyticsService.trackPageVisit(payload);
   } catch (_error) {
     // Analytics tracking failed silently
   }
@@ -72,16 +66,8 @@ export const useAnalyticsSummary = (daysBack = 30) => {
     queryKey: ["analytics-summary", daysBack],
     queryFn: async () => {
       try {
-        const { data, error } = await supabase.rpc("get_analytics_summary", {
-          days_back: daysBack,
-        });
-
-        if (error) {
-          throw error;
-        }
-
         return (
-          data?.[0] || {
+          (await analyticsService.getSummary(daysBack)) || {
             total_visits: 0,
             unique_visitors: 0,
             total_pages: 0,
@@ -110,18 +96,7 @@ export const useDailyVisits = (daysBack = 30) => {
   return useQuery({
     queryKey: ["daily-visits", daysBack],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("analytics_daily_stats")
-        .select("date, total_visits, unique_visitors, page_path")
-        .gte(
-          "date",
-          new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split("T")[0]
-        )
-        .order("date", { ascending: true });
-
-      if (error) throw error;
+      const data = await analyticsService.getDailyVisits(daysBack);
 
       // Group by date and sum visits
       const groupedData = data?.reduce(
@@ -154,18 +129,7 @@ export const usePagePopularity = (daysBack = 30) => {
   return useQuery({
     queryKey: ["page-popularity", daysBack],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("analytics_daily_stats")
-        .select("page_path, total_visits, unique_visitors")
-        .gte(
-          "date",
-          new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split("T")[0]
-        )
-        .order("total_visits", { ascending: false });
-
-      if (error) throw error;
+      const data = await analyticsService.getPagePopularity(daysBack);
 
       // Group by page and sum visits
       const groupedData = data?.reduce(
@@ -200,14 +164,7 @@ export const useRecentVisits = (limit = 50) => {
   return useQuery({
     queryKey: ["recent-visits", limit],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("analytics_visits")
-        .select("id, page_path, visited_at, user_agent, referrer")
-        .order("visited_at", { ascending: false })
-        .limit(limit);
-
-      if (error) throw error;
-      return data;
+      return analyticsService.getRecentVisits(limit);
     },
     refetchInterval: 30_000, // Refetch every 30 seconds
   });
@@ -219,19 +176,8 @@ export const useContentAnalytics = () => {
     queryKey: ["content-analytics"],
     queryFn: async (): Promise<ContentAnalytics> => {
       try {
-        // Get ministries count
-        const { data: ministriesData, error: ministriesError } = await supabase
-          .from("ministries")
-          .select("id");
-
-        if (ministriesError) throw ministriesError;
-
-        // Get events with status filtering
-        const { data: eventsData, error: eventsError } = await supabase
-          .from("events")
-          .select("id, status");
-
-        if (eventsError) throw eventsError;
+        const { ministries: ministriesData, events: eventsData } =
+          await analyticsService.getContentAnalyticsRows();
 
         const scheduledEvents =
           eventsData?.filter((event) => event.status === "scheduled") || [];
