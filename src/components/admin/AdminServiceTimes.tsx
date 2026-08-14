@@ -27,7 +27,7 @@ import {
   type ServiceTimeInsert,
   useServiceTimeMutations,
   useServiceTimes,
-} from "@/hooks/useChurchData";
+} from "@/domains/service-times/hooks/useServiceTimes";
 import {
   INITIAL_FORM_STATE,
   REQUIRED_FIELDS,

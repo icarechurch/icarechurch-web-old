@@ -5,27 +5,10 @@ import {
   galleryService,
   pastorsService,
   sermonsService,
-  serviceTimesService,
 } from "@/integrations/supabase/services";
 import { useMutation, useQuery, useQueryClient } from "@/shared/hooks/simple-query-hooks";
 
 // Types
-export type ServiceTime = {
-  id: string;
-  name: string;
-  time: string;
-  description: string | null;
-  audience: string | null;
-  sort_order: number | null;
-  created_at: string;
-  updated_at: string;
-};
-
-export type ServiceTimeInsert = Omit<
-  ServiceTime,
-  "id" | "created_at" | "updated_at"
-> & { id?: string };
-
 export type Sermon = {
   id: string;
   title: string;
@@ -93,75 +76,7 @@ export type Pastor = {
 
 export type PastorInsert = Omit<Pastor, "id" | "created_at" | "updated_at"> & {
   id?: string;
-};
-// Service Times
-export function useServiceTimes() {
-  return useQuery({
-    queryKey: ["service_times"],
-    queryFn: async () => serviceTimesService.getServiceTimes(),
-  });
-}
-
-export function useServiceTimeMutations() {
-  const queryClient = useQueryClient();
-
-  const createServiceTime = useMutation({
-    mutationFn: async (serviceTime: ServiceTimeInsert) =>
-      serviceTimesService.create(serviceTime),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["service_times"] });
-      logActivity(LOG_ACTION_TYPES.CREATE_SERVICE_TIME, {
-        description: `Created service time: ${data.name}`,
-        entityType: "service_time",
-        entityId: data.id,
-      });
-    },
-  });
-
-  const updateServiceTime = useMutation({
-    mutationFn: async ({
-      id,
-      ...updates
-    }: Partial<ServiceTime> & { id: string }) =>
-      serviceTimesService.update({ id, ...updates }),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["service_times"] });
-      logActivity(LOG_ACTION_TYPES.UPDATE_SERVICE_TIME, {
-        description: `Updated service time: ${data.name}`,
-        entityType: "service_time",
-        entityId: data.id,
-      });
-    },
-  });
-
-  const deleteServiceTime = useMutation({
-    mutationFn: async (id: string) => serviceTimesService.deleteServiceTime(id),
-    onSuccess: (id) => {
-      queryClient.invalidateQueries({ queryKey: ["service_times"] });
-      logActivity(LOG_ACTION_TYPES.DELETE_SERVICE_TIME, {
-        description: "Deleted a service time",
-        entityType: "service_time",
-        entityId: id,
-      });
-    },
-  });
-
-  const updateSortOrder = useMutation({
-    mutationFn: async (items: Array<{ id: string; sort_order: number }>) =>
-      serviceTimesService.updateSortOrder(items),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["service_times"] }),
-  });
-
-  return {
-    createServiceTime,
-    updateServiceTime,
-    deleteServiceTime,
-    updateSortOrder,
-  };
-}
-
-// Church Info
+};`n// Church Info
 export function useChurchInfo() {
   return useQuery({
     queryKey: ["church_info"],

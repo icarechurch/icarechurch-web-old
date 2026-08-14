@@ -5,9 +5,9 @@ import { Layout } from "@/shared/components/layout/Layout";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { expectItems } from "@/shared/constants/expect-items";
-import { useServiceTimes } from "@/hooks/useChurchData";
+import { useServiceTimes } from "@/domains/service-times/hooks/useServiceTimes";
 
-export default function Services() {
+export default function ServicesPage() {
   const { data: serviceTimes, isLoading } = useServiceTimes();
 
   return (

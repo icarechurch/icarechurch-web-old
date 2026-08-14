@@ -20,8 +20,8 @@ export { pastorsService } from "./pastors.service";
 export type { ProfileData, UpdateProfileParams } from "./profiles.service";
 export { profileService } from "./profiles.service";
 export { sermonsService } from "./sermons.service";
-export type { ServiceTime } from "./service-times.service";
-export { serviceTimesService } from "./service-times.service";
+export type { ServiceTime } from "@/domains/service-times/model/service-times.types";
+export { serviceTimesApi } from "@/domains/service-times/api/service-times.api";
 export type {
   UploadImageParams,
   UploadImageResult,

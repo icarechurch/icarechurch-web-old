@@ -1,4 +1,4 @@
-import type { ServiceTime } from "@/hooks/useChurchData";
+import type { ServiceTime } from "@/domains/service-times/model/service-times.types";
 
 /**
  * Initial form state for service time creation/editing
