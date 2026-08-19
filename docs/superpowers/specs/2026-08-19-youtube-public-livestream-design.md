@@ -31,17 +31,23 @@ response uses the shared `{ data: ... }` envelope.
 
 The function owns all YouTube calls and a single-row
 `youtube_livestream_status` cache in Supabase. The row stores the most recent
-live/offline result, its check time, and a short refresh lease. Direct browser
-access to the table is denied; only the function's service-role client can
-read or update it.
+live/offline result, the timestamp of the last provider attempt, and a short
+refresh lease. Direct browser access to the table is denied; only the
+function's service-role client can read or update it.
 
 Outside Sunday 5:00 AM–12:00 PM in `Asia/Taipei`, the function immediately
 returns `offline` without contacting YouTube. Within that window, it returns
-the cached result if it is less than ten minutes old. If stale, it atomically
-claims the one-minute refresh lease before calling YouTube; concurrent visitors
-return the prior safe result while the claimant refreshes. This limits provider
-discovery to at most 42 requests per Sunday checking window, or 2,184 requests
-per 52-window year, without visitor traffic multiplying provider calls.
+the cached result if the last provider attempt is less than ten minutes old.
+If stale, it atomically claims the one-minute refresh lease before calling
+YouTube; concurrent visitors return the prior safe result while the claimant
+refreshes. The provider-attempt timestamp is written for successful, offline,
+and failed lookups, so a failure also begins the ten-minute cooldown.
+
+The first 52 Sundays in each Asia/Taipei calendar year are eligible checking
+windows. A rare 53rd Sunday is not eligible: the function returns `offline`
+without a provider call. Each eligible seven-hour window permits at most 42
+provider requests, or 2,184 requests in a 52-window year, without visitor
+traffic multiplying provider calls.
 
 After claiming a refresh, the function calls the YouTube Data API using a
 server-side API key and a configured channel ID. It requests a single video
@@ -77,7 +83,8 @@ Visitor opens Sermons page
   -> function returns offline outside the Sunday Taiwan-time window
   -> during the window, function reads its single cached status row
   -> stale cache lease holder queries YouTube for an active public embed
-  -> function saves the new live/offline result and releases the lease
+  -> function saves a live/offline result and provider-attempt timestamp,
+     then releases the lease
   -> { status: "live", video } or { status: "offline" }
   -> page renders YouTube player or offline state
 ```
@@ -106,10 +113,12 @@ repository or added to browser environment variables.
 - Missing configuration, a malformed provider response, or a YouTube request
   failure returns HTTP 502 with the existing error envelope:
   `{ error: { code: "YOUTUBE_LOOKUP_FAILED", message: "Unable to check for a live stream" } }`.
-  This does not expose provider details or secrets.
+  Before returning, the function saves an `offline` cache state and the failed
+  provider-attempt timestamp. This does not expose provider details or secrets.
 - No matching result is a normal `offline` response, not an error.
-- The lease is cleared after both successful and failed provider calls, so a
-  transient error cannot block the next ten-minute refresh attempt.
+- The lease is cleared after both successful and failed provider calls. The
+  persisted provider-attempt timestamp prevents a transient error from
+  triggering another provider call before the next ten-minute interval.
 - The client treats lookup failures the same as offline for visitors, with an
   accessible message and channel link.
 - The iframe uses YouTube’s video-specific embed URL with an explicit title,
@@ -117,9 +126,9 @@ repository or added to browser environment variables.
 
 ## Testing
 
-- Unit-test the Taipei Sunday-window boundary logic, cache freshness, atomic
-  refresh claiming, provider parameters, and response mapping for live,
-  offline, malformed, and provider-error responses.
+- Unit-test the Taipei Sunday-window and 53rd-Sunday boundaries, cache
+  freshness, atomic refresh claiming, provider parameters, and response
+  mapping for live, offline, malformed, and provider-error responses.
 - Migration-test the single cache row, its constraints, and its no-direct-
   access RLS policy.
 - Unit-test the React component for loading, live, offline, and error states.
