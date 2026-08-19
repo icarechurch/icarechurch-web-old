@@ -11,7 +11,7 @@ to website visitors.
 
 - Replace the Facebook-specific livestream embed with a YouTube embed.
 - Detect only active, public, embeddable broadcasts from the configured
-  channel during the weekly Sunday refresh window.
+  channel during an eligible Sunday checking window.
 - Show a clear offline state and a link to the channel when no qualifying
   broadcast exists.
 - Keep YouTube API configuration entirely in Supabase Edge Function secrets.
@@ -39,9 +39,12 @@ Outside Sunday 5:00 AM–12:00 PM in `Asia/Taipei`, the function immediately
 returns `offline` without contacting YouTube. Within that window, it returns
 the cached result if the last provider attempt is less than ten minutes old.
 If stale, it atomically claims the one-minute refresh lease before calling
-YouTube; concurrent visitors return the prior safe result while the claimant
-refreshes. The provider-attempt timestamp is written for successful, offline,
-and failed lookups, so a failure also begins the ten-minute cooldown.
+YouTube. The claim immediately stores an `offline` state and the
+provider-attempt timestamp; concurrent visitors therefore return `offline`
+while the claimant refreshes, and cannot make a second provider call even if
+the lease expires. The YouTube request has a 30-second abort timeout. A
+successful, offline, or failed lookup retains the already-recorded attempt
+timestamp, so every attempt begins the ten-minute cooldown.
 
 The first 52 Sundays in each Asia/Taipei calendar year are eligible checking
 windows. A rare 53rd Sunday is not eligible: the function returns `offline`
@@ -82,7 +85,8 @@ Visitor opens Sermons page
   -> client invokes youtube-livestream Edge Function
   -> function returns offline outside the Sunday Taiwan-time window
   -> during the window, function reads its single cached status row
-  -> stale cache lease holder queries YouTube for an active public embed
+  -> stale cache claim records an offline attempt before querying YouTube
+  -> lease holder queries YouTube for an active public embed (30-second limit)
   -> function saves a live/offline result and provider-attempt timestamp,
      then releases the lease
   -> { status: "live", video } or { status: "offline" }
@@ -117,8 +121,8 @@ repository or added to browser environment variables.
   provider-attempt timestamp. This does not expose provider details or secrets.
 - No matching result is a normal `offline` response, not an error.
 - The lease is cleared after both successful and failed provider calls. The
-  persisted provider-attempt timestamp prevents a transient error from
-  triggering another provider call before the next ten-minute interval.
+  timestamp recorded at claim time prevents a slow or failed provider request
+  from triggering another provider call before the next ten-minute interval.
 - The client treats lookup failures the same as offline for visitors, with an
   accessible message and channel link.
 - The iframe uses YouTube’s video-specific embed URL with an explicit title,
