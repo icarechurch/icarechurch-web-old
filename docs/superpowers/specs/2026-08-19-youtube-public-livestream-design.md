@@ -22,18 +22,29 @@ Supabase resources.
 
 ## Architecture
 
-The browser calls a new public Supabase Edge Function, `youtube-livestream`.
-The function calls the YouTube Data API using a server-side API key and a
-configured channel ID. It requests a single video limited to:
+The browser calls a new public Supabase Edge Function, `youtube-livestream`,
+through the project's existing `invokeFunction` helper. Its request body is
+`{ resource: "livestream", operation: "get-active" }` and its successful
+response uses the shared `{ data: ... }` envelope. The function calls the
+YouTube Data API using a server-side API key and a configured channel ID. It
+requests a single video limited to:
 
 - `eventType=live` (currently active broadcasts)
 - `type=video`
 - `videoEmbeddable=true`
 - `videoSyndicated=true`
 
-Unauthenticated YouTube Data API queries return public data. The function
-returns either a small `live` response containing the video ID, title, and
-thumbnail, or an `offline` response. It never returns its API key.
+Unauthenticated YouTube Data API queries return public data. The `data` value
+is one of the following discriminated responses:
+
+```ts
+{ status: "live", video: { id: string; title: string } }
+{ status: "offline" }
+```
+
+It never returns its API key or the upstream provider response. The client
+caches the resolved result for 60 seconds to avoid repeatedly consuming the
+YouTube search quota while a visitor remains on the page.
 
 The existing client helper invokes the function. A dedicated React component
 renders a 16:9 YouTube iframe only for a `live` response; for `offline`,
@@ -70,8 +81,10 @@ repository or added to browser environment variables.
 
 ## Error handling
 
-- Missing configuration or an unexpected YouTube response produces a safe
-  lookup failure without exposing provider details or secrets.
+- Missing configuration, a malformed provider response, or a YouTube request
+  failure returns HTTP 502 with the existing error envelope:
+  `{ error: { code: "YOUTUBE_LOOKUP_FAILED", message: "Unable to check for a live stream" } }`.
+  This does not expose provider details or secrets.
 - No matching result is a normal `offline` response, not an error.
 - The client treats lookup failures the same as offline for visitors, with an
   accessible message and channel link.
