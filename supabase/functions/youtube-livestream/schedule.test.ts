@@ -49,11 +49,11 @@ Deno.test("enforces the Sunday window boundaries in Asia/Taipei", () => {
 Deno.test("allows a fresh attempt for less than ten minutes", () => {
   const attemptedAt = "2026-01-04T00:00:00.000Z";
 
-  if (!isFreshAttempt(attemptedAt, new Date("2026-01-04T09:59:59.999Z"))) {
+  if (!isFreshAttempt(attemptedAt, new Date("2026-01-04T00:09:59.999Z"))) {
     throw new Error("Expected a 9:59.999 attempt to be fresh");
   }
 
-  if (isFreshAttempt(attemptedAt, new Date("2026-01-04T10:00:00.000Z"))) {
+  if (isFreshAttempt(attemptedAt, new Date("2026-01-04T00:10:00.000Z"))) {
     throw new Error("Expected a ten-minute-old attempt to be stale");
   }
 });
