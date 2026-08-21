@@ -141,3 +141,22 @@ repository or added to browser environment variables.
 - After the user connects Supabase and secrets are configured, invoke the
   deployed function and verify an offline state when no active stream exists,
   then verify a player during a public live broadcast.
+
+## Manual deployment checklist
+
+Before the first remote rollout:
+
+1. Connect the local Supabase CLI to the church's Supabase project.
+2. Enable YouTube Data API v3 in the Google Cloud project.
+3. Create a Google API key restricted to YouTube Data API v3 and the required
+   server-side usage.
+4. Set `YOUTUBE_API_KEY` and `YOUTUBE_CHANNEL_ID` as Supabase Edge Function
+   secrets.
+5. Apply the `youtube_livestream_status` migration.
+6. Authorize deployment of the `youtube-livestream` Edge Function.
+
+Neither secret belongs in Git, `.env`, `.env.example`, or browser variables
+such as `VITE_*`. Do not run `supabase db push`, `supabase secrets set`, or
+`supabase functions deploy` until the user has connected Supabase, configured
+the YouTube API key and channel ID, and explicitly authorized those remote
+changes.
