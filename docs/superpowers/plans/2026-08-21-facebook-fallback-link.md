@@ -11,7 +11,7 @@
 ## Global Constraints
 
 - Preserve the existing YouTube live iframe behavior.
-- Use the public Facebook page URL `https://www.facebook.com/icarecenter`.
+- Use the existing public Facebook page URL `https://www.facebook.com/icarefellowship`.
 - External links must use `target="_blank"` and `rel="noopener noreferrer"`.
 - Follow the repository’s Ultracite/TypeScript conventions.
 
@@ -32,7 +32,7 @@
 Extend the existing offline-state Cypress test with:
 
 ```typescript
-const facebookUrl = "https://www.facebook.com/icarecenter";
+const facebookUrl = "https://www.facebook.com/icarefellowship";
 
 cy.get("#livestream a")
   .contains("Visit our Facebook page")
@@ -52,7 +52,7 @@ Expected: The offline-state test fails because `Visit our Facebook page` is not 
 In `YouTubeLivestream.tsx`, add:
 
 ```typescript
-const FACEBOOK_PAGE_URL = "https://www.facebook.com/icarecenter";
+const FACEBOOK_PAGE_URL = "https://www.facebook.com/icarefellowship";
 ```
 
 Render a second anchor immediately after `ChannelLink` in the fallback container, using the same secure link attributes and the label `Visit our Facebook page`.

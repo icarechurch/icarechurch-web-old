@@ -1,6 +1,7 @@
 describe("YouTube public livestream", () => {
   const functionUrl = "**/functions/v1/youtube-livestream";
   const channelUrl = "https://www.youtube.com/@ICareCenter-media";
+  const facebookUrl = "https://www.facebook.com/icarefellowship";
 
   beforeEach(() => {
     cy.intercept("OPTIONS", "**/functions/v1/**", {
@@ -75,6 +76,11 @@ describe("YouTube public livestream", () => {
       .and("contain", "not live right now");
     cy.get("#livestream a")
       .should("have.attr", "href", channelUrl)
+      .and("have.attr", "target", "_blank")
+      .and("have.attr", "rel", "noopener noreferrer");
+    cy.get("#livestream a")
+      .contains("Visit our Facebook page")
+      .should("have.attr", "href", facebookUrl)
       .and("have.attr", "target", "_blank")
       .and("have.attr", "rel", "noopener noreferrer");
   });

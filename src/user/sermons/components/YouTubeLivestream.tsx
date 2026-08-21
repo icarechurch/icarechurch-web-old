@@ -1,6 +1,7 @@
 import { useLivestream } from "@/domains/livestreams/hooks/useLivestream";
 
 const YOUTUBE_CHANNEL_URL = "https://www.youtube.com/@ICareCenter-media";
+const FACEBOOK_PAGE_URL = "https://www.facebook.com/icarefellowship";
 
 const ChannelLink = () => (
   <a
@@ -55,6 +56,14 @@ export function YouTubeLivestream() {
           : "We are not live right now."}
       </p>
       <ChannelLink />
+      <a
+        className="text-church-orange hover:underline"
+        href={FACEBOOK_PAGE_URL}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Visit our Facebook page
+      </a>
     </div>
   );
 }
