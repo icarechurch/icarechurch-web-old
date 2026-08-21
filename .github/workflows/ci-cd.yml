@@ -1,0 +1,117 @@
+name: CI/CD
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22.x"
+  VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+  VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: lts
+          cache: true
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:edge
+      - run: npm run test:architecture -- --config trashAssetsBeforeRuns=false
+      - name: Start Vite for browser tests
+        run: npm run dev -- --host 127.0.0.1 > /tmp/icare-vite.log 2>&1 &
+      - name: Wait for Vite
+        run: curl --fail --silent --retry 60 --retry-delay 1 --retry-connrefused http://127.0.0.1:8080 >/dev/null
+      - run: npx cypress run --spec cypress/e2e/sermons/youtube-livestream.cy.ts --config trashAssetsBeforeRuns=false
+      - run: npm run build:ssr
+      - uses: actions/upload-artifact@v4
+        with:
+          name: netlify-ssr-${{ github.sha }}
+          path: dist
+          if-no-files-found: error
+          retention-days: 3
+
+  deploy-netlify:
+    name: Deploy Netlify
+    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/master') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master') }}
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: netlify-ssr-${{ github.sha }}
+          path: dist
+      - name: Deploy production site
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: npm exec -- netlify deploy --prod --dir=dist/client --functions=netlify/functions --site="$NETLIFY_SITE_ID" --message="GitHub Actions $GITHUB_SHA"
+
+  deploy-supabase:
+    name: Deploy Supabase
+    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/master') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master') }}
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v3
+        with:
+          version: latest
+      - name: Validate production configuration
+        env:
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_CHANNEL_ID: ${{ secrets.YOUTUBE_CHANNEL_ID }}
+        run: |
+          test -n "$SUPABASE_PROJECT_REF"
+          test -n "$SUPABASE_ACCESS_TOKEN"
+          test -n "$SUPABASE_DB_PASSWORD"
+          test -n "$YOUTUBE_API_KEY"
+          test -n "$YOUTUBE_CHANNEL_ID"
+      - name: Apply migrations and deploy livestream function
+        env:
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_CHANNEL_ID: ${{ secrets.YOUTUBE_CHANNEL_ID }}
+        run: |
+          supabase link --project-ref "$SUPABASE_PROJECT_REF"
+          supabase db push --linked
+          supabase secrets set --project-ref "$SUPABASE_PROJECT_REF" "YOUTUBE_API_KEY=$YOUTUBE_API_KEY" "YOUTUBE_CHANNEL_ID=$YOUTUBE_CHANNEL_ID"
+          supabase functions deploy youtube-livestream --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt
