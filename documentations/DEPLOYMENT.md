@@ -33,16 +33,13 @@ VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
 
 ## Build Configuration
 
-Production builds run in GitHub Actions with Node 22 using `npm run build:ssr`.
-The verified artifact is deployed to Netlify with:
+The existing Netlify deployment uses Node 22 and `npm run build:ssr` with:
 
 - **Publish directory**: `dist/client`
 - **SSR server bundle**: `dist/server`
 - **Netlify function**: `netlify/functions/ssr.js`
 
-All routing and function configuration is in `netlify.toml`. See
-[`CI-CD.md`](./CI-CD.md) for the required GitHub variables, production
-secrets, and the automatic `master` release pipeline.
+All routing, function, and build configuration is in `netlify.toml`.
 
 ## Features Included
 
@@ -54,11 +51,8 @@ secrets, and the automatic `master` release pipeline.
 
 ## Automatic Deployments
 
-GitHub Actions automatically validates every pull request and `master` push.
-After successful validation of `master`, it deploys the verified SSR artifact to
-Netlify and deploys the Supabase migration/function changes. Netlify's separate
-Git-triggered production deploy must remain disabled to avoid an ungated
-duplicate deployment.
+GitHub Actions validates every pull request and `master` push. Netlify remains
+responsible for the existing production deployment.
 
 ## Local Development
 
