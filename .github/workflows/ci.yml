@@ -16,8 +16,8 @@ concurrency:
 
 env:
   NODE_VERSION: "22.x"
-  VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-  VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+  VITE_SUPABASE_URL: https://ci.invalid
+  VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-key
 
 jobs:
   validate:
