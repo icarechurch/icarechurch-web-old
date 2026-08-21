@@ -47,11 +47,18 @@ describe("YouTube public livestream", () => {
 
     cy.visit("/sermons");
     cy.wait("@youtubeLivestream");
-    cy.get("#livestream iframe")
-      .should("have.attr", "src", "https://www.youtube.com/embed/live-video-123")
-      .and("have.attr", "title", "Watch Sunday service live on YouTube")
-      .and("have.attr", "allowfullscreen")
-      .and("not.have.attr", "autoplay");
+    cy.get("#livestream iframe").should(
+      "have.attr",
+      "src",
+      "https://www.youtube.com/embed/live-video-123",
+    );
+    cy.get("#livestream iframe").should(
+      "have.attr",
+      "title",
+      "Watch Sunday service live on YouTube",
+    );
+    cy.get("#livestream iframe").should("have.attr", "allowfullscreen");
+    cy.get("#livestream iframe").should("not.have.attr", "autoplay");
     cy.get("#livestream").should("not.contain", "facebook.com");
   });
 

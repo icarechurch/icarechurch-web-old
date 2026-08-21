@@ -1,16 +1,14 @@
 import { format } from "date-fns";
 import { BookOpen, Calendar, Clock, Music, Play, Video } from "lucide-react";
-import { FacebookLiveEmbed } from "@/user/sermons/components/FacebookLiveEmbed";
+import { YouTubeLivestream } from "@/user/sermons/components/YouTubeLivestream";
 import { Layout } from "@/shared/components/layout/Layout";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { useSermons } from "@/domains/sermons/hooks/useSermons";
-import { useChurchInfo } from "@/domains/church-info/hooks/useChurchInfo";
 
 const Sermons = () => {
   const { data: sermons, isLoading } = useSermons();
-  const { data: churchInfo } = useChurchInfo();
 
   if (isLoading) {
     return (
@@ -38,7 +36,7 @@ const Sermons = () => {
         </div>
       </section>
 
-      {/* Facebook Livestream Section */}
+      {/* YouTube Livestream Section */}
       <section className="bg-muted/30 py-12" id="livestream">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-4xl">
@@ -48,30 +46,25 @@ const Sermons = () => {
                 <span className="text-church-orange">Live</span>
               </h2>
               <p className="text-muted-foreground">
-                Join us live on Facebook for our services and special events
+                Join us live on YouTube for our services and special events
               </p>
             </div>
 
             <Card className="overflow-hidden">
               <CardContent className="bg-black p-0">
-                <FacebookLiveEmbed
-                  fallbackVideoUrl={
-                    churchInfo?.fallback_stream_url || undefined
-                  }
-                  showText={false}
-                />
+                <YouTubeLivestream />
               </CardContent>
             </Card>
 
             <p className="mt-4 text-center text-muted-foreground text-sm">
-              Can't see the embed?{" "}
+              Can't see the live stream?{" "}
               <a
                 className="text-church-orange hover:underline"
-                href="https://www.facebook.com/icarefellowship"
+                href="https://www.youtube.com/@ICareCenter-media"
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                Visit our Facebook page
+                Visit our YouTube channel
               </a>
             </p>
           </div>
