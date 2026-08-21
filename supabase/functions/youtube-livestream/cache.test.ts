@@ -1,8 +1,8 @@
 import {
   createCacheRepository,
   type CacheClient,
-  type CacheStatus,
 } from "./cache.ts";
+import type { CacheStatus } from "./types.ts";
 
 const initialStatus: CacheStatus = {
   singleton_key: true,
