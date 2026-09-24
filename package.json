@@ -1,0 +1,7 @@
+{
+  "name": "icarecenter-workspace",
+  "private": true,
+  "scripts": {
+    "dev": "cd icarecenter-frontend && npm run dev"
+  }
+}

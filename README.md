@@ -22,6 +22,17 @@ icarecenter-test/
 +-- e2e/             # Cypress browser tests
 +-- support/         # Cypress support files
 
+## Local development
+
+Install dependencies from `icarecenter-frontend/`, then run the development
+server from the repository root or the frontend directory:
+
+```bash
+npm run dev
+```
+
+The root command delegates to `icarecenter-frontend/`.
+
 ## Documentations/DEVELOPMENT.md#troubleshooting)
 
 ---
