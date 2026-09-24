@@ -33,9 +33,10 @@ Before you begin, ensure you have the following installed:
    cd icarewebsitenew
    ```
 
-2. **Install dependencies**
+2. **Install frontend dependencies**
 
    ```bash
+   cd icarecenter-frontend
    npm install
    ```
 
@@ -55,7 +56,7 @@ Before you begin, ensure you have the following installed:
 4. **Set up Supabase**
 
    - Create a Supabase project at [supabase.com](https://supabase.com)
-   - Run migrations from `supabase/migrations/` in order
+   - Run migrations from `icarecenter-supabase/migrations/` in order
    - Get your project URL and anon key from Settings → API
 
 5. **Start development server**
@@ -109,6 +110,8 @@ Before you begin, ensure you have the following installed:
 5. **After review and approval**, merge to `develop` or `main`
 
 ### Running the Development Server
+
+Run frontend commands from `icarecenter-frontend/`:
 
 ```bash
 npm run dev
@@ -229,7 +232,7 @@ npm run lint -- --fix
 ### File Organization
 
 ```
-src/
+icarecenter-frontend/src/
 ├── components/
 │   ├── admin/                 # Admin panel components
 │   ├── moderator/             # Moderator panel components
@@ -287,7 +290,7 @@ src/
 
    ```bash
    # Create file
-   src/pages/MyNewPage.tsx
+   icarecenter-frontend/src/user/MyNewPage.tsx
    ```
 
    ```tsx
@@ -306,7 +309,7 @@ src/
 
 2. **Add route**
 
-   In `src/App.tsx`:
+   In `icarecenter-frontend/src/App.tsx`:
 
    ```tsx
    import MyNewPage from "./pages/MyNewPage";
@@ -317,7 +320,7 @@ src/
 
 3. **Add navigation link**
 
-   In `src/components/layout/Navbar.tsx`:
+   In `icarecenter-frontend/src/shared/components/layout/Navbar.tsx`:
 
    ```tsx
    <NavLink to="/my-page">My Page</NavLink>
@@ -328,8 +331,8 @@ src/
 1. **Create migration file**
 
    ```bash
-   # Create file in supabase/migrations/
-   supabase/migrations/YYYYMMDDHHMMSS_add_my_table.sql
+   # Create file in icarecenter-supabase/migrations/
+   icarecenter-supabase/migrations/YYYYMMDDHHMMSS_add_my_table.sql
    ```
 
    ```sql
@@ -359,7 +362,7 @@ src/
 
 3. **Create TypeScript types**
 
-   In `src/hooks/useChurchData.tsx`:
+   In `icarecenter-frontend/src/shared/hooks/useChurchData.tsx`:
 
    ```typescript
    export interface MyData {
@@ -393,7 +396,7 @@ src/
 1. **Create component file**
 
    ```bash
-   src/components/MyComponent.tsx
+   icarecenter-frontend/src/shared/components/MyComponent.tsx
    ```
 
    ```tsx

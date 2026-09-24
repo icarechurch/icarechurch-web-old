@@ -29,13 +29,14 @@ Dashboard analytics returns grouped daily/page data, bounded recent visits, serv
 
 ## Verification
 
-Run the repository checks from the project root:
+Run the frontend checks from `icarecenter-frontend/`:
 
 ```powershell
+Set-Location icarecenter-frontend
 npm run typecheck
 npm run test:edge
 npm run test:architecture
-npm run test -- --spec cypress/e2e/performance
+npm run test -- --spec ../icarecenter-test/e2e/performance
 npm run build:dev
 git diff --check
 ```

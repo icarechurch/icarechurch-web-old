@@ -4,14 +4,23 @@ A modern, full-featured church website built with React, TypeScript, and Supabas
 
 ## Project Structure
 
-src/
-+-- app/            # Composition, providers, initialization, routes
-+-- domains/        # Business domains: models, APIs, hooks
-+-- user/           # Public and authenticated user experiences
-+-- admin/          # Administrator experiences
-+-- moderator/      # Moderator experiences
-+-- shared/         # Generic UI, layout, hooks, constants, utilities
-+-- infrastructure/ # Supabase, Storage, and Leaflet integrations
+icarecenter-frontend/
++-- icarecenter-frontend/src/
+    +-- app/            # Composition, providers, initialization, routes
+    +-- domains/        # Business domains: models, APIs, hooks
+    +-- user/           # Public and authenticated user experiences
+    +-- admin/          # Administrator experiences
+    +-- moderator/      # Moderator experiences
+    +-- shared/         # Generic UI, layout, hooks, constants, utilities
+    +-- infrastructure/ # Supabase, Storage, and Leaflet integrations
+
+icarecenter-supabase/
++-- functions/      # Supabase Edge Functions
++-- migrations/     # Database migrations
+
+icarecenter-test/
++-- e2e/             # Cypress browser tests
++-- support/         # Cypress support files
 
 ## Documentations/DEVELOPMENT.md#troubleshooting)
 

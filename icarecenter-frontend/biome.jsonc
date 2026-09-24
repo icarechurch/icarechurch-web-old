@@ -7,7 +7,7 @@
   "files": {
     "ignoreUnknown": true,
     "ignore": [
-      "cypress",
+      "../icarecenter-test",
       "node_modules",
       "dist",
       "coverage",

@@ -37,9 +37,11 @@ The existing Netlify deployment uses Node 22 and `npm run build:ssr` with:
 
 - **Publish directory**: `dist/client`
 - **SSR server bundle**: `dist/server`
-- **Netlify function**: `netlify/functions/ssr.js`
+- **Netlify function**: `icarecenter-frontend/netlify/functions/ssr.js`
 
-All routing, function, and build configuration is in `netlify.toml`.
+The repository-level `netlify.toml` points Netlify at `icarecenter-frontend/` when the
+site is connected to GitHub. All routing, function, and build configuration is in
+`icarecenter-frontend/netlify.toml`.
 
 ## Features Included
 
@@ -64,8 +66,9 @@ To run locally:
    cd icarewebsitenew
    ```
 
-2. **Install dependencies**
+2. **Install frontend dependencies**
    ```bash
+   cd icarecenter-frontend
    npm install
    ```
 
@@ -97,8 +100,8 @@ npm run preview
 - Check the Netlify build logs for specific errors
 
 ### 404 errors after deployment?
-- Verify `netlify.toml` is in your repository root
-- Check that the `_redirects` file is in the `public` folder
+- Verify Netlify uses `icarecenter-frontend` as its base directory and reads `icarecenter-frontend/netlify.toml`
+- Check that the `_redirects` file is in `icarecenter-frontend/public`
 
 ### Environment variables not working?
 - Ensure variables start with `VITE_` prefix

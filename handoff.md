@@ -152,7 +152,7 @@ Follow the reviewed implementation plan. Its intended commit sequence is:
 Use test-driven development and keep each item in a focused commit. Remove
 both:
 
-- `src/user/sermons/components/FacebookLiveEmbed.tsx`
+- `icarecenter-frontend/src/user/sermons/components/FacebookLiveEmbed.tsx`
 - `netlify/functions/facebook-latest-video.js`
 
 ## Local verification before the deployment pause
@@ -161,10 +161,11 @@ Run:
 
 ```powershell
 npm exec -- ultracite check
+cd icarecenter-frontend
 npm run typecheck
 npm run test:edge
 npm run test:architecture
-npx cypress run --spec cypress/e2e/sermons/youtube-livestream.cy.ts
+npx cypress run --config-file ../icarecenter-test/cypress.config.cjs --spec ../icarecenter-test/e2e/sermons/youtube-livestream.cy.ts
 npm run build
 ```
 

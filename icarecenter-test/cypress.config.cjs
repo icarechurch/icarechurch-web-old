@@ -1,8 +1,10 @@
-import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join } from "node:path";
-import { defineConfig } from "cypress";
+const { readdirSync, readFileSync, statSync } = require("node:fs");
+const { join, resolve } = require("node:path");
+const { defineConfig } = require("../icarecenter-frontend/node_modules/cypress");
 
-const frontendDataDirectories = [join(process.cwd(), "src")];
+const frontendDataDirectories = [
+  resolve(__dirname, "..", "icarecenter-frontend", "src"),
+];
 
 const getFrontendDataSources = () =>
   frontendDataDirectories.flatMap((directory) =>
@@ -17,13 +19,15 @@ const getFrontendDataSources = () =>
       })),
   );
 
-export default defineConfig({
+module.exports = defineConfig({
   e2e: {
     baseUrl:
       process.env.CYPRESS_SKIP_BASE_URL === "true"
         ? undefined
         : "http://localhost:8080",
-    screenshotsFolder: "cypress/screenshots",
+    specPattern: join(__dirname, "e2e/**/*.cy.{js,jsx,ts,tsx}"),
+    supportFile: join(__dirname, "support/e2e.js"),
+    screenshotsFolder: join(__dirname, "screenshots"),
     trashAssetsBeforeRuns: true,
     setupNodeEvents(on, config) {
       on("task", {
@@ -35,6 +39,8 @@ export default defineConfig({
   },
 
   component: {
+    specPattern: join(__dirname, "component/**/*.cy.{js,jsx,ts,tsx}"),
+    supportFile: join(__dirname, "support/component.js"),
     devServer: {
       framework: "react",
       bundler: "vite",

@@ -488,7 +488,7 @@ WITH CHECK (public.has_role(auth.uid(), 'admin'));  -- Admin only
 
 2. **Set Security Headers**
    ```toml
-   # netlify.toml
+   # icarecenter-frontend/netlify.toml
    [[headers]]
      for = "/*"
      [headers.values]

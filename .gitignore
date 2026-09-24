@@ -13,6 +13,8 @@ worktree/
 dist
 dist-ssr
 *.local
+icarecenter-test/videos/
+icarecenter-test/downloads/
 
 # Editor directories and files
 .vscode/*

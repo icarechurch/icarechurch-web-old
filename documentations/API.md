@@ -16,7 +16,7 @@ This document describes the data layer, API interactions, database schema, and c
 
 ### Client Setup
 
-The Supabase client is configured in `src/integrations/supabase/client.ts`:
+The Supabase client is configured in `icarecenter-frontend/src/infrastructure/supabase/client.ts`:
 
 ```typescript
 import { createClient } from '@supabase/supabase-js';
@@ -280,7 +280,7 @@ The database consists of the following tables:
 
 ## Custom Hooks
 
-All data fetching hooks are located in `src/hooks/useChurchData.tsx`.
+Data fetching hooks are located under `icarecenter-frontend/src/domains/` and call the backend through `icarecenter-frontend/src/infrastructure/supabase/`.
 
 ### Ministries Hooks
 
@@ -566,7 +566,7 @@ updateSortOrder.mutate([
 
 ### Analytics Hooks
 
-Located in `src/hooks/useAnalytics.ts`.
+Located in `icarecenter-frontend/src/domains/analytics/hooks/useAnalytics.ts`.
 
 #### useAnalytics()
 
@@ -593,7 +593,7 @@ const { data } = getAnalytics({
 
 ### Authentication Hook
 
-Located in `src/hooks/useAuth.tsx`.
+Located in `icarecenter-frontend/src/domains/auth/hooks/useAuth.ts`.
 
 #### useAuth()
 
@@ -618,7 +618,7 @@ if (user) {
 
 ### Real-time Subscription Hook
 
-Located in `src/hooks/useRealtimeSubscription.ts`.
+Located in `icarecenter-frontend/src/shared/hooks/useRealtimeSubscription.ts`.
 
 #### useRealtimeSubscription()
 
@@ -774,7 +774,7 @@ await supabase.storage
 
 ### TypeScript Interfaces
 
-All data types are defined in `src/hooks/useChurchData.tsx`:
+Data types are defined in `icarecenter-frontend/src/domains/` and `icarecenter-frontend/src/infrastructure/supabase/types.ts`:
 
 ```typescript
 export interface Ministry {

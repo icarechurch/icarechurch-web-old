@@ -1,0 +1,33 @@
+[build]
+  command = "npm run build:ssr"
+  publish = "dist/client"
+
+[functions]
+  included_files = ["dist/server/**", "dist/client/index.html"]
+  node_bundler = "esbuild"
+  external_node_modules = ["lightningcss"]
+
+# Keep the HTML shell fresh so it cannot retain references to deleted hashed chunks.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public,max-age=0,must-revalidate"
+
+# API endpoint for Facebook latest video
+[[redirects]]
+  from = "/api/facebook-latest-video"
+  to = "/.netlify/functions/facebook-latest-video"
+  status = 200
+  force = true
+
+# Catch-all for SSR (Force to override index.html shadowing)
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/ssr"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/ssr"
+  status = 200

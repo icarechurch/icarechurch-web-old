@@ -78,7 +78,7 @@ The iCare Church Website is a modern single-page application (SPA) built with Re
 
 ```
 icarewebsitenew/
-├── src/
+├── icarecenter-frontend/src/
 │   ├── components/              # React components
 │   │   ├── admin/              # Admin-specific components
 │   │   │   ├── AdminAnalytics.tsx
@@ -122,7 +122,7 @@ icarewebsitenew/
 │   │   ├── useChurchData.tsx
 │   │   └── useRealtimeSubscription.ts # Real-time data sync
 │   ├── integrations/           # Third-party integrations
-│   │   └── supabase/
+│   │   └── icarecenter-supabase/
 │   │       ├── client.ts       # Supabase client configuration
 │   │       └── types.ts        # Database type definitions
 │   ├── lib/                    # Utility functions
@@ -145,20 +145,22 @@ icarewebsitenew/
 │   ├── main.tsx                # Entry point
 │   ├── App.css                 # App-specific styles
 │   └── index.css               # Global styles
-├── supabase/
+├── icarecenter-supabase/
 │   ├── config.toml             # Supabase configuration
 │   └── migrations/             # Database migrations
 │       ├── [timestamp]_*.sql   # Migration files
 │       └── ...
-├── public/                     # Static assets
+├── icarecenter-frontend/public/ # Static assets
 │   ├── _redirects              # Netlify redirects
 │   └── ...
-├── .env.example                # Environment variable template
-├── netlify.toml                # Netlify configuration
-├── package.json                # Dependencies and scripts
-├── tailwind.config.ts          # Tailwind configuration
-├── tsconfig.json               # TypeScript configuration
-└── vite.config.ts              # Vite configuration
+├── icarecenter-frontend/.env.example # Environment variable template
+
+├── icarecenter-supabase/       # Supabase migrations and Edge Functions
+├── icarecenter-test/           # Cypress tests and test assets
+├── icarecenter-frontend/package.json # Dependencies and scripts
+├── icarecenter-frontend/tailwind.config.ts # Tailwind configuration
+├── icarecenter-frontend/tsconfig.json # TypeScript configuration
+├── icarecenter-frontend/vite.config.ts # Vite configuration
 ```
 
 ### Directory Organization Principles

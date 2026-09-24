@@ -16,7 +16,7 @@ This document provides a comprehensive guide to the Supabase database migrations
 
 ## Overview
 
-The iCare Church Website uses Supabase as its database backend. All database schema changes are managed through SQL migration files stored in `supabase/migrations/`. These migrations are executed in chronological order based on their timestamp prefix.
+The iCare Church Website uses Supabase as its database backend. All database schema changes are managed through SQL migration files stored in `icarecenter-supabase/migrations/`. These migrations are executed in chronological order based on their timestamp prefix.
 
 ### Key Principles
 
@@ -243,7 +243,7 @@ VALUES ('user-uuid', 'admin');
 
 ```bash
 # Format: YYYYMMDDHHMMSS_description.sql
-touch supabase/migrations/20251227000000_add_new_feature.sql
+touch icarecenter-supabase/migrations/mainstream/20251227000000_add_new_feature.sql
 ```
 
 ### Step 2: Write Migration SQL
@@ -290,7 +290,7 @@ Run the migration in your Supabase project's SQL Editor or via CLI.
 
 ### Step 5: Update Type Definitions
 
-After adding new tables, update the TypeScript types in `src/hooks/useChurchData.tsx`.
+After adding new tables, update the TypeScript types in `icarecenter-frontend/src/infrastructure/supabase/types.ts`.
 
 ## Rollback Considerations
 

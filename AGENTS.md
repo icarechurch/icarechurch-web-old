@@ -4,9 +4,9 @@ This project uses **Ultracite**, a zero-config Biome preset that enforces strict
 
 ## Quick Reference
 
-- **Format code**: `npm exec -- ultracite fix`
-- **Check for issues**: `npm exec -- ultracite check`
-- **Diagnose setup**: `npm exec -- ultracite doctor`
+- **Format code**: run `npm exec -- ultracite fix` from `icarecenter-frontend/`
+- **Check for issues**: run `npm exec -- ultracite check` from `icarecenter-frontend/`
+- **Diagnose setup**: run `npm exec -- ultracite doctor` from `icarecenter-frontend/`
 
 Biome (the underlying engine) provides extremely fast Rust-based linting and formatting. Most issues are automatically fixable.
 

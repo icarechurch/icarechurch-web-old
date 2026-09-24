@@ -17,7 +17,7 @@ This document provides comprehensive documentation for all components in the iCa
 Components are organized into the following directories:
 
 ```
-src/components/
+icarecenter-frontend/src/shared/components/
 ├── admin/          # Admin panel components
 ├── layout/         # Layout components (Navbar, Footer)
 ├── ui/             # shadcn/ui components (50+ components)
@@ -26,7 +26,7 @@ src/components/
 
 ## Page Components
 
-Page components are located in `src/pages/` and correspond to routes in the application.
+Page components are located in `icarecenter-frontend/src/user/` and correspond to routes in the application.
 
 ### Index.tsx
 **Route**: `/`  
@@ -72,7 +72,7 @@ Page components are located in `src/pages/` and correspond to routes in the appl
 
 **Dependencies**:
 - `useServiceTimes()` - Fetch service schedule
-- `expectItems` from `src/constant/expect-items.ts`
+- `expectItems` from `icarecenter-frontend/src/shared/constants/expect-items.ts`
 
 ---
 
@@ -247,7 +247,7 @@ Page components are located in `src/pages/` and correspond to routes in the appl
 
 ## Layout Components
 
-Located in `src/components/layout/`
+Located in `icarecenter-frontend/src/shared/components/layout/`
 
 ### Navbar.tsx
 **Purpose**: Main navigation bar
@@ -302,7 +302,7 @@ interface NavbarProps {
 
 ## Admin Components
 
-Located in `src/components/admin/`
+Located in `icarecenter-frontend/src/shared/components/admin/`
 
 ### AdminSidebar.tsx
 **Purpose**: Admin navigation sidebar
@@ -507,7 +507,7 @@ interface ImageUploadProps {
 
 ## Utility Components
 
-Located in `src/components/` (root level)
+Located in `icarecenter-frontend/src/shared/components/` (root level)
 
 ### AppLoadingScreen.tsx
 **Purpose**: Initial app loading screen
@@ -526,7 +526,7 @@ Located in `src/components/` (root level)
 - `progress` - Loading progress percentage
 
 **Dependencies**:
-- `bibleVerses` from `src/constant/bible-verses.ts`
+- `bibleVerses` from `icarecenter-frontend/src/shared/constants/bible-verses.ts`
 
 ---
 
@@ -540,7 +540,7 @@ Located in `src/components/` (root level)
 - Gradient styling
 
 **Dependencies**:
-- `careItems` from `src/constant/care.ts`
+- `careItems` from `icarecenter-frontend/src/shared/constants/care.ts`
 
 ---
 
@@ -663,7 +663,7 @@ interface SectionNavProps {
 
 ## UI Components
 
-Located in `src/components/ui/`
+Located in `icarecenter-frontend/src/shared/components/ui/`
 
 The application uses **shadcn/ui** components built on **Radix UI** primitives. These are pre-built, accessible, and customizable components.
 
@@ -853,13 +853,13 @@ function AdminComponent() {
 1. **Create Component File**:
    ```bash
    # For page component
-   src/pages/MyNewPage.tsx
+   icarecenter-frontend/src/user/MyNewPage.tsx
    
    # For reusable component
-   src/components/MyComponent.tsx
+   icarecenter-frontend/src/shared/components/MyComponent.tsx
    
    # For admin component
-   src/components/admin/AdminMyFeature.tsx
+   icarecenter-frontend/src/shared/components/admin/AdminMyFeature.tsx
    ```
 
 2. **Define Component**:

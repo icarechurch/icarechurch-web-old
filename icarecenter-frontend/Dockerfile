@@ -4,10 +4,10 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package manifest first to leverage layer cache
-COPY package.json ./
+COPY package.json package-lock.json ./
 
 # Install all dependencies
-RUN npm install
+RUN npm ci
 
 # Copy the rest of the application code
 COPY . .
@@ -30,8 +30,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Copy package files and install only production dependencies
-COPY package.json ./
-RUN npm install --omit=dev
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
 # Copy built assets from builder stage
 COPY --from=builder /app/dist ./dist

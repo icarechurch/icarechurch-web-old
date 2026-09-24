@@ -3,7 +3,7 @@ describe("Admin analytics request shape", () => {
     cy.task("getFrontendDataSources").then((sources) => {
       const analyticsPage = sources.find(({ filePath }) =>
         filePath.replaceAll("\\", "/").endsWith(
-          "src/admin/analytics/pages/AdminAnalyticsPage.tsx",
+          "icarecenter-frontend/src/admin/analytics/pages/AdminAnalyticsPage.tsx",
         ),
       );
 
