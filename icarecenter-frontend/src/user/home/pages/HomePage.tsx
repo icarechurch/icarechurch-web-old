@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { CareGrid } from "@/user/ministries/components/CareGrid";
 import { EventPopup } from "@/user/home/components/EventPopup";
+import { HOME_PAGE_STRUCTURED_DATA } from "@/user/home/home-seo";
 import { Layout } from "@/shared/components/layout/Layout";
 import { Button } from "@/shared/components/ui/button";
 import { useChurchInfo } from "@/domains/church-info/hooks/useChurchInfo";
@@ -22,6 +23,9 @@ const Index = () => {
           name="keywords"
         />
         <link href="https://icarecenter.netlify.app/" rel="canonical" />
+        <script type="application/ld+json">
+          {JSON.stringify(HOME_PAGE_STRUCTURED_DATA)}
+        </script>
       </Helmet>
       <EventPopup />
 
