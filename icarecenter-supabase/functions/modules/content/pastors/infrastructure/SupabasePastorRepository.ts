@@ -3,10 +3,7 @@ import type {
   PastorRepository,
   PastorSortItem,
 } from "../domain/ports/PastorRepository.ts";
-import {
-  MAX_PUBLIC_CONTENT_ROWS,
-  PASTOR_COLUMNS,
-} from "./pastor-columns.ts";
+import { MAX_PUBLIC_CONTENT_ROWS, PASTOR_COLUMNS } from "./pastor-columns.ts";
 
 export class SupabasePastorRepository implements PastorRepository {
   constructor(private readonly client: SupabaseClient) {}
@@ -50,7 +47,10 @@ export class SupabasePastorRepository implements PastorRepository {
   }
 
   async delete(input: { id: string }): Promise<string> {
-    const { error } = await this.client.from("pastors").delete().eq("id", input.id);
+    const { error } = await this.client.from("pastors").delete().eq(
+      "id",
+      input.id,
+    );
 
     if (error) throw error;
     return input.id;
@@ -61,7 +61,7 @@ export class SupabasePastorRepository implements PastorRepository {
       this.client
         .from("pastors")
         .update({ sort_order: item.sort_order })
-        .eq("id", item.id),
+        .eq("id", item.id)
     );
     const results = await Promise.all(updates);
     const errors = results.filter((result) => result.error);

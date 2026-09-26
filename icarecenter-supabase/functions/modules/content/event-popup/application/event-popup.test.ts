@@ -22,7 +22,9 @@ class FakeEventPopupRepository implements EventPopupRepository {
 
 Deno.test("GetEventPopupSettings returns settings from its repository", async () => {
   const settings = { event_id: "event-1", is_enabled: true };
-  const useCase = new GetEventPopupSettings(new FakeEventPopupRepository(settings));
+  const useCase = new GetEventPopupSettings(
+    new FakeEventPopupRepository(settings),
+  );
 
   assertEquals(await useCase.execute(), settings);
 });

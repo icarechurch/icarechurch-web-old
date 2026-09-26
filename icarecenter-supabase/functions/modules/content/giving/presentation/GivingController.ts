@@ -11,7 +11,9 @@ export class GivingController {
     return this.getGivingSettings.execute();
   }
 
-  update(input: { id: string; updates: Record<string, unknown> }): Promise<void> {
+  update(
+    input: { id: string; updates: Record<string, unknown> },
+  ): Promise<void> {
     return this.updateGivingSettings.execute(input);
   }
 }

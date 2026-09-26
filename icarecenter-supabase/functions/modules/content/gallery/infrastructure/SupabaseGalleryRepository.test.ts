@@ -9,7 +9,17 @@ function createFakeClient(response: QueryResponse) {
   const calls: unknown[][] = [];
   const query: Record<string, unknown> = {};
 
-  for (const name of ["delete", "insert", "select", "single", "limit", "order", "eq"]) {
+  for (
+    const name of [
+      "delete",
+      "insert",
+      "select",
+      "single",
+      "limit",
+      "order",
+      "eq",
+    ]
+  ) {
     query[name] = (...args: unknown[]) => {
       calls.push([name, ...args]);
       return query;

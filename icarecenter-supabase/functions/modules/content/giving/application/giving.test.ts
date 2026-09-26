@@ -12,7 +12,9 @@ class FakeGivingRepository implements GivingRepository {
     return Promise.resolve(this.settings);
   }
 
-  update(input: { id: string; updates: Record<string, unknown> }): Promise<void> {
+  update(
+    input: { id: string; updates: Record<string, unknown> },
+  ): Promise<void> {
     this.updatedInput = input;
     return Promise.resolve();
   }

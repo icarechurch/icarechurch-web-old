@@ -1,9 +1,6 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import type { GalleryRepository } from "../domain/ports/GalleryRepository.ts";
-import {
-  GALLERY_COLUMNS,
-  MAX_PUBLIC_CONTENT_ROWS,
-} from "./gallery-columns.ts";
+import { GALLERY_COLUMNS, MAX_PUBLIC_CONTENT_ROWS } from "./gallery-columns.ts";
 
 export class SupabaseGalleryRepository implements GalleryRepository {
   constructor(private readonly client: SupabaseClient) {}

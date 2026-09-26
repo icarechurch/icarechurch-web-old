@@ -1,5 +1,29 @@
 # API and Data Layer Documentation
 
+## Content Edge Function
+
+The deployed function name remains `content-data` and accepts the existing
+request envelope:
+
+```json
+{
+  "resource": "events",
+  "operation": "list",
+  "input": null
+}
+```
+
+`icarecenter-supabase/functions/content-data/index.ts` is the deployment
+adapter. It delegates to the private implementation under
+`icarecenter-supabase/functions/modules/content/` through
+`modules/content/index.ts`, preserving the response envelopes and caller
+authorization forwarding. Consumers use the deployed function contract rather
+than importing private resource files.
+
+Supported operations are documented in `documentations/ARCHITECTURE.md`.
+Unused layers are omitted and `.gitkeep` placeholders are not part of the Edge
+Function layout.
+
 This document describes the data layer, API interactions, database schema, and custom hooks used in the iCare Church Website.
 
 ## Table of Contents
