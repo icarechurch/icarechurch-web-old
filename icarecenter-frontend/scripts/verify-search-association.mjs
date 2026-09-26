@@ -35,7 +35,7 @@ if (structuredData["@type"] !== "Church") {
 if (structuredData.alternateName !== legacyName) {
   throw new Error("Home page JSON-LD must preserve the approved alternate name");
 }
-if (structuredData.url !== seoConfig.siteUrl) {
+if (structuredData.url !== `${seoConfig.siteUrl}/`) {
   throw new Error("Home page JSON-LD must use the canonical site URL");
 }
 

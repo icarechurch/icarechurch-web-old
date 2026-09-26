@@ -5,6 +5,7 @@ import { PageTracker } from "@/app/initialization/PageTracker";
 import ScrollToTop from "@/shared/components/navigation/ScrollToTop";
 import { AppProviders } from "@/app/providers/AppProviders";
 import { AppRoutes } from "@/app/router/routes";
+import { RouteSeo } from "@/shared/seo/RouteSeo";
 
 const App = () => (
   <ErrorBoundary>
@@ -15,6 +16,7 @@ const App = () => (
         <Helmet>
           <link href="/favicon.ico" rel="icon" type="image/x-icon" />
         </Helmet>
+        <RouteSeo />
         <AppRoutes />
       </AppInitializer>
     </AppProviders>
