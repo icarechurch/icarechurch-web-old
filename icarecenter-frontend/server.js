@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import express from "express";
+import { createSitemapXml, loadSeoData } from "./seo/sitemap.mjs";
 
 // const __dirname = path.dirname(fileURLToPath(import.meta.url)); // Removing this to avoid CJS warning
 
@@ -12,6 +13,7 @@ export async function createServer({
 } = {}) {
   const isTest = process.env.NODE_ENV === "test";
   const resolve = (p) => path.resolve(root, p);
+  const { seoConfig, publicRoutes } = loadSeoData(root);
 
   const indexProd = isProd
     ? fs.readFileSync(resolve("dist/client/index.html"), "utf-8")
@@ -21,23 +23,10 @@ export async function createServer({
 
   // Sitemap route - must be before any other middleware to ensure it's handled first
   app.get("/sitemap.xml", (_req, res) => {
-    const baseUrl = "https://icarecenter.netlify.app";
-    const urls = ["/", "/about", "/services", "/contact", "/sermons"];
-
-    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    ${urls
-      .map(
-        (url) => `
-    <url>
-        <loc>${baseUrl}${url}</loc>
-        <changefreq>weekly</changefreq>
-        <priority>${url === "/" ? "1.0" : "0.8"}</priority>
-    </url>
-    `
-      )
-      .join("")}
-</urlset>`;
+    const sitemap = createSitemapXml({
+      publicRoutes,
+      siteUrl: seoConfig.siteUrl,
+    });
 
     res.set("Content-Type", "application/xml");
     return res.send(sitemap);
