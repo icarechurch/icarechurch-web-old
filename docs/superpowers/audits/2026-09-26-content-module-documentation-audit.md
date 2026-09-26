@@ -14,9 +14,9 @@ API behavior, development, security, and project entry points:
 - `documentations/DEVELOPMENT.md`
 - `documentations/SECURITY.md`
 
-The documents now describe `icarecenter-supabase/functions/content-data/index.ts`
+The documents now describe `supabase/functions/content-data/index.ts`
 as the deployment adapter and
-`icarecenter-supabase/functions/modules/content/` as the private modular
+`supabase/functions/modules/content/` as the private modular
 implementation. They preserve the `content-data` operation contract and explain
 that unused layers and `.gitkeep` placeholders are omitted.
 
@@ -33,7 +33,7 @@ Result: exit code `1`, meaning zero matches. The architecture documentation
 test was run with:
 
 ```powershell
-deno test -A icarecenter-supabase/functions/tests/architecture/content-documentation.test.ts
+deno test -A supabase/functions/tests/architecture/content-documentation.test.ts
 ```
 
 Result: `1 passed, 0 failed`.

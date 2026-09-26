@@ -29,6 +29,7 @@ icarecenter-test/downloads/
 
 # Local Netlify folder
 .netlify
+supabase/.temp/
 
 
 # env

@@ -126,7 +126,7 @@ icarewebsitenew/
 │   │   ├── useChurchData.tsx
 │   │   └── useRealtimeSubscription.ts # Real-time data sync
 │   ├── integrations/           # Third-party integrations
-│   │   └── icarecenter-supabase/
+│   │   └── supabase/
 │   │       ├── client.ts       # Supabase client configuration
 │   │       └── types.ts        # Database type definitions
 │   ├── lib/                    # Utility functions
@@ -149,7 +149,7 @@ icarewebsitenew/
 │   ├── main.tsx                # Entry point
 │   ├── App.css                 # App-specific styles
 │   └── index.css               # Global styles
-├── icarecenter-supabase/
+├── supabase/
 │   ├── config.toml             # Supabase configuration
 │   └── migrations/             # Database migrations
 │       ├── [timestamp]_*.sql   # Migration files
@@ -159,7 +159,7 @@ icarewebsitenew/
 │   └── ...
 ├── icarecenter-frontend/.env.example # Environment variable template
 
-├── icarecenter-supabase/       # Supabase migrations and Edge Functions
+├── supabase/       # Supabase migrations and Edge Functions
 ├── icarecenter-test/           # Cypress tests and test assets
 ├── icarecenter-frontend/package.json # Dependencies and scripts
 ├── icarecenter-frontend/tailwind.config.ts # Tailwind configuration
@@ -512,14 +512,14 @@ WITH CHECK (true);
 ## Supabase Edge Function Modules
 
 The deployed `content-data` function remains a thin adapter at
-`icarecenter-supabase/functions/content-data/index.ts`. It owns only request
+`supabase/functions/content-data/index.ts`. It owns only request
 parsing, CORS, request-scoped Supabase client construction, dispatch, response
 envelopes, and the `Deno.serve` entrypoint.
 
 The implementation lives behind the public composition surface at
-`icarecenter-supabase/functions/modules/content/index.ts`. Private content
+`supabase/functions/modules/content/index.ts`. Private content
 submodules are organized by resource under
-`icarecenter-supabase/functions/modules/content/`, with domain ports,
+`supabase/functions/modules/content/`, with domain ports,
 application use cases, infrastructure repositories, presentation controllers,
 and tests kept inside their owning resource. Domain and application code do not
 import Supabase or runtime globals; repositories own database access.
@@ -540,7 +540,7 @@ The current content operation map is:
 
 Unused layers are omitted, and empty directories or `.gitkeep` placeholders
 are not created. The module boundary is enforced by architecture tests under
-`icarecenter-supabase/functions/tests/architecture/`.
+`supabase/functions/tests/architecture/`.
 
 ### Build Optimizations
 

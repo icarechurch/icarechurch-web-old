@@ -437,7 +437,7 @@ Run:
 git diff --check
 git status --short
 git diff --stat
-git diff -- icarecenter-supabase
+git diff -- supabase
 ```
 
 Expected: no database files changed; no transport implementation files changed; no generated screenshots or build output are included.

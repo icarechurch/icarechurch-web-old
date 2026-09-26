@@ -14,7 +14,7 @@
     "lint": "ultracite check",
     "preview": "vite preview",
     "test": "cypress run --config-file ../icarecenter-test/cypress.config.cjs",
-    "test:edge": "deno test -A ../icarecenter-supabase/functions",
+    "test:edge": "deno test -A ../supabase/functions",
     "test:architecture": "cross-env CYPRESS_SKIP_BASE_URL=true cypress run --config-file ../icarecenter-test/cypress.config.cjs --spec ../icarecenter-test/e2e/architecture/frontend-data-access.cy.js",
     "typecheck": "tsc --noEmit",
     "test:ssr": "cross-env NODE_ENV=test node --test server.test.mjs",

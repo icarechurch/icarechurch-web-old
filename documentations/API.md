@@ -17,9 +17,9 @@ request envelope:
 }
 ```
 
-`icarecenter-supabase/functions/content-data/index.ts` is the deployment
+`supabase/functions/content-data/index.ts` is the deployment
 adapter. It delegates to the private implementation under
-`icarecenter-supabase/functions/modules/content/` through
+`supabase/functions/modules/content/` through
 `modules/content/index.ts`, preserving the response envelopes and caller
 authorization forwarding. Consumers use the deployed function contract rather
 than importing private resource files.

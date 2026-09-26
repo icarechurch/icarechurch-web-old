@@ -18,7 +18,7 @@ icarecenter-frontend/
     +-- shared/         # Generic UI, layout, hooks, constants, utilities
     +-- infrastructure/ # Supabase, Storage, and Leaflet integrations
 
-icarecenter-supabase/
+supabase/
 +-- functions/      # Supabase Edge Functions
 +-- migrations/     # Database migrations
 
@@ -27,12 +27,12 @@ icarecenter-test/
 +-- support/         # Cypress support files
 
 The `content-data` Supabase Edge Function is the deployment adapter at
-`icarecenter-supabase/functions/content-data/index.ts`. Its implementation is
+`supabase/functions/content-data/index.ts`. Its implementation is
 the private modular-monolith-style module at
-`icarecenter-supabase/functions/modules/content/`, composed by resource-owned
+`supabase/functions/modules/content/`, composed by resource-owned
 domain ports, application use cases, infrastructure repositories, presentation
 controllers, and focused tests. External code imports only
-`icarecenter-supabase/functions/modules/content/index.ts`.
+`supabase/functions/modules/content/index.ts`.
 
 Unused layers are omitted. Empty directories and `.gitkeep` placeholders are
 not created.

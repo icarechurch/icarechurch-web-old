@@ -14,7 +14,7 @@ The frontend is organized as vertical slices:
 
 Deleted legacy locations such as `icarecenter-frontend/src/pages/`, `icarecenter-frontend/src/components/admin/`, and `icarecenter-frontend/src/hooks/useChurchData.tsx` must not be recreated or replaced with compatibility shims.
 
-Queries live in resource modules under `icarecenter-supabase/functions/` and are organized as:
+Queries live in resource modules under `supabase/functions/` and are organized as:
 
 ```text
 business domain → resource → operation

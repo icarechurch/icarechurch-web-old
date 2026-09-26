@@ -60,7 +60,7 @@ Before you begin, ensure you have the following installed:
 4. **Set up Supabase**
 
    - Create a Supabase project at [supabase.com](https://supabase.com)
-   - Run migrations from `icarecenter-supabase/migrations/` in order
+   - Run migrations from `supabase/migrations/` in order
    - Get your project URL and anon key from Settings → API
 
 5. **Start development server**
@@ -335,8 +335,8 @@ icarecenter-frontend/src/
 1. **Create migration file**
 
    ```bash
-   # Create file in icarecenter-supabase/migrations/
-   icarecenter-supabase/migrations/YYYYMMDDHHMMSS_add_my_table.sql
+   # Create file in supabase/migrations/
+   supabase/migrations/YYYYMMDDHHMMSS_add_my_table.sql
    ```
 
    ```sql
@@ -502,8 +502,8 @@ async function uploadFile(file: File) {
 ## Supabase Edge Functions
 
 The content implementation is under
-`icarecenter-supabase/functions/modules/content/`, while
-`icarecenter-supabase/functions/content-data/index.ts` remains the deployment
+`supabase/functions/modules/content/`, while
+`supabase/functions/content-data/index.ts` remains the deployment
 adapter. Focused Deno tests live with each resource module and architecture
 tests verify private modules, layer boundaries, request composition, and
 documentation alignment. Unused layers are omitted; do not add `.gitkeep`

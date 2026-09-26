@@ -4,7 +4,7 @@
 
 **Goal:** Refactor the `content-data` Supabase Edge Function into a MeatLens-style `content` module with private resource submodules while preserving every existing request, response, query, and deployed function name.
 
-**Architecture:** `icarecenter-supabase/functions/content-data/index.ts` remains the deployment adapter. It delegates to `functions/modules/content/index.ts`, which composes private submodules for sermons, events, ministries, church-info, gallery, pastors, service-times, giving, and event-popup. Each submodule owns its domain ports, application use cases, Supabase infrastructure, presentation controller, and tests; no parent layer directories or placeholder files are created when a layer has no source files.
+**Architecture:** `supabase/functions/content-data/index.ts` remains the deployment adapter. It delegates to `functions/modules/content/index.ts`, which composes private submodules for sermons, events, ministries, church-info, gallery, pastors, service-times, giving, and event-popup. Each submodule owns its domain ports, application use cases, Supabase infrastructure, presentation controller, and tests; no parent layer directories or placeholder files are created when a layer has no source files.
 
 **Tech Stack:** Deno, TypeScript, Supabase Edge Functions, `@supabase/supabase-js`, PostgreSQL-backed RLS, Deno test, existing `{ data: ... }` / `{ error: ... }` response envelopes, Markdown documentation.
 
@@ -26,7 +26,7 @@
 
 ## File map before implementation
 
-The current implementation to migrate is under `icarecenter-supabase/functions/content-data/`:
+The current implementation to migrate is under `supabase/functions/content-data/`:
 
 - `index.ts`: request parsing, client construction, dispatch, and function bootstrapping.
 - `resource-columns.ts`: all resource-specific projection strings and the public row limit.
@@ -39,7 +39,7 @@ The current implementation to migrate is under `icarecenter-supabase/functions/c
 The target module contains only directories that receive files:
 
 ```text
-icarecenter-supabase/functions/modules/content/
+supabase/functions/modules/content/
   sermons/{domain/ports,application,infrastructure,presentation}/
   events/{domain/ports,application,infrastructure,presentation}/
   ministries/{domain/ports,application,infrastructure,presentation}/
@@ -58,7 +58,7 @@ listed by a task needs it. Never create an empty layer directory.
 ## Task 1: Add architecture boundary tests
 
 **Files:**
-- Create: `icarecenter-supabase/functions/tests/architecture/content-module-boundaries.test.ts`
+- Create: `supabase/functions/tests/architecture/content-module-boundaries.test.ts`
 
 **Interfaces:**
 - Produces architecture checks that later content submodules must satisfy.
@@ -85,7 +85,7 @@ surface but not a private resource path.
 - [ ] **Step 2: Run the test and verify the expected failure**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/tests/architecture/content-module-boundaries.test.ts
+deno test -A supabase/functions/tests/architecture/content-module-boundaries.test.ts
 ```
 
 Expected result: FAIL because `functions/modules/content` does not yet exist.
@@ -93,16 +93,16 @@ Expected result: FAIL because `functions/modules/content` does not yet exist.
 - [ ] **Step 3: Commit the failing contract**
 
 ```powershell
-git add icarecenter-supabase/functions/tests/architecture/content-module-boundaries.test.ts
+git add supabase/functions/tests/architecture/content-module-boundaries.test.ts
 git commit -m "test: define content module boundaries"
 ```
 
 ## Task 2: Add the request-scoped composition adapter
 
 **Files:**
-- Create: `icarecenter-supabase/functions/_shared/infrastructure/supabase/request-client.ts`
-- Create: `icarecenter-supabase/functions/_shared/infrastructure/supabase/request-client.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/index.ts`
+- Create: `supabase/functions/_shared/infrastructure/supabase/request-client.ts`
+- Create: `supabase/functions/_shared/infrastructure/supabase/request-client.test.ts`
+- Create: `supabase/functions/modules/content/index.ts`
 
 **Interfaces:**
 - `createRequestSupabaseClient(request: Request, env?: EnvironmentReader): SupabaseClient`
@@ -120,7 +120,7 @@ values in the test.
 - [ ] **Step 2: Run the focused test and verify failure**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/_shared/infrastructure/supabase/request-client.test.ts
+deno test -A supabase/functions/_shared/infrastructure/supabase/request-client.test.ts
 ```
 
 Expected result: FAIL because the request-client module does not exist.
@@ -158,27 +158,27 @@ do not add speculative exports or empty layer directories.
 - [ ] **Step 4: Run focused tests and commit**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/_shared/infrastructure/supabase/request-client.test.ts
-git add icarecenter-supabase/functions/_shared/infrastructure/supabase/request-client.ts icarecenter-supabase/functions/_shared/infrastructure/supabase/request-client.test.ts icarecenter-supabase/functions/modules/content/index.ts
+deno test -A supabase/functions/_shared/infrastructure/supabase/request-client.test.ts
+git add supabase/functions/_shared/infrastructure/supabase/request-client.ts supabase/functions/_shared/infrastructure/supabase/request-client.test.ts supabase/functions/modules/content/index.ts
 git commit -m "feat: add content module composition boundary"
 ```
 
 ## Task 3: Migrate the sermons submodule
 
 **Files:**
-- Create: `icarecenter-supabase/functions/modules/content/sermons/domain/ports/SermonRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/sermons/application/ListSermons.ts`
-- Create: `icarecenter-supabase/functions/modules/content/sermons/application/GetLatestSermon.ts`
-- Create: `icarecenter-supabase/functions/modules/content/sermons/application/CreateSermon.ts`
-- Create: `icarecenter-supabase/functions/modules/content/sermons/application/UpdateSermon.ts`
-- Create: `icarecenter-supabase/functions/modules/content/sermons/application/DeleteSermon.ts`
-- Create: `icarecenter-supabase/functions/modules/content/sermons/application/sermons.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/sermons/infrastructure/SupabaseSermonRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/sermons/infrastructure/sermon-columns.ts`
-- Create: `icarecenter-supabase/functions/modules/content/sermons/infrastructure/SupabaseSermonRepository.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/sermons/presentation/SermonController.ts`
-- Modify: `icarecenter-supabase/functions/modules/content/index.ts`
-- Delete after migration: `icarecenter-supabase/functions/content-data/sermons.ts`
+- Create: `supabase/functions/modules/content/sermons/domain/ports/SermonRepository.ts`
+- Create: `supabase/functions/modules/content/sermons/application/ListSermons.ts`
+- Create: `supabase/functions/modules/content/sermons/application/GetLatestSermon.ts`
+- Create: `supabase/functions/modules/content/sermons/application/CreateSermon.ts`
+- Create: `supabase/functions/modules/content/sermons/application/UpdateSermon.ts`
+- Create: `supabase/functions/modules/content/sermons/application/DeleteSermon.ts`
+- Create: `supabase/functions/modules/content/sermons/application/sermons.test.ts`
+- Create: `supabase/functions/modules/content/sermons/infrastructure/SupabaseSermonRepository.ts`
+- Create: `supabase/functions/modules/content/sermons/infrastructure/sermon-columns.ts`
+- Create: `supabase/functions/modules/content/sermons/infrastructure/SupabaseSermonRepository.test.ts`
+- Create: `supabase/functions/modules/content/sermons/presentation/SermonController.ts`
+- Modify: `supabase/functions/modules/content/index.ts`
+- Delete after migration: `supabase/functions/content-data/sermons.ts`
 
 **Interfaces:**
 - Repository methods: `list(): Promise<unknown[]>`, `latest(): Promise<unknown | null>`, `create(input: unknown): Promise<unknown>`, `update(input: { id: string } & Record<string, unknown>): Promise<unknown>`, `delete(input: { id: string }): Promise<string>`.
@@ -194,7 +194,7 @@ sermon. Do not import Supabase in these tests.
 - [ ] **Step 2: Run the tests and verify failure**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content/sermons/application/sermons.test.ts
+deno test -A supabase/functions/modules/content/sermons/application/sermons.test.ts
 ```
 
 Expected result: FAIL because the port and use cases do not exist.
@@ -207,7 +207,7 @@ contain no Deno, HTTP, Supabase, or query-builder imports.
 - [ ] **Step 4: Run the use-case tests and verify green**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content/sermons/application/sermons.test.ts
+deno test -A supabase/functions/modules/content/sermons/application/sermons.test.ts
 ```
 
 Expected result: PASS.
@@ -223,7 +223,7 @@ and delete call sequences.
 - [ ] **Step 6: Run repository tests and verify failure**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content/sermons/infrastructure/SupabaseSermonRepository.test.ts
+deno test -A supabase/functions/modules/content/sermons/infrastructure/SupabaseSermonRepository.test.ts
 ```
 
 Expected result: FAIL because the repository does not exist.
@@ -253,8 +253,8 @@ sermons: {
 - [ ] **Step 9: Run and commit**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content/sermons icarecenter-supabase/functions/modules/content/index.ts
-git add icarecenter-supabase/functions/modules/content/sermons icarecenter-supabase/functions/modules/content/index.ts icarecenter-supabase/functions/content-data/sermons.ts
+deno test -A supabase/functions/modules/content/sermons supabase/functions/modules/content/index.ts
+git add supabase/functions/modules/content/sermons supabase/functions/modules/content/index.ts supabase/functions/content-data/sermons.ts
 git commit -m "refactor: move sermons into content submodule"
 ```
 
@@ -263,18 +263,18 @@ Expected result: all sermons tests pass and the old handler file is deleted.
 ## Task 4: Migrate the events submodule
 
 **Files:**
-- Create: `icarecenter-supabase/functions/modules/content/events/domain/ports/EventRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/events/application/ListEvents.ts`
-- Create: `icarecenter-supabase/functions/modules/content/events/application/CreateEvent.ts`
-- Create: `icarecenter-supabase/functions/modules/content/events/application/UpdateEvent.ts`
-- Create: `icarecenter-supabase/functions/modules/content/events/application/DeleteEvent.ts`
-- Create: `icarecenter-supabase/functions/modules/content/events/application/events.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/events/infrastructure/SupabaseEventRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/events/infrastructure/event-columns.ts`
-- Create: `icarecenter-supabase/functions/modules/content/events/infrastructure/SupabaseEventRepository.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/events/presentation/EventController.ts`
-- Modify: `icarecenter-supabase/functions/modules/content/index.ts`
-- Delete after migration: `icarecenter-supabase/functions/content-data/events.ts`
+- Create: `supabase/functions/modules/content/events/domain/ports/EventRepository.ts`
+- Create: `supabase/functions/modules/content/events/application/ListEvents.ts`
+- Create: `supabase/functions/modules/content/events/application/CreateEvent.ts`
+- Create: `supabase/functions/modules/content/events/application/UpdateEvent.ts`
+- Create: `supabase/functions/modules/content/events/application/DeleteEvent.ts`
+- Create: `supabase/functions/modules/content/events/application/events.test.ts`
+- Create: `supabase/functions/modules/content/events/infrastructure/SupabaseEventRepository.ts`
+- Create: `supabase/functions/modules/content/events/infrastructure/event-columns.ts`
+- Create: `supabase/functions/modules/content/events/infrastructure/SupabaseEventRepository.test.ts`
+- Create: `supabase/functions/modules/content/events/presentation/EventController.ts`
+- Modify: `supabase/functions/modules/content/index.ts`
+- Delete after migration: `supabase/functions/content-data/events.ts`
 
 **Interfaces:**
 - Repository methods: `list`, `create`, `update`, and `delete` with the existing input and result shapes.
@@ -289,7 +289,7 @@ forwarding, including the returned deleted ID.
 - [ ] **Step 2: Run the tests and verify failure**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content/events/application/events.test.ts
+deno test -A supabase/functions/modules/content/events/application/events.test.ts
 ```
 
 Expected result: FAIL because the events submodule does not exist.
@@ -304,27 +304,27 @@ Supabase client.
 - [ ] **Step 4: Register, run, and commit**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content/events
-git add icarecenter-supabase/functions/modules/content/events icarecenter-supabase/functions/modules/content/index.ts icarecenter-supabase/functions/content-data/events.ts
+deno test -A supabase/functions/modules/content/events
+git add supabase/functions/modules/content/events supabase/functions/modules/content/index.ts supabase/functions/content-data/events.ts
 git commit -m "refactor: move events into content submodule"
 ```
 
 ## Task 5: Migrate the ministries submodule
 
 **Files:**
-- Create: `icarecenter-supabase/functions/modules/content/ministries/domain/ports/MinistryRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/ministries/application/ListMinistries.ts`
-- Create: `icarecenter-supabase/functions/modules/content/ministries/application/CreateMinistry.ts`
-- Create: `icarecenter-supabase/functions/modules/content/ministries/application/UpdateMinistry.ts`
-- Create: `icarecenter-supabase/functions/modules/content/ministries/application/DeleteMinistry.ts`
-- Create: `icarecenter-supabase/functions/modules/content/ministries/application/SortMinistries.ts`
-- Create: `icarecenter-supabase/functions/modules/content/ministries/application/ministries.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/ministries/infrastructure/SupabaseMinistryRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/ministries/infrastructure/ministry-columns.ts`
-- Create: `icarecenter-supabase/functions/modules/content/ministries/infrastructure/SupabaseMinistryRepository.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/ministries/presentation/MinistryController.ts`
-- Modify: `icarecenter-supabase/functions/modules/content/index.ts`
-- Delete after migration: `icarecenter-supabase/functions/content-data/ministries.ts`
+- Create: `supabase/functions/modules/content/ministries/domain/ports/MinistryRepository.ts`
+- Create: `supabase/functions/modules/content/ministries/application/ListMinistries.ts`
+- Create: `supabase/functions/modules/content/ministries/application/CreateMinistry.ts`
+- Create: `supabase/functions/modules/content/ministries/application/UpdateMinistry.ts`
+- Create: `supabase/functions/modules/content/ministries/application/DeleteMinistry.ts`
+- Create: `supabase/functions/modules/content/ministries/application/SortMinistries.ts`
+- Create: `supabase/functions/modules/content/ministries/application/ministries.test.ts`
+- Create: `supabase/functions/modules/content/ministries/infrastructure/SupabaseMinistryRepository.ts`
+- Create: `supabase/functions/modules/content/ministries/infrastructure/ministry-columns.ts`
+- Create: `supabase/functions/modules/content/ministries/infrastructure/SupabaseMinistryRepository.test.ts`
+- Create: `supabase/functions/modules/content/ministries/presentation/MinistryController.ts`
+- Modify: `supabase/functions/modules/content/index.ts`
+- Delete after migration: `supabase/functions/content-data/ministries.ts`
 
 **Interfaces:**
 - Use cases: `ListMinistries`, `CreateMinistry`, `UpdateMinistry`, `DeleteMinistry`, and `SortMinistries`, each with `execute` only.
@@ -338,7 +338,7 @@ returns it unchanged after the repository completes; also test empty sort input.
 - [ ] **Step 2: Run the tests and verify failure**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content/ministries/application/ministries.test.ts
+deno test -A supabase/functions/modules/content/ministries/application/ministries.test.ts
 ```
 
 Expected result: FAIL because the ministries submodule does not exist.
@@ -353,27 +353,27 @@ deterministically.
 - [ ] **Step 4: Register, run, and commit**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content/ministries
-git add icarecenter-supabase/functions/modules/content/ministries icarecenter-supabase/functions/modules/content/index.ts icarecenter-supabase/functions/content-data/ministries.ts
+deno test -A supabase/functions/modules/content/ministries
+git add supabase/functions/modules/content/ministries supabase/functions/modules/content/index.ts supabase/functions/content-data/ministries.ts
 git commit -m "refactor: move ministries into content submodule"
 ```
 
 ## Task 6: Migrate the service-times submodule
 
 **Files:**
-- Create: `icarecenter-supabase/functions/modules/content/service-times/domain/ports/ServiceTimeRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/service-times/application/ListServiceTimes.ts`
-- Create: `icarecenter-supabase/functions/modules/content/service-times/application/CreateServiceTime.ts`
-- Create: `icarecenter-supabase/functions/modules/content/service-times/application/UpdateServiceTime.ts`
-- Create: `icarecenter-supabase/functions/modules/content/service-times/application/DeleteServiceTime.ts`
-- Create: `icarecenter-supabase/functions/modules/content/service-times/application/SortServiceTimes.ts`
-- Create: `icarecenter-supabase/functions/modules/content/service-times/application/service-times.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/service-times/infrastructure/SupabaseServiceTimeRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/service-times/infrastructure/service-time-columns.ts`
-- Create: `icarecenter-supabase/functions/modules/content/service-times/infrastructure/SupabaseServiceTimeRepository.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/service-times/presentation/ServiceTimeController.ts`
-- Modify: `icarecenter-supabase/functions/modules/content/index.ts`
-- Delete after migration: `icarecenter-supabase/functions/content-data/service-times.ts`
+- Create: `supabase/functions/modules/content/service-times/domain/ports/ServiceTimeRepository.ts`
+- Create: `supabase/functions/modules/content/service-times/application/ListServiceTimes.ts`
+- Create: `supabase/functions/modules/content/service-times/application/CreateServiceTime.ts`
+- Create: `supabase/functions/modules/content/service-times/application/UpdateServiceTime.ts`
+- Create: `supabase/functions/modules/content/service-times/application/DeleteServiceTime.ts`
+- Create: `supabase/functions/modules/content/service-times/application/SortServiceTimes.ts`
+- Create: `supabase/functions/modules/content/service-times/application/service-times.test.ts`
+- Create: `supabase/functions/modules/content/service-times/infrastructure/SupabaseServiceTimeRepository.ts`
+- Create: `supabase/functions/modules/content/service-times/infrastructure/service-time-columns.ts`
+- Create: `supabase/functions/modules/content/service-times/infrastructure/SupabaseServiceTimeRepository.test.ts`
+- Create: `supabase/functions/modules/content/service-times/presentation/ServiceTimeController.ts`
+- Modify: `supabase/functions/modules/content/index.ts`
+- Delete after migration: `supabase/functions/content-data/service-times.ts`
 
 **Interfaces:**
 - Use cases: `ListServiceTimes`, `CreateServiceTime`, `UpdateServiceTime`, `DeleteServiceTime`, and `SortServiceTimes`, each with one `execute` method.
@@ -387,7 +387,7 @@ with an in-memory fake repository.
 - [ ] **Step 2: Run the tests and verify failure**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content/service-times/application/service-times.test.ts
+deno test -A supabase/functions/modules/content/service-times/application/service-times.test.ts
 ```
 
 Expected result: FAIL because the service-times submodule does not exist.
@@ -401,45 +401,45 @@ Supabase calls in `SupabaseServiceTimeRepository`.
 - [ ] **Step 4: Register, run, and commit**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content/service-times
-git add icarecenter-supabase/functions/modules/content/service-times icarecenter-supabase/functions/modules/content/index.ts icarecenter-supabase/functions/content-data/service-times.ts
+deno test -A supabase/functions/modules/content/service-times
+git add supabase/functions/modules/content/service-times supabase/functions/modules/content/index.ts supabase/functions/content-data/service-times.ts
 git commit -m "refactor: move service times into content submodule"
 ```
 
 ## Task 7: Migrate the church-info, gallery, and pastors submodules
 
 **Files:**
-- Create: `icarecenter-supabase/functions/modules/content/church-info/domain/ports/ChurchInfoRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/church-info/application/GetChurchInfo.ts`
-- Create: `icarecenter-supabase/functions/modules/content/church-info/application/church-info.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/church-info/infrastructure/SupabaseChurchInfoRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/church-info/infrastructure/church-info-columns.ts`
-- Create: `icarecenter-supabase/functions/modules/content/church-info/infrastructure/SupabaseChurchInfoRepository.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/church-info/presentation/ChurchInfoController.ts`
-- Create: `icarecenter-supabase/functions/modules/content/gallery/domain/ports/GalleryRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/gallery/application/ListGalleryImages.ts`
-- Create: `icarecenter-supabase/functions/modules/content/gallery/application/CreateGalleryImage.ts`
-- Create: `icarecenter-supabase/functions/modules/content/gallery/application/DeleteGalleryImage.ts`
-- Create: `icarecenter-supabase/functions/modules/content/gallery/application/gallery.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/gallery/infrastructure/SupabaseGalleryRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/gallery/infrastructure/gallery-columns.ts`
-- Create: `icarecenter-supabase/functions/modules/content/gallery/infrastructure/SupabaseGalleryRepository.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/gallery/presentation/GalleryController.ts`
-- Create: `icarecenter-supabase/functions/modules/content/pastors/domain/ports/PastorRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/pastors/application/ListPastors.ts`
-- Create: `icarecenter-supabase/functions/modules/content/pastors/application/CreatePastor.ts`
-- Create: `icarecenter-supabase/functions/modules/content/pastors/application/UpdatePastor.ts`
-- Create: `icarecenter-supabase/functions/modules/content/pastors/application/DeletePastor.ts`
-- Create: `icarecenter-supabase/functions/modules/content/pastors/application/SortPastors.ts`
-- Create: `icarecenter-supabase/functions/modules/content/pastors/application/pastors.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/pastors/infrastructure/SupabasePastorRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/pastors/infrastructure/pastor-columns.ts`
-- Create: `icarecenter-supabase/functions/modules/content/pastors/infrastructure/SupabasePastorRepository.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/pastors/presentation/PastorController.ts`
-- Modify: `icarecenter-supabase/functions/modules/content/index.ts`
-- Delete after migration: `icarecenter-supabase/functions/content-data/church-info.ts`
-- Delete after migration: `icarecenter-supabase/functions/content-data/gallery.ts`
-- Delete after migration: `icarecenter-supabase/functions/content-data/pastors.ts`
+- Create: `supabase/functions/modules/content/church-info/domain/ports/ChurchInfoRepository.ts`
+- Create: `supabase/functions/modules/content/church-info/application/GetChurchInfo.ts`
+- Create: `supabase/functions/modules/content/church-info/application/church-info.test.ts`
+- Create: `supabase/functions/modules/content/church-info/infrastructure/SupabaseChurchInfoRepository.ts`
+- Create: `supabase/functions/modules/content/church-info/infrastructure/church-info-columns.ts`
+- Create: `supabase/functions/modules/content/church-info/infrastructure/SupabaseChurchInfoRepository.test.ts`
+- Create: `supabase/functions/modules/content/church-info/presentation/ChurchInfoController.ts`
+- Create: `supabase/functions/modules/content/gallery/domain/ports/GalleryRepository.ts`
+- Create: `supabase/functions/modules/content/gallery/application/ListGalleryImages.ts`
+- Create: `supabase/functions/modules/content/gallery/application/CreateGalleryImage.ts`
+- Create: `supabase/functions/modules/content/gallery/application/DeleteGalleryImage.ts`
+- Create: `supabase/functions/modules/content/gallery/application/gallery.test.ts`
+- Create: `supabase/functions/modules/content/gallery/infrastructure/SupabaseGalleryRepository.ts`
+- Create: `supabase/functions/modules/content/gallery/infrastructure/gallery-columns.ts`
+- Create: `supabase/functions/modules/content/gallery/infrastructure/SupabaseGalleryRepository.test.ts`
+- Create: `supabase/functions/modules/content/gallery/presentation/GalleryController.ts`
+- Create: `supabase/functions/modules/content/pastors/domain/ports/PastorRepository.ts`
+- Create: `supabase/functions/modules/content/pastors/application/ListPastors.ts`
+- Create: `supabase/functions/modules/content/pastors/application/CreatePastor.ts`
+- Create: `supabase/functions/modules/content/pastors/application/UpdatePastor.ts`
+- Create: `supabase/functions/modules/content/pastors/application/DeletePastor.ts`
+- Create: `supabase/functions/modules/content/pastors/application/SortPastors.ts`
+- Create: `supabase/functions/modules/content/pastors/application/pastors.test.ts`
+- Create: `supabase/functions/modules/content/pastors/infrastructure/SupabasePastorRepository.ts`
+- Create: `supabase/functions/modules/content/pastors/infrastructure/pastor-columns.ts`
+- Create: `supabase/functions/modules/content/pastors/infrastructure/SupabasePastorRepository.test.ts`
+- Create: `supabase/functions/modules/content/pastors/presentation/PastorController.ts`
+- Modify: `supabase/functions/modules/content/index.ts`
+- Delete after migration: `supabase/functions/content-data/church-info.ts`
+- Delete after migration: `supabase/functions/content-data/gallery.ts`
+- Delete after migration: `supabase/functions/content-data/pastors.ts`
 
 **Interfaces:**
 - `GetChurchInfo.execute(): Promise<unknown | null>`.
@@ -457,7 +457,7 @@ query call sequences from the current `resource-queries.test.ts` and
 - [ ] **Step 2: Run the focused tests and verify failure**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content/church-info icarecenter-supabase/functions/modules/content/gallery icarecenter-supabase/functions/modules/content/pastors
+deno test -A supabase/functions/modules/content/church-info supabase/functions/modules/content/gallery supabase/functions/modules/content/pastors
 ```
 
 Expected result: FAIL because the submodules do not exist.
@@ -471,33 +471,33 @@ directory unless a source file requires it.
 - [ ] **Step 4: Register, run, and commit**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content/church-info icarecenter-supabase/functions/modules/content/gallery icarecenter-supabase/functions/modules/content/pastors
-git add icarecenter-supabase/functions/modules/content/church-info icarecenter-supabase/functions/modules/content/gallery icarecenter-supabase/functions/modules/content/pastors icarecenter-supabase/functions/modules/content/index.ts icarecenter-supabase/functions/content-data/church-info.ts icarecenter-supabase/functions/content-data/gallery.ts icarecenter-supabase/functions/content-data/pastors.ts
+deno test -A supabase/functions/modules/content/church-info supabase/functions/modules/content/gallery supabase/functions/modules/content/pastors
+git add supabase/functions/modules/content/church-info supabase/functions/modules/content/gallery supabase/functions/modules/content/pastors supabase/functions/modules/content/index.ts supabase/functions/content-data/church-info.ts supabase/functions/content-data/gallery.ts supabase/functions/content-data/pastors.ts
 git commit -m "refactor: move content reads into private submodules"
 ```
 
 ## Task 8: Migrate the giving and event-popup submodules
 
 **Files:**
-- Create: `icarecenter-supabase/functions/modules/content/giving/domain/ports/GivingRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/giving/application/GetGivingSettings.ts`
-- Create: `icarecenter-supabase/functions/modules/content/giving/application/UpdateGivingSettings.ts`
-- Create: `icarecenter-supabase/functions/modules/content/giving/application/giving.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/giving/infrastructure/SupabaseGivingRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/giving/infrastructure/giving-columns.ts`
-- Create: `icarecenter-supabase/functions/modules/content/giving/infrastructure/SupabaseGivingRepository.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/giving/presentation/GivingController.ts`
-- Create: `icarecenter-supabase/functions/modules/content/event-popup/domain/ports/EventPopupRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/event-popup/application/GetEventPopupSettings.ts`
-- Create: `icarecenter-supabase/functions/modules/content/event-popup/application/UpsertEventPopupSettings.ts`
-- Create: `icarecenter-supabase/functions/modules/content/event-popup/application/event-popup.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/event-popup/infrastructure/SupabaseEventPopupRepository.ts`
-- Create: `icarecenter-supabase/functions/modules/content/event-popup/infrastructure/event-popup-columns.ts`
-- Create: `icarecenter-supabase/functions/modules/content/event-popup/infrastructure/SupabaseEventPopupRepository.test.ts`
-- Create: `icarecenter-supabase/functions/modules/content/event-popup/presentation/EventPopupController.ts`
-- Modify: `icarecenter-supabase/functions/modules/content/index.ts`
-- Delete after migration: `icarecenter-supabase/functions/content-data/giving.ts`
-- Delete after migration: `icarecenter-supabase/functions/content-data/event-popup.ts`
+- Create: `supabase/functions/modules/content/giving/domain/ports/GivingRepository.ts`
+- Create: `supabase/functions/modules/content/giving/application/GetGivingSettings.ts`
+- Create: `supabase/functions/modules/content/giving/application/UpdateGivingSettings.ts`
+- Create: `supabase/functions/modules/content/giving/application/giving.test.ts`
+- Create: `supabase/functions/modules/content/giving/infrastructure/SupabaseGivingRepository.ts`
+- Create: `supabase/functions/modules/content/giving/infrastructure/giving-columns.ts`
+- Create: `supabase/functions/modules/content/giving/infrastructure/SupabaseGivingRepository.test.ts`
+- Create: `supabase/functions/modules/content/giving/presentation/GivingController.ts`
+- Create: `supabase/functions/modules/content/event-popup/domain/ports/EventPopupRepository.ts`
+- Create: `supabase/functions/modules/content/event-popup/application/GetEventPopupSettings.ts`
+- Create: `supabase/functions/modules/content/event-popup/application/UpsertEventPopupSettings.ts`
+- Create: `supabase/functions/modules/content/event-popup/application/event-popup.test.ts`
+- Create: `supabase/functions/modules/content/event-popup/infrastructure/SupabaseEventPopupRepository.ts`
+- Create: `supabase/functions/modules/content/event-popup/infrastructure/event-popup-columns.ts`
+- Create: `supabase/functions/modules/content/event-popup/infrastructure/SupabaseEventPopupRepository.test.ts`
+- Create: `supabase/functions/modules/content/event-popup/presentation/EventPopupController.ts`
+- Modify: `supabase/functions/modules/content/index.ts`
+- Delete after migration: `supabase/functions/content-data/giving.ts`
+- Delete after migration: `supabase/functions/content-data/event-popup.ts`
 
 **Interfaces:**
 - Giving use cases: `GetGivingSettings` and `UpdateGivingSettings`.
@@ -513,7 +513,7 @@ the existing query-call fake for infrastructure tests.
 - [ ] **Step 2: Run the tests and verify failure**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content/giving icarecenter-supabase/functions/modules/content/event-popup
+deno test -A supabase/functions/modules/content/giving supabase/functions/modules/content/event-popup
 ```
 
 Expected result: FAIL because the submodules do not exist.
@@ -526,21 +526,21 @@ preserve the current singleton query behavior.
 - [ ] **Step 4: Run and commit**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content/giving icarecenter-supabase/functions/modules/content/event-popup
-git add icarecenter-supabase/functions/modules/content/giving icarecenter-supabase/functions/modules/content/event-popup icarecenter-supabase/functions/modules/content/index.ts icarecenter-supabase/functions/content-data/giving.ts icarecenter-supabase/functions/content-data/event-popup.ts
+deno test -A supabase/functions/modules/content/giving supabase/functions/modules/content/event-popup
+git add supabase/functions/modules/content/giving supabase/functions/modules/content/event-popup supabase/functions/modules/content/index.ts supabase/functions/content-data/giving.ts supabase/functions/content-data/event-popup.ts
 git commit -m "refactor: move settings into content submodules"
 ```
 
 ## Task 9: Replace the content-data dispatcher with the thin adapter
 
 **Files:**
-- Modify: `icarecenter-supabase/functions/modules/content/index.ts`
-- Modify: `icarecenter-supabase/functions/content-data/index.ts`
-- Modify: `icarecenter-supabase/functions/content-data/content-data.test.ts`
-- Modify: `icarecenter-supabase/functions/content-data/content-mutations.test.ts`
-- Modify: `icarecenter-supabase/functions/content-data/resource-queries.test.ts`
-- Move: `icarecenter-supabase/functions/content-data/content-index-migration.test.ts` to `icarecenter-supabase/functions/modules/content/content-index-migration.test.ts`
-- Delete after migration: `icarecenter-supabase/functions/content-data/resource-columns.ts`
+- Modify: `supabase/functions/modules/content/index.ts`
+- Modify: `supabase/functions/content-data/index.ts`
+- Modify: `supabase/functions/content-data/content-data.test.ts`
+- Modify: `supabase/functions/content-data/content-mutations.test.ts`
+- Modify: `supabase/functions/content-data/resource-queries.test.ts`
+- Move: `supabase/functions/content-data/content-index-migration.test.ts` to `supabase/functions/modules/content/content-index-migration.test.ts`
+- Delete after migration: `supabase/functions/content-data/resource-columns.ts`
 
 **Interfaces:**
 - `dispatchContentRequest(request: FunctionRequest, routes: ContentRoutes): Promise<unknown>` remains the testable dispatcher contract.
@@ -558,7 +558,7 @@ the deleted resource files.
 - [ ] **Step 2: Run the adapter test and verify failure**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/content-data/content-data.test.ts
+deno test -A supabase/functions/content-data/content-data.test.ts
 ```
 
 Expected result: FAIL because the dispatcher still receives the old handler map.
@@ -593,8 +593,8 @@ unchanged.
 - [ ] **Step 5: Run the complete content suite and commit**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content icarecenter-supabase/functions/content-data icarecenter-supabase/functions/tests/architecture
-git add icarecenter-supabase/functions/modules/content icarecenter-supabase/functions/content-data icarecenter-supabase/functions/tests/architecture
+deno test -A supabase/functions/modules/content supabase/functions/content-data supabase/functions/tests/architecture
+git add supabase/functions/modules/content supabase/functions/content-data supabase/functions/tests/architecture
 git commit -m "refactor: route content-data through content module"
 ```
 
@@ -608,17 +608,17 @@ git commit -m "refactor: route content-data through content module"
 - Modify: `documentations/DEVELOPMENT.md`
 - Modify: `documentations/SECURITY.md`
 - Create: `docs/superpowers/audits/2026-09-26-content-module-documentation-audit.md`
-- Create: `icarecenter-supabase/functions/tests/architecture/content-documentation.test.ts`
+- Create: `supabase/functions/tests/architecture/content-documentation.test.ts`
 
 **Interfaces:**
-- Documentation describes `icarecenter-supabase/functions/content-data/index.ts` as a deployment adapter and `icarecenter-supabase/functions/modules/content/*` as the private module implementation.
+- Documentation describes `supabase/functions/content-data/index.ts` as a deployment adapter and `supabase/functions/modules/content/*` as the private module implementation.
 - Documentation preserves the current content-data request operations and response envelope.
 
 - [ ] **Step 1: Write the failing documentation audit test**
 
 Read the six documentation files from the repository root and assert that they
 contain the new `modules/content` boundary and do not prescribe deleted files
-such as `icarecenter-supabase/functions/content-data/events.ts`. Assert that
+such as `supabase/functions/content-data/events.ts`. Assert that
 the documentation explains that unused layers and `.gitkeep` files are
 omitted. This test may mention `.gitkeep` in its expected explanatory text; it
 must not require a `.gitkeep` file.
@@ -626,7 +626,7 @@ must not require a `.gitkeep` file.
 - [ ] **Step 2: Run the audit test and verify failure**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/tests/architecture/content-documentation.test.ts
+deno test -A supabase/functions/tests/architecture/content-documentation.test.ts
 ```
 
 Expected result: FAIL because the repository documentation still describes the
@@ -651,7 +651,7 @@ result until the commands have actually completed successfully.
 - [ ] **Step 5: Run stale-path and documentation checks**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/tests/architecture/content-documentation.test.ts
+deno test -A supabase/functions/tests/architecture/content-documentation.test.ts
 rg -n "functions/content-data/(church-info|events|event-popup|gallery|giving|ministries|pastors|sermons|service-times)\.ts" README.md documentations docs
 if ($LASTEXITCODE -gt 1) { exit $LASTEXITCODE }
 git diff --check
@@ -665,7 +665,7 @@ prohibition.
 - [ ] **Step 6: Commit documentation**
 
 ```powershell
-git add README.md documentations docs/superpowers/audits/2026-09-26-content-module-documentation-audit.md icarecenter-supabase/functions/tests/architecture/content-documentation.test.ts
+git add README.md documentations docs/superpowers/audits/2026-09-26-content-module-documentation-audit.md supabase/functions/tests/architecture/content-documentation.test.ts
 git commit -m "docs: document content edge module boundaries"
 ```
 
@@ -677,7 +677,7 @@ git commit -m "docs: document content edge module boundaries"
 - [ ] **Step 1: Run focused content tests**
 
 ```powershell
-deno test -A icarecenter-supabase/functions/modules/content icarecenter-supabase/functions/content-data icarecenter-supabase/functions/tests/architecture
+deno test -A supabase/functions/modules/content supabase/functions/content-data supabase/functions/tests/architecture
 ```
 
 - [ ] **Step 2: Run the repository Edge Function lane**
@@ -704,8 +704,8 @@ npm exec -- ultracite check
 
 ```powershell
 Set-Location ..
-rg -n "modules/content/(sermons|events|ministries|church-info|gallery|pastors|service-times|giving|event-popup)/(domain|application|infrastructure|presentation)" icarecenter-supabase/functions --glob '*.ts'
-Get-ChildItem -Path icarecenter-supabase/functions/modules/content -Filter '.gitkeep' -File -Recurse
+rg -n "modules/content/(sermons|events|ministries|church-info|gallery|pastors|service-times|giving|event-popup)/(domain|application|infrastructure|presentation)" supabase/functions --glob '*.ts'
+Get-ChildItem -Path supabase/functions/modules/content -Filter '.gitkeep' -File -Recurse
 git diff --check
 git status --short --branch
 ```

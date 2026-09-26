@@ -23,11 +23,11 @@ This document outlines security considerations, best practices, and implemented 
 
 ## Edge Function Content Boundary
 
-`icarecenter-supabase/functions/content-data/index.ts` is the only deployment
+`supabase/functions/content-data/index.ts` is the only deployment
 adapter for the content function. It creates a request-scoped Supabase client
 and forwards the caller's `Authorization` header. The implementation is kept
 inside private modules under
-`icarecenter-supabase/functions/modules/content/`; external code must not
+`supabase/functions/modules/content/`; external code must not
 import individual resource files.
 
 Database access stays in each resource's infrastructure repository. Domain and

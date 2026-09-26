@@ -8,13 +8,13 @@ Backend feature components live under functions/modules/content, functions/modul
 
 The frontend reaches content through the existing `content-data` function.
 Its deployment adapter is
-`icarecenter-supabase/functions/content-data/index.ts`; the implementation is
+`supabase/functions/content-data/index.ts`; the implementation is
 composed from private resource modules under
-`icarecenter-supabase/functions/modules/content/`.
+`supabase/functions/modules/content/`.
 
 Each resource keeps its own ports, use cases, repositories, controllers, and
 tests. The public import surface is only
-`icarecenter-supabase/functions/modules/content/index.ts`; frontend code and
+`supabase/functions/modules/content/index.ts`; frontend code and
 other Edge Functions must not import a private resource path. Unused layers are
 omitted, so no empty layer directory or `.gitkeep` placeholder is required.
 
