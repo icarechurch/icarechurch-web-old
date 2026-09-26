@@ -1,12 +1,12 @@
 const migration = await Deno.readTextFile(
   new URL(
-    "../../migrations/mainstream/20260814000002_add_query_performance_indexes.sql",
+    "../../../migrations/mainstream/20260814000002_add_query_performance_indexes.sql",
     import.meta.url,
   ),
 );
 const rollupMigration = await Deno.readTextFile(
   new URL(
-    "../../migrations/mainstream/20260814000005_add_exact_activity_log_rollups.sql",
+    "../../../migrations/mainstream/20260814000005_add_exact_activity_log_rollups.sql",
     import.meta.url,
   ),
 );

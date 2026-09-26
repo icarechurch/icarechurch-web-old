@@ -2,7 +2,7 @@
 
 ## Supabase Edge Function modules
 
-The Edge Function backend follows a MeatLens-style modular monolith boundary. content-data/index.ts is the deployment adapter for functions/modules/content. activity-logs/index.ts, analytics-data/index.ts, user-data/index.ts, and create-user/index.ts use the same boundary for functions/modules/audit, functions/modules/analytics, and functions/modules/identity. Each module keeps domain ports, application use cases, infrastructure repositories, and presentation controllers together. Legacy query/handler implementation files are removed; deployed names and request contracts remain stable. Empty layers are omitted and .gitkeep placeholders are not created.
+The Edge Function backend follows a MeatLens-style modular monolith boundary. Public function names are declared in `supabase/config.toml` and map to module-owned `entrypoint.ts` files under `supabase/functions/modules/`. Each module keeps domain ports, application use cases, infrastructure repositories, and presentation controllers together. Legacy query/handler implementation files are removed; deployed names and request contracts remain stable. Empty layers are omitted and `.gitkeep` placeholders are not created.
 
 This document describes the system architecture, design decisions, and technical implementation of the iCare Church Website.
 
@@ -511,8 +511,9 @@ WITH CHECK (true);
 
 ## Supabase Edge Function Modules
 
-The deployed `content-data` function remains a thin adapter at
-`supabase/functions/content-data/index.ts`. It owns only request
+The deployed `content-data` function remains a thin module entrypoint at
+`supabase/functions/modules/content/entrypoint.ts`, configured by
+`supabase/config.toml`. It owns only request
 parsing, CORS, request-scoped Supabase client construction, dispatch, response
 envelopes, and the `Deno.serve` entrypoint.
 

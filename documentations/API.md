@@ -2,7 +2,16 @@
 
 ## Supabase Edge Function boundaries
 
-content-data/index.ts remains the deployment adapter for functions/modules/content. Audit, analytics, and identity use the same adapter pattern through activity-logs/index.ts, analytics-data/index.ts, user-data/index.ts, and create-user/index.ts, with implementations in functions/modules/audit, functions/modules/analytics, and functions/modules/identity. Deployed names and request envelopes stay unchanged while old query/handler files are gone. Empty layers are omitted; .gitkeep is not used.
+Public Edge Function names remain stable through the `[functions.<name>]`
+entries in `supabase/config.toml`. Their module-owned entrypoints are
+`functions/modules/audit/entrypoint.ts`,
+`functions/modules/analytics/entrypoint.ts`,
+`functions/modules/content/entrypoint.ts`,
+`functions/modules/identity/create-user/entrypoint.ts`,
+`functions/modules/identity/user-data/entrypoint.ts`, and
+`functions/modules/youtube-livestream/entrypoint.ts`. Deployed names and
+request envelopes stay unchanged while old query/handler files are gone. Empty
+layers are omitted; `.gitkeep` is not used.
 
 ## Content Edge Function
 
@@ -17,8 +26,9 @@ request envelope:
 }
 ```
 
-`supabase/functions/content-data/index.ts` is the deployment
-adapter. It delegates to the private implementation under
+`supabase/config.toml` maps the deployed `content-data` name to
+`supabase/functions/modules/content/entrypoint.ts`. That entrypoint delegates
+to the private implementation under
 `supabase/functions/modules/content/` through
 `modules/content/index.ts`, preserving the response envelopes and caller
 authorization forwarding. Consumers use the deployed function contract rather

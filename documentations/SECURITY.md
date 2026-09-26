@@ -2,7 +2,13 @@
 
 ## Supabase Edge Function security boundaries
 
-content-data/index.ts forwards the caller authorization header into functions/modules/content; audit, analytics, and identity adapters follow the same request-scoped client boundary. Database access is isolated in module infrastructure repositories, while authorization and input validation stay in application/module services. Old direct query handler files are removed, and each feature remains inside its own module. Empty layers are omitted and .gitkeep placeholders are not used.
+Module-owned entrypoints forward the caller authorization header into their
+own modules; public function names are mapped to those entrypoints in
+`supabase/config.toml`. Database access is isolated in module infrastructure
+repositories, while authorization and input validation stay in
+application/module services. Old direct query handler files are removed, and
+each feature remains inside its own module. Empty layers are omitted and
+`.gitkeep` placeholders are not used.
 
 This document outlines security considerations, best practices, and implemented security measures for the iCare Church Website.
 
@@ -23,8 +29,9 @@ This document outlines security considerations, best practices, and implemented 
 
 ## Edge Function Content Boundary
 
-`supabase/functions/content-data/index.ts` is the only deployment
-adapter for the content function. It creates a request-scoped Supabase client
+`supabase/functions/modules/content/entrypoint.ts` is the configured
+entrypoint for the public `content-data` function. It creates a request-scoped
+Supabase client
 and forwards the caller's `Authorization` header. The implementation is kept
 inside private modules under
 `supabase/functions/modules/content/`; external code must not

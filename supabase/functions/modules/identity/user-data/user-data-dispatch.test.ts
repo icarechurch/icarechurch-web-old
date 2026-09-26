@@ -1,5 +1,5 @@
-import { dispatchUserDataRequest } from "./index.ts";
-import { createUserDataModule } from "../modules/identity/index.ts";
+import { dispatchUserDataRequest } from "./entrypoint.ts";
+import { createUserDataModule } from "../index.ts";
 
 Deno.test("dispatches the frontend roles/get request", async () => {
   const query = {

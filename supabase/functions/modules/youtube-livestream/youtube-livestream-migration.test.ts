@@ -1,6 +1,6 @@
 const migration = await Deno.readTextFile(
   new URL(
-    "../../migrations/mainstream/20260819000000_add_youtube_livestream_status.sql",
+    "../../../migrations/mainstream/20260819000000_add_youtube_livestream_status.sql",
     import.meta.url,
   ),
 );

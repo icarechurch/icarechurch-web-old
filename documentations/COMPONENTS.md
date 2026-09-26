@@ -2,13 +2,13 @@
 
 ## Supabase Edge Function modules
 
-Backend feature components live under functions/modules/content, functions/modules/audit, functions/modules/analytics, and functions/modules/identity. The content-data/index.ts adapter and corresponding audit, analytics, and identity adapters contain transport wiring only. Business logic stays inside its owning module, so one feature does not reach into another feature's implementation. Legacy query/handler files are not part of the runtime. Empty layers are omitted and .gitkeep placeholders are not created.
+Backend feature components live under functions/modules/content, functions/modules/audit, functions/modules/analytics, functions/modules/identity, and functions/modules/youtube-livestream. The custom `entrypoint.ts` files contain transport wiring only and are selected by the public-name mappings in `supabase/config.toml`. Business logic stays inside its owning module, so one feature does not reach into another feature's implementation. Legacy query/handler files are not part of the runtime. Empty layers are omitted and `.gitkeep` placeholders are not created.
 
 ## Supabase Edge Function Content Module
 
 The frontend reaches content through the existing `content-data` function.
-Its deployment adapter is
-`supabase/functions/content-data/index.ts`; the implementation is
+Its public name is mapped in `supabase/config.toml` to
+`supabase/functions/modules/content/entrypoint.ts`; the implementation is
 composed from private resource modules under
 `supabase/functions/modules/content/`.
 

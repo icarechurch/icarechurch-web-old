@@ -2,7 +2,7 @@
 
 ## Supabase Edge Function modules
 
-Supabase Edge Functions use a MeatLens-style modular monolith layout. Live deployment adapters are content-data/index.ts, activity-logs/index.ts, analytics-data/index.ts, user-data/index.ts, and create-user/index.ts; implementations live in functions/modules/content, functions/modules/audit, functions/modules/analytics, and functions/modules/identity. Modules own domain ports, application use cases, infrastructure repositories, and presentation controllers. Deployed names and request contracts remain stable. Legacy query/handler implementation files are not used. Empty layers are omitted and .gitkeep placeholders are not created.
+Supabase Edge Functions use a MeatLens-style modular monolith layout. Public function names remain stable in `supabase/config.toml`, while their custom entrypoints live inside `supabase/functions/modules/`: audit, analytics, content, identity, and YouTube. Modules own domain ports, application use cases, infrastructure repositories, and presentation controllers. Deployed names and request contracts remain stable. Legacy query/handler implementation files are not used. Empty layers are omitted and `.gitkeep` placeholders are not created.
 
 A modern, full-featured church website built with React, TypeScript, and Supabase. This application provides a comprehensive platform for church members and visitors to stay connected, view events, watch sermons, and engage with the church community.
 
@@ -26,9 +26,10 @@ icarecenter-test/
 +-- e2e/             # Cypress browser tests
 +-- support/         # Cypress support files
 
-The `content-data` Supabase Edge Function is the deployment adapter at
-`supabase/functions/content-data/index.ts`. Its implementation is
-the private modular-monolith-style module at
+The `content-data` Supabase Edge Function keeps its public name through the
+`[functions.content-data]` mapping in `supabase/config.toml`. Its custom
+entrypoint is `supabase/functions/modules/content/entrypoint.ts`, and its
+implementation is the private modular-monolith-style module at
 `supabase/functions/modules/content/`, composed by resource-owned
 domain ports, application use cases, infrastructure repositories, presentation
 controllers, and focused tests. External code imports only
@@ -49,7 +50,7 @@ npm run dev
 The root command delegates to `icarecenter-frontend/`.
 
 The Edge Function test lane runs from `icarecenter-frontend/` with
-`npm run test:edge`; it covers the content module, deployment adapter, and
+`npm run test:edge`; it covers the content module, module-owned entrypoints, and
 other Edge Functions without requiring a remote Supabase deployment.
 
 ## Documentations/DEVELOPMENT.md#troubleshooting)

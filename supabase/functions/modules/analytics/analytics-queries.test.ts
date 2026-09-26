@@ -1,6 +1,6 @@
-import { HttpError } from "../_shared/errors.ts";
-import { createAnalyticsModule } from "../modules/analytics/index.ts";
-import { getAnalyticsStartDate } from "../modules/analytics/infrastructure/SupabaseAnalyticsRepository.ts";
+import { HttpError } from "../../_shared/errors.ts";
+import { createAnalyticsModule } from "./index.ts";
+import { getAnalyticsStartDate } from "./infrastructure/SupabaseAnalyticsRepository.ts";
 
 type Action = { method: string; args: unknown[] };
 

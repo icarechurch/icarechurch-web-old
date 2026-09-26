@@ -1,6 +1,6 @@
 const contentRoot = new URL("../../modules/content/", import.meta.url);
-const contentAdapter = new URL(
-  "../../content-data/index.ts",
+const contentEntrypoint = new URL(
+  "../../modules/content/entrypoint.ts",
   import.meta.url,
 );
 
@@ -94,18 +94,18 @@ Deno.test("content layers preserve their dependency boundaries", async () => {
     }
   }
 
-  const adapterSource = await readText(contentAdapter);
-  if (!adapterSource.includes("../modules/content/index.ts")) {
+  const entrypointSource = await readText(contentEntrypoint);
+  if (!entrypointSource.includes("./index.ts")) {
     violations.push(
-      "content-data/index.ts: missing content composition import",
+      "modules/content/entrypoint.ts: missing content composition import",
     );
   }
   if (
     /\.\/((sermons|events|ministries|church-info|gallery|pastors|service-times|giving|event-popup)\.ts)/
-      .test(adapterSource)
+      .test(entrypointSource)
   ) {
     violations.push(
-      "content-data/index.ts: imports a private resource handler",
+      "modules/content/entrypoint.ts: imports a private resource handler",
     );
   }
 

@@ -1,5 +1,5 @@
-import { HttpError } from "../_shared/errors.ts";
-import { createAuditModule } from "../modules/audit/index.ts";
+import { HttpError } from "../../_shared/errors.ts";
+import { createAuditModule } from "./index.ts";
 
 type Action = { method: string; args: unknown[] };
 

@@ -1,5 +1,5 @@
-import { HttpError } from "../_shared/errors.ts";
-import { dispatchAnalyticsRequest } from "./index.ts";
+import { HttpError } from "../../_shared/errors.ts";
+import { dispatchAnalyticsRequest } from "./entrypoint.ts";
 
 Deno.test("dispatches an analytics summary operation", async () => {
   const result = await dispatchAnalyticsRequest(

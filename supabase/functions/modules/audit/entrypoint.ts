@@ -1,9 +1,9 @@
-import { createOptionsResponse } from "../_shared/cors.ts";
-import { HttpError } from "../_shared/errors.ts";
-import { createRequestSupabaseClient } from "../_shared/infrastructure/supabase/request-client.ts";
-import { type FunctionRequest, parseRequest } from "../_shared/request.ts";
-import { failFromError, ok } from "../_shared/responses.ts";
-import { type AuditRoutes, createAuditModule } from "../modules/audit/index.ts";
+import { createOptionsResponse } from "../../_shared/cors.ts";
+import { HttpError } from "../../_shared/errors.ts";
+import { createRequestSupabaseClient } from "../../_shared/infrastructure/supabase/request-client.ts";
+import { type FunctionRequest, parseRequest } from "../../_shared/request.ts";
+import { failFromError, ok } from "../../_shared/responses.ts";
+import { type AuditRoutes, createAuditModule } from "./index.ts";
 
 export type ActivityLogHandler = AuditRoutes[keyof AuditRoutes];
 export type ActivityLogHandlers = AuditRoutes;

@@ -1,12 +1,12 @@
-import { createOptionsResponse } from "../_shared/cors.ts";
-import { HttpError } from "../_shared/errors.ts";
-import { createRequestSupabaseClient } from "../_shared/infrastructure/supabase/request-client.ts";
-import { type FunctionRequest, parseRequest } from "../_shared/request.ts";
-import { failFromError, ok } from "../_shared/responses.ts";
+import { createOptionsResponse } from "../../_shared/cors.ts";
+import { HttpError } from "../../_shared/errors.ts";
+import { createRequestSupabaseClient } from "../../_shared/infrastructure/supabase/request-client.ts";
+import { type FunctionRequest, parseRequest } from "../../_shared/request.ts";
+import { failFromError, ok } from "../../_shared/responses.ts";
 import {
   type ContentRoutes,
   createContentModule,
-} from "../modules/content/index.ts";
+} from "./index.ts";
 
 export async function dispatchContentRequest(
   request: FunctionRequest,

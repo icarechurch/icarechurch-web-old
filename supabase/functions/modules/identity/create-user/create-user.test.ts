@@ -1,6 +1,6 @@
-import { HttpError } from "../_shared/errors.ts";
-import { CreateUserService } from "../modules/identity/create-user/application/CreateUserService.ts";
-import type { CreateUserRepository } from "../modules/identity/create-user/domain/ports/CreateUserRepository.ts";
+import { HttpError } from "../../../_shared/errors.ts";
+import { CreateUserService } from "./application/CreateUserService.ts";
+import type { CreateUserRepository } from "./domain/ports/CreateUserRepository.ts";
 
 function createRepository(
   overrides: Partial<CreateUserRepository> = {},

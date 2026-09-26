@@ -2,7 +2,7 @@
 
 ## Supabase Edge Function modules
 
-When changing Edge Function behavior, work inside the owning module under functions/modules/ and keep the deployed adapter thin. Content uses functions/modules/content through content-data/index.ts; audit, analytics, and identity use their own module roots through their existing function names. Keep domain/application code independent of Supabase, put Supabase calls in infrastructure repositories, and expose operations through presentation controllers and the module composition root. Do not restore removed legacy query/handler files. Empty layers are omitted and .gitkeep placeholders are not created.
+When changing Edge Function behavior, work inside the owning module under functions/modules/ and keep the module-owned `entrypoint.ts` thin. Public function names are mapped to those entrypoints in `supabase/config.toml`. Keep domain/application code independent of Supabase, put Supabase calls in infrastructure repositories, and expose operations through presentation controllers and the module composition root. Do not restore removed legacy query/handler files. Empty layers are omitted and `.gitkeep` placeholders are not created.
 
 This guide provides instructions for developers working on the iCare Church Website project.
 
@@ -503,8 +503,8 @@ async function uploadFile(file: File) {
 
 The content implementation is under
 `supabase/functions/modules/content/`, while
-`supabase/functions/content-data/index.ts` remains the deployment
-adapter. Focused Deno tests live with each resource module and architecture
+`supabase/functions/modules/content/entrypoint.ts` is the configured
+`content-data` entrypoint. Focused Deno tests live with each resource module and architecture
 tests verify private modules, layer boundaries, request composition, and
 documentation alignment. Unused layers are omitted; do not add `.gitkeep`
 files to empty directories.

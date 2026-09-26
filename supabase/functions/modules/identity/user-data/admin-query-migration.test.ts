@@ -1,6 +1,6 @@
 const migration = await Deno.readTextFile(
   new URL(
-    "../../migrations/mainstream/20260814000004_add_admin_users_query.sql",
+    "../../../../migrations/mainstream/20260814000004_add_admin_users_query.sql",
     import.meta.url,
   ),
 );

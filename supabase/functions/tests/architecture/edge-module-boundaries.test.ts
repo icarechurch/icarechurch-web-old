@@ -3,14 +3,25 @@ const moduleRoots = [
   "audit",
   "analytics",
   "identity",
+  "youtube-livestream",
 ] as const;
 
-const adapters = [
-  ["activity-logs/index.ts", "../modules/audit/index.ts"],
-  ["analytics-data/index.ts", "../modules/analytics/index.ts"],
-  ["content-data/index.ts", "../modules/content/index.ts"],
-  ["create-user/index.ts", "../modules/identity/index.ts"],
-  ["user-data/index.ts", "../modules/identity/index.ts"],
+const deploymentEntrypoints = {
+  "activity-logs": "modules/audit/entrypoint.ts",
+  "analytics-data": "modules/analytics/entrypoint.ts",
+  "content-data": "modules/content/entrypoint.ts",
+  "create-user": "modules/identity/create-user/entrypoint.ts",
+  "user-data": "modules/identity/user-data/entrypoint.ts",
+  "youtube-livestream": "modules/youtube-livestream/entrypoint.ts",
+} as const;
+
+const legacyDeploymentDirectories = [
+  "activity-logs",
+  "analytics-data",
+  "content-data",
+  "create-user",
+  "user-data",
+  "youtube-livestream",
 ] as const;
 
 const legacyImplementationFiles = [
@@ -84,17 +95,29 @@ Deno.test("keeps Edge Function modules isolated from transport and persistence",
     }
   }
 
-  for (const [adapterPath, moduleImport] of adapters) {
-    const source = await Deno.readTextFile(
-      new URL(`../../${adapterPath}`, import.meta.url),
-    );
-    if (!source.includes(moduleImport)) {
-      violations.push(`${adapterPath}: missing module composition import`);
+  const config = await Deno.readTextFile(
+    new URL("../../../config.toml", import.meta.url),
+  );
+
+  for (const [functionName, entrypoint] of Object.entries(
+    deploymentEntrypoints,
+  )) {
+    if (!config.includes(`[functions.${functionName}]`)) {
+      violations.push(`${functionName}: missing config section`);
     }
-    if (/\.from\(|\.rpc\(|create[A-Za-z]+Handlers/.test(source)) {
-      violations.push(
-        `${adapterPath}: adapter contains legacy implementation code`,
-      );
+    if (!config.includes(`entrypoint = "./functions/${entrypoint}"`)) {
+      violations.push(`${functionName}: missing custom entrypoint`);
+    }
+
+    await Deno.stat(new URL(`../../${entrypoint}`, import.meta.url));
+  }
+
+  for (const directory of legacyDeploymentDirectories) {
+    try {
+      await Deno.stat(new URL(`../../${directory}/`, import.meta.url));
+      violations.push(`${directory}: public deployment directory still exists`);
+    } catch (error) {
+      if (!(error instanceof Deno.errors.NotFound)) throw error;
     }
   }
 

@@ -1,4 +1,4 @@
-import { createUserDataModule } from "../modules/identity/index.ts";
+import { createUserDataModule } from "../index.ts";
 
 type Action = { table: string; method: string; args: unknown[] };
 

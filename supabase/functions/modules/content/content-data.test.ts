@@ -1,10 +1,10 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
-import { HttpError } from "../_shared/errors.ts";
+import { HttpError } from "../../_shared/errors.ts";
 import {
   type ContentRoutes,
   createContentModule,
-} from "../modules/content/index.ts";
-import { dispatchContentRequest } from "./index.ts";
+} from "./index.ts";
+import { dispatchContentRequest } from "./entrypoint.ts";
 
 type QueryResponse = { data: unknown; error: unknown };
 
@@ -121,7 +121,7 @@ Deno.test("rejects an unknown content operation", async () => {
 
 Deno.test("keeps the adapter free of private resource-handler imports", async () => {
   const source = await Deno.readTextFile(
-    new URL("./index.ts", import.meta.url),
+    new URL("./entrypoint.ts", import.meta.url),
   );
   if (
     /\.\/((sermons|events|ministries|church-info|gallery|pastors|service-times|giving|event-popup)\.ts)/

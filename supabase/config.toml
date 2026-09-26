@@ -1,1 +1,19 @@
 project_id = "neddwzfwqcjsdjinoato"
+
+[functions.activity-logs]
+entrypoint = "./functions/modules/audit/entrypoint.ts"
+
+[functions.analytics-data]
+entrypoint = "./functions/modules/analytics/entrypoint.ts"
+
+[functions.content-data]
+entrypoint = "./functions/modules/content/entrypoint.ts"
+
+[functions.create-user]
+entrypoint = "./functions/modules/identity/create-user/entrypoint.ts"
+
+[functions.user-data]
+entrypoint = "./functions/modules/identity/user-data/entrypoint.ts"
+
+[functions.youtube-livestream]
+entrypoint = "./functions/modules/youtube-livestream/entrypoint.ts"

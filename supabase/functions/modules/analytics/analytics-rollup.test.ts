@@ -1,5 +1,5 @@
 const migrationPath = new URL(
-  "../../migrations/mainstream/20260814000000_add_exact_analytics_rollups.sql",
+  "../../../migrations/mainstream/20260814000000_add_exact_analytics_rollups.sql",
   import.meta.url,
 );
 

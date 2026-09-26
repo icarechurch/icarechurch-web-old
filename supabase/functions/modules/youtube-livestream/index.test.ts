@@ -1,7 +1,7 @@
 import {
   createLivestreamHandler,
   type LivestreamDependencies,
-} from "./index.ts";
+} from "./entrypoint.ts";
 import type { CacheRepository } from "./cache.ts";
 import type { CacheStatus, LiveStream } from "./types.ts";
 

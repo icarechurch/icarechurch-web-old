@@ -28,8 +28,8 @@ Deno.test("documents the content edge module boundary", async () => {
     if (!source.includes("functions/modules/content")) {
       throw new Error(`${path} does not document the content module boundary`);
     }
-    if (!source.includes("content-data/index.ts")) {
-      throw new Error(`${path} does not document the deployment adapter`);
+    if (!source.includes("modules/content/entrypoint.ts")) {
+      throw new Error(`${path} does not document the module entrypoint`);
     }
     if (!source.includes(".gitkeep")) {
       throw new Error(`${path} does not document the empty-layer rule`);

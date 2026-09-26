@@ -1,6 +1,6 @@
-import { corsHeaders } from "../_shared/cors.ts";
-import { toHttpError } from "../_shared/errors.ts";
-import { createCreateUserModule } from "../modules/identity/index.ts";
+import { corsHeaders } from "../../../_shared/cors.ts";
+import { toHttpError } from "../../../_shared/errors.ts";
+import { createCreateUserModule } from "../index.ts";
 
 const jsonHeaders = {
   ...corsHeaders,

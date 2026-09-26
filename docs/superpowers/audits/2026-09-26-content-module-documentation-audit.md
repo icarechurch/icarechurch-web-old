@@ -14,11 +14,12 @@ API behavior, development, security, and project entry points:
 - `documentations/DEVELOPMENT.md`
 - `documentations/SECURITY.md`
 
-The documents now describe `supabase/functions/content-data/index.ts`
-as the deployment adapter and
-`supabase/functions/modules/content/` as the private modular
-implementation. They preserve the `content-data` operation contract and explain
-that unused layers and `.gitkeep` placeholders are omitted.
+The documents now describe the `content-data` public name as a
+`supabase/config.toml` mapping to
+`supabase/functions/modules/content/entrypoint.ts`, with
+`supabase/functions/modules/content/` as the private modular implementation.
+They preserve the `content-data` operation contract and explain that unused
+layers and `.gitkeep` placeholders are omitted.
 
 ## Verification
 

@@ -1,4 +1,4 @@
-import { createAnalyticsModule } from "../modules/analytics/index.ts";
+import { createAnalyticsModule } from "./index.ts";
 
 type RpcResponse = {
   data: Array<Record<string, unknown>> | null;
