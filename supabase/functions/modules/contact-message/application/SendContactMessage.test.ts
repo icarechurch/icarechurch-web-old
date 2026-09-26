@@ -48,7 +48,8 @@ Deno.test("rejects invalid input before calling the sender", async () => {
       email: "not-an-email",
     });
   } catch (error) {
-    rejected = error instanceof Error && error.name === "ContactValidationError";
+    rejected = error instanceof Error &&
+      error.name === "ContactValidationError";
   }
 
   if (!rejected || sent.length !== 0) {

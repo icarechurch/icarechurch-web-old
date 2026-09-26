@@ -1,7 +1,7 @@
 import {
   ContactDeliveryError,
-  ContactValidationError,
   type ContactMessage,
+  ContactValidationError,
 } from "../domain/ContactMessage.ts";
 import type { EmailSender } from "../domain/ports/EmailSender.ts";
 

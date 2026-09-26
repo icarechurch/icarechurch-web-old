@@ -17,3 +17,7 @@ entrypoint = "./functions/modules/identity/user-data/entrypoint.ts"
 
 [functions.youtube-livestream]
 entrypoint = "./functions/modules/youtube-livestream/entrypoint.ts"
+
+[functions.contact-message]
+entrypoint = "./functions/modules/contact-message/entrypoint.ts"
+verify_jwt = false
