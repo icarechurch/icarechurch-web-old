@@ -17,6 +17,20 @@ This document outlines security considerations, best practices, and implemented 
 
 ## Security Overview
 
+## Edge Function Content Boundary
+
+`icarecenter-supabase/functions/content-data/index.ts` is the only deployment
+adapter for the content function. It creates a request-scoped Supabase client
+and forwards the caller's `Authorization` header. The implementation is kept
+inside private modules under
+`icarecenter-supabase/functions/modules/content/`; external code must not
+import individual resource files.
+
+Database access stays in each resource's infrastructure repository. Domain and
+application layers do not read environment variables or call Supabase, and RLS
+remains the database authorization boundary. Unused layers are omitted and no
+`.gitkeep` placeholders are used to represent empty infrastructure folders.
+
 The iCare Church Website implements multiple layers of security:
 
 1. **Database-level**: Row Level Security (RLS) policies

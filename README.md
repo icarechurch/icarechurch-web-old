@@ -22,6 +22,17 @@ icarecenter-test/
 +-- e2e/             # Cypress browser tests
 +-- support/         # Cypress support files
 
+The `content-data` Supabase Edge Function is the deployment adapter at
+`icarecenter-supabase/functions/content-data/index.ts`. Its implementation is
+the private modular-monolith-style module at
+`icarecenter-supabase/functions/modules/content/`, composed by resource-owned
+domain ports, application use cases, infrastructure repositories, presentation
+controllers, and focused tests. External code imports only
+`icarecenter-supabase/functions/modules/content/index.ts`.
+
+Unused layers are omitted. Empty directories and `.gitkeep` placeholders are
+not created.
+
 ## Local development
 
 Install dependencies from `icarecenter-frontend/`, then run the development
@@ -32,6 +43,10 @@ npm run dev
 ```
 
 The root command delegates to `icarecenter-frontend/`.
+
+The Edge Function test lane runs from `icarecenter-frontend/` with
+`npm run test:edge`; it covers the content module, deployment adapter, and
+other Edge Functions without requiring a remote Supabase deployment.
 
 ## Documentations/DEVELOPMENT.md#troubleshooting)
 

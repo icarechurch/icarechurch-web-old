@@ -495,6 +495,22 @@ async function uploadFile(file: File) {
 }
 ```
 
+## Supabase Edge Functions
+
+The content implementation is under
+`icarecenter-supabase/functions/modules/content/`, while
+`icarecenter-supabase/functions/content-data/index.ts` remains the deployment
+adapter. Focused Deno tests live with each resource module and architecture
+tests verify private modules, layer boundaries, request composition, and
+documentation alignment. Unused layers are omitted; do not add `.gitkeep`
+files to empty directories.
+
+Run the complete local Edge Function lane from `icarecenter-frontend/`:
+
+```bash
+npm run test:edge
+```
+
 ## Testing
 
 Currently, the project uses manual testing. Automated tests are planned for future implementation.

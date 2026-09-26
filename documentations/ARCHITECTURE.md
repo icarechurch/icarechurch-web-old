@@ -505,6 +505,39 @@ WITH CHECK (true);
 
 ## Performance Optimizations
 
+## Supabase Edge Function Modules
+
+The deployed `content-data` function remains a thin adapter at
+`icarecenter-supabase/functions/content-data/index.ts`. It owns only request
+parsing, CORS, request-scoped Supabase client construction, dispatch, response
+envelopes, and the `Deno.serve` entrypoint.
+
+The implementation lives behind the public composition surface at
+`icarecenter-supabase/functions/modules/content/index.ts`. Private content
+submodules are organized by resource under
+`icarecenter-supabase/functions/modules/content/`, with domain ports,
+application use cases, infrastructure repositories, presentation controllers,
+and tests kept inside their owning resource. Domain and application code do not
+import Supabase or runtime globals; repositories own database access.
+
+The current content operation map is:
+
+| Resource | Operations |
+| --- | --- |
+| `ministries` | `list`, `create`, `update`, `delete`, `sort` |
+| `events` | `list`, `create`, `update`, `delete` |
+| `service-times` | `list`, `create`, `update`, `delete`, `sort` |
+| `church-info` | `get` |
+| `sermons` | `list`, `latest`, `create`, `update`, `delete` |
+| `gallery` | `list`, `create`, `delete` |
+| `pastors` | `list`, `create`, `update`, `delete`, `sort` |
+| `event-popup` | `get`, `upsert` |
+| `giving` | `get`, `update` |
+
+Unused layers are omitted, and empty directories or `.gitkeep` placeholders
+are not created. The module boundary is enforced by architecture tests under
+`icarecenter-supabase/functions/tests/architecture/`.
+
 ### Build Optimizations
 
 1. **Code Splitting**: Automatic route-based code splitting via Vite
