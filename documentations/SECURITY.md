@@ -10,6 +10,22 @@ application/module services. Old direct query handler files are removed, and
 each feature remains inside its own module. Empty layers are omitted and
 `.gitkeep` placeholders are not used.
 
+## Contact email security
+
+The public `contact-message` Edge Function is the only component that reads
+the Gmail SMTP secrets. The browser sends contact fields to Supabase and never
+receives the Gmail username, App Password, SMTP configuration, or recipient
+secret. The function uses a fixed sender and recipient of
+`icarecenter.media@gmail.com` and places the validated visitor address in
+`Reply-To` instead of trusting it as the sender.
+
+The function validates and bounds every field server-side, rejects malformed
+requests, silently suppresses a non-empty honeypot, sends plain-text content,
+and returns generic errors without exposing provider responses or stack traces.
+Gmail SMTP secrets belong in Supabase Auth SMTP settings and Supabase Function
+Secrets only; they must not be added to Netlify `VITE_` variables or frontend
+source files.
+
 This document outlines security considerations, best practices, and implemented security measures for the iCare Church Website.
 
 ## Table of Contents

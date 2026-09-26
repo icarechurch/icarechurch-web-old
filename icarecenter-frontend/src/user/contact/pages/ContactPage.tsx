@@ -1,36 +1,51 @@
 import { Car, Clock, Mail, MapPin, Phone } from "lucide-react";
-import { useState } from "react";
+import { type FormEvent, useState } from "react";
 import { toast } from "sonner";
+import { contactApi } from "@/domains/contact/api/contact.api";
+import type { ContactMessageInput } from "@/domains/contact/model/contact.types";
+import { useChurchInfo } from "@/domains/church-info/hooks/useChurchInfo";
 import { Layout } from "@/shared/components/layout/Layout";
 import { Map } from "@/user/contact/components/Map";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { useChurchInfo } from "@/domains/church-info/hooks/useChurchInfo";
+
+const EMPTY_FORM_DATA: ContactMessageInput = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  subject: "",
+  message: "",
+  website: "",
+};
 
 export default function Contact() {
   const { data: churchInfo } = useChurchInfo();
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    subject: "",
-    message: "",
-  });
+  const [formData, setFormData] = useState<ContactMessageInput>(EMPTY_FORM_DATA);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formMessage, setFormMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success("Thank you for your message! We will get back to you soon.");
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: "",
-    });
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setFormMessage("");
+
+    try {
+      await contactApi.sendMessage(formData);
+      const successMessage =
+        "Thank you for your message! We will get back to you soon.";
+      setFormData(EMPTY_FORM_DATA);
+      setFormMessage(successMessage);
+      toast.success(successMessage);
+    } catch {
+      const errorMessage = "Unable to send your message right now.";
+      setFormMessage(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -179,35 +194,45 @@ export default function Contact() {
               <Card className="border-none shadow-lg">
                 <CardContent className="p-8">
                   <h2 className="mb-6 font-bold font-display text-2xl">
-                    Send us a Message (Coming soon!)
+                    Send us a Message
                   </h2>
                   <form className="space-y-4" onSubmit={handleSubmit}>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
-                        <label className="mb-1 block font-medium text-sm">
+                        <label
+                          className="mb-1 block font-medium text-sm"
+                          htmlFor="firstName"
+                        >
                           First Name
                         </label>
                         <Input
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              firstName: e.target.value,
-                            })
+                          id="firstName"
+                          name="firstName"
+                          onChange={(event) =>
+                            setFormData((current) => ({
+                              ...current,
+                              firstName: event.target.value,
+                            }))
                           }
                           required
                           value={formData.firstName}
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block font-medium text-sm">
+                        <label
+                          className="mb-1 block font-medium text-sm"
+                          htmlFor="lastName"
+                        >
                           Last Name
                         </label>
                         <Input
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              lastName: e.target.value,
-                            })
+                          id="lastName"
+                          name="lastName"
+                          onChange={(event) =>
+                            setFormData((current) => ({
+                              ...current,
+                              lastName: event.target.value,
+                            }))
                           }
                           required
                           value={formData.lastName}
@@ -215,12 +240,20 @@ export default function Contact() {
                       </div>
                     </div>
                     <div>
-                      <label className="mb-1 block font-medium text-sm">
+                      <label
+                        className="mb-1 block font-medium text-sm"
+                        htmlFor="email"
+                      >
                         Email
                       </label>
                       <Input
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
+                        id="email"
+                        name="email"
+                        onChange={(event) =>
+                          setFormData((current) => ({
+                            ...current,
+                            email: event.target.value,
+                          }))
                         }
                         required
                         type="email"
@@ -228,44 +261,93 @@ export default function Contact() {
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block font-medium text-sm">
+                      <label
+                        className="mb-1 block font-medium text-sm"
+                        htmlFor="phone"
+                      >
                         Phone (Optional)
                       </label>
                       <Input
-                        onChange={(e) =>
-                          setFormData({ ...formData, phone: e.target.value })
+                        id="phone"
+                        name="phone"
+                        onChange={(event) =>
+                          setFormData((current) => ({
+                            ...current,
+                            phone: event.target.value,
+                          }))
                         }
                         type="tel"
                         value={formData.phone}
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block font-medium text-sm">
+                      <label
+                        className="mb-1 block font-medium text-sm"
+                        htmlFor="subject"
+                      >
                         Subject
                       </label>
                       <Input
-                        onChange={(e) =>
-                          setFormData({ ...formData, subject: e.target.value })
+                        id="subject"
+                        name="subject"
+                        onChange={(event) =>
+                          setFormData((current) => ({
+                            ...current,
+                            subject: event.target.value,
+                          }))
                         }
                         required
                         value={formData.subject}
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block font-medium text-sm">
+                      <label
+                        className="mb-1 block font-medium text-sm"
+                        htmlFor="message"
+                      >
                         Message
                       </label>
                       <Textarea
-                        onChange={(e) =>
-                          setFormData({ ...formData, message: e.target.value })
+                        id="message"
+                        name="message"
+                        onChange={(event) =>
+                          setFormData((current) => ({
+                            ...current,
+                            message: event.target.value,
+                          }))
                         }
                         required
                         rows={5}
                         value={formData.message}
                       />
                     </div>
-                    <Button className="w-full" type="submit">
-                      Send Message
+                    <div aria-hidden="true" className="absolute -left-[9999px]">
+                      <label htmlFor="website">Website</label>
+                      <Input
+                        autoComplete="off"
+                        id="website"
+                        name="website"
+                        onChange={(event) =>
+                          setFormData((current) => ({
+                            ...current,
+                            website: event.target.value,
+                          }))
+                        }
+                        tabIndex={-1}
+                        value={formData.website}
+                      />
+                    </div>
+                    {formMessage && (
+                      <p aria-live="polite" className="text-sm" role="status">
+                        {formMessage}
+                      </p>
+                    )}
+                    <Button
+                      className="w-full"
+                      disabled={isSubmitting}
+                      type="submit"
+                    >
+                      {isSubmitting ? "Sending..." : "Send Message"}
                     </Button>
                   </form>
                 </CardContent>

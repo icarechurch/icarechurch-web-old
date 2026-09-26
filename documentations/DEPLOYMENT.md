@@ -31,6 +31,41 @@ VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
    - **URL** → `VITE_SUPABASE_URL`
    - **anon public key** → `VITE_SUPABASE_PUBLISHABLE_KEY`
 
+## Contact and Auth Email Delivery
+
+The public Contact page uses the Supabase `contact-message` Edge Function to
+send messages through Gmail SMTP. Supabase Auth uses the same Gmail account for
+signup confirmations, password resets, magic links, and invitations.
+
+Configure Supabase Auth Custom SMTP with:
+
+```text
+SMTP host: smtp.gmail.com
+SMTP port: 465
+SMTP username and sender: icarecenter.media@gmail.com
+SMTP password: the Gmail App Password
+```
+
+Set the contact function secrets in Supabase, not Netlify and not any `VITE_`
+frontend environment variable:
+
+```text
+GMAIL_SMTP_USERNAME=icarecenter.media@gmail.com
+GMAIL_SMTP_APP_PASSWORD=the Gmail App Password
+CONTACT_RECIPIENT_EMAIL=icarecenter.media@gmail.com
+```
+
+Deploy the function and database migration with:
+
+```bash
+supabase functions deploy contact-message
+supabase db push
+```
+
+After deployment, test one signup confirmation, one password reset, and one
+Contact form submission. The App Password must never be committed to the
+repository, browser bundle, Netlify frontend variables, or logs.
+
 ## Build Configuration
 
 The existing Netlify deployment uses Node 22 and `npm run build:ssr` with:

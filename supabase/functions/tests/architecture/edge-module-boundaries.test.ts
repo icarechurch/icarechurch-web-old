@@ -4,6 +4,7 @@ const moduleRoots = [
   "analytics",
   "identity",
   "youtube-livestream",
+  "contact-message",
 ] as const;
 
 const deploymentEntrypoints = {
@@ -13,6 +14,7 @@ const deploymentEntrypoints = {
   "create-user": "modules/identity/create-user/entrypoint.ts",
   "user-data": "modules/identity/user-data/entrypoint.ts",
   "youtube-livestream": "modules/youtube-livestream/entrypoint.ts",
+  "contact-message": "modules/contact-message/entrypoint.ts",
 } as const;
 
 const legacyDeploymentDirectories = [
@@ -22,6 +24,7 @@ const legacyDeploymentDirectories = [
   "create-user",
   "user-data",
   "youtube-livestream",
+  "contact-message",
 ] as const;
 
 const legacyImplementationFiles = [
