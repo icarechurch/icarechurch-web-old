@@ -64,7 +64,7 @@ function createFakeClient(responses: QueryResponse[]) {
   return { calls, client };
 }
 
-function createSequentialFakeClient(deferredResponses: DeferredResponse[]) {
+function createDeferredFakeClient(deferredResponses: DeferredResponse[]) {
   const calls: unknown[][] = [];
   let responseIndex = 0;
 
@@ -102,18 +102,6 @@ function assertEquals(actual: unknown, expected: unknown): void {
       }`,
     );
   }
-}
-
-async function waitForCallCount(
-  calls: unknown[][],
-  count: number,
-): Promise<void> {
-  for (let attempt = 0; attempt < 10; attempt += 1) {
-    if (calls.length === count) return;
-    await Promise.resolve();
-  }
-
-  throw new Error(`Expected ${count} calls, received ${calls.length}`);
 }
 
 Deno.test("preserves the service-times list projection, ordering, and limit", async () => {
@@ -166,10 +154,10 @@ Deno.test("preserves service-time create, update, and delete payloads", async ()
   ]);
 });
 
-Deno.test("updates service-time sort rows sequentially", async () => {
+Deno.test("submits service-time sort rows concurrently", async () => {
   const first = createDeferredResponse();
   const second = createDeferredResponse();
-  const { calls, client } = createSequentialFakeClient([first, second]);
+  const { calls, client } = createDeferredFakeClient([first, second]);
   const items = [
     { id: "service-time-2", sort_order: 1 },
     { id: "service-time-1", sort_order: 2 },
@@ -180,10 +168,13 @@ Deno.test("updates service-time sort rows sequentially", async () => {
     ["from", "service_times"],
     ["update", { sort_order: 1 }],
     ["eq", "id", "service-time-2"],
+    ["from", "service_times"],
+    ["update", { sort_order: 2 }],
+    ["eq", "id", "service-time-1"],
   ]);
 
   first.resolve({ data: null, error: null });
-  await waitForCallCount(calls, 6);
+  second.resolve({ data: null, error: null });
 
   assertEquals(calls, [
     ["from", "service_times"],
@@ -194,7 +185,37 @@ Deno.test("updates service-time sort rows sequentially", async () => {
     ["eq", "id", "service-time-1"],
   ]);
 
+  assertEquals(await sort, items);
+});
+
+Deno.test("submits every sort update and throws the first error", async () => {
+  const first = createDeferredResponse();
+  const second = createDeferredResponse();
+  const { calls, client } = createDeferredFakeClient([first, second]);
+  const firstError = { message: "first sort update failed" };
+  const items = [
+    { id: "service-time-2", sort_order: 1 },
+    { id: "service-time-1", sort_order: 2 },
+  ];
+
+  const sort = new SupabaseServiceTimeRepository(client).sort(items);
+  first.resolve({ data: null, error: firstError });
   second.resolve({ data: null, error: null });
 
-  assertEquals(await sort, items);
+  let thrown: unknown;
+  try {
+    await sort;
+  } catch (error) {
+    thrown = error;
+  }
+
+  assertEquals(calls, [
+    ["from", "service_times"],
+    ["update", { sort_order: 1 }],
+    ["eq", "id", "service-time-2"],
+    ["from", "service_times"],
+    ["update", { sort_order: 2 }],
+    ["eq", "id", "service-time-1"],
+  ]);
+  assertEquals(thrown, firstError);
 });

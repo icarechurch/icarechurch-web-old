@@ -60,14 +60,16 @@ export class SupabaseServiceTimeRepository implements ServiceTimeRepository {
   }
 
   async sort(items: SortServiceTimeInput): Promise<SortServiceTimeInput> {
-    for (const item of items) {
-      const { error } = await this.client
+    const updates = items.map((item) =>
+      this.client
         .from("service_times")
         .update({ sort_order: item.sort_order })
-        .eq("id", item.id);
+        .eq("id", item.id)
+    );
+    const results = await Promise.all(updates);
+    const errors = results.filter((result) => result.error);
 
-      if (error) throw error;
-    }
+    if (errors.length > 0) throw errors[0].error;
 
     return items;
   }
