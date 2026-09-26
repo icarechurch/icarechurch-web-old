@@ -5,14 +5,14 @@ export type LiveStream = {
 
 export type LivestreamResponse =
   | {
-      status: "live";
-      video: LiveStream;
-      checkedAt: string;
-    }
+    status: "live";
+    video: LiveStream;
+    checkedAt: string;
+  }
   | {
-      status: "offline";
-      checkedAt: string | null;
-    };
+    status: "offline";
+    checkedAt: string | null;
+  };
 
 export type CacheStatus = {
   singleton_key: true;

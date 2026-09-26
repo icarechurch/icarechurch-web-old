@@ -509,6 +509,11 @@ tests verify private modules, layer boundaries, request composition, and
 documentation alignment. Unused layers are omitted; do not add `.gitkeep`
 files to empty directories.
 
+For `youtube-livestream`, keep scheduling and ports in `domain/`, the
+`GetActiveLivestream` use case in `application/`, Supabase and YouTube adapters
+in `infrastructure/`, and HTTP operation handling in `presentation/`. The
+module `index.ts` composes those layers; `entrypoint.ts` remains transport-only.
+
 Run the complete local Edge Function lane from `icarecenter-frontend/`:
 
 ```bash

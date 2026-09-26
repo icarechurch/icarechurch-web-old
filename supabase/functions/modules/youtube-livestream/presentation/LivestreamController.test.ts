@@ -1,9 +1,9 @@
-import {
-  createLivestreamHandler,
-  type LivestreamDependencies,
-} from "./entrypoint.ts";
-import type { CacheRepository } from "./cache.ts";
-import type { CacheStatus, LiveStream } from "./types.ts";
+import { createLivestreamHandler } from "../entrypoint.ts";
+import { GetActiveLivestream } from "../application/GetActiveLivestream.ts";
+import type { LivestreamCacheRepository } from "../domain/ports/LivestreamCacheRepository.ts";
+import type { LivestreamProvider } from "../domain/ports/LivestreamProvider.ts";
+import type { CacheStatus, LiveStream } from "../domain/Livestream.ts";
+import { LivestreamController } from "./LivestreamController.ts";
 
 const NOW = new Date("2026-01-04T00:00:00.000Z");
 const staleStatus: CacheStatus = {
@@ -31,7 +31,7 @@ const createDependencies = (options: {
   now?: () => Date;
 } = {}) => {
   const calls: string[] = [];
-  const cache: CacheRepository = {
+  const cache: LivestreamCacheRepository = {
     async readStatus() {
       calls.push("readStatus");
       return options.status ?? staleStatus;
@@ -48,8 +48,7 @@ const createDependencies = (options: {
     },
   };
 
-  const dependencies: LivestreamDependencies = {
-    cache,
+  const provider: LivestreamProvider = {
     findActiveLivestream: async () => {
       calls.push("findActiveLivestream");
       if (options.providerError) {
@@ -57,10 +56,17 @@ const createDependencies = (options: {
       }
       return options.provider ?? null;
     },
-    now: options.now ?? (() => NOW),
   };
 
-  return { calls, handler: createLivestreamHandler(dependencies) };
+  const useCase = new GetActiveLivestream({
+    cache,
+    now: options.now ?? (() => NOW),
+    provider,
+  });
+  return {
+    calls,
+    handler: createLivestreamHandler(new LivestreamController(useCase)),
+  };
 };
 
 const request = (body: unknown) =>
@@ -107,7 +113,10 @@ Deno.test("rejects invalid requests and unsupported operations", async () => {
   );
   const invalidBody = await readResponse(invalidResponse);
 
-  if (invalidResponse.status !== 400 || invalidBody.error?.code !== "INVALID_REQUEST") {
+  if (
+    invalidResponse.status !== 400 ||
+    invalidBody.error?.code !== "INVALID_REQUEST"
+  ) {
     throw new Error("Expected invalid request rejection");
   }
 
@@ -141,7 +150,10 @@ Deno.test("returns offline outside the eligible window without cache or provider
 });
 
 Deno.test("returns a fresh cached live result", async () => {
-  const freshStatus = { ...liveStatus, provider_attempted_at: "2026-01-03T23:59:00.000Z" };
+  const freshStatus = {
+    ...liveStatus,
+    provider_attempted_at: "2026-01-03T23:59:00.000Z",
+  };
   const { handler, calls } = createDependencies({ status: freshStatus });
   const response = await handler(
     request({ resource: "livestream", operation: "get-active" }),
@@ -165,7 +177,10 @@ Deno.test("returns offline when another visitor owns the refresh claim", async (
   );
   const body = await readResponse(response);
 
-  assertSuccess(body, { status: "offline", checkedAt: staleStatus.provider_attempted_at });
+  assertSuccess(body, {
+    status: "offline",
+    checkedAt: staleStatus.provider_attempted_at,
+  });
   if (calls.join(",") !== "readStatus,claimRefresh") {
     throw new Error(`Unexpected unclaimed calls: ${calls.join(",")}`);
   }
@@ -185,7 +200,9 @@ Deno.test("returns and saves a claimed live result", async () => {
     video: { id: "live-video", title: "Live Sunday service" },
     checkedAt: NOW.toISOString(),
   });
-  if (calls.join(",") !== "readStatus,claimRefresh,findActiveLivestream,saveLive") {
+  if (
+    calls.join(",") !== "readStatus,claimRefresh,findActiveLivestream,saveLive"
+  ) {
     throw new Error(`Unexpected claimed-live calls: ${calls.join(",")}`);
   }
 });
@@ -198,18 +215,23 @@ Deno.test("returns and saves claimed no-result offline", async () => {
   const body = await readResponse(response);
 
   assertSuccess(body, { status: "offline", checkedAt: NOW.toISOString() });
-  if (calls.join(",") !== "readStatus,claimRefresh,findActiveLivestream,saveOffline") {
+  if (
+    calls.join(",") !==
+      "readStatus,claimRefresh,findActiveLivestream,saveOffline"
+  ) {
     throw new Error(`Unexpected claimed-offline calls: ${calls.join(",")}`);
   }
 });
 
 Deno.test("sanitizes configuration, malformed, timeout, and network provider failures", async () => {
-  for (const failure of [
-    "missing configuration",
-    "malformed provider response",
-    "timeout",
-    "provider network error",
-  ]) {
+  for (
+    const failure of [
+      "missing configuration",
+      "malformed provider response",
+      "timeout",
+      "provider network error",
+    ]
+  ) {
     const { handler, calls } = createDependencies({
       providerError: new Error(`${failure}: secret provider details`),
     });
@@ -227,7 +249,8 @@ Deno.test("sanitizes configuration, malformed, timeout, and network provider fai
             message: "Unable to check for a live stream",
           },
         }) ||
-      calls.join(",") !== "readStatus,claimRefresh,findActiveLivestream,saveOffline"
+      calls.join(",") !==
+        "readStatus,claimRefresh,findActiveLivestream,saveOffline"
     ) {
       throw new Error(`Unexpected sanitized failure for ${failure}`);
     }

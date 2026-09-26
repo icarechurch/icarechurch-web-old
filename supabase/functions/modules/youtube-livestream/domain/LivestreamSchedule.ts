@@ -43,7 +43,8 @@ const getSundayNumber = ({ day, month, year }: TaipeiDateParts): number => {
   const localDate = new Date(Date.UTC(year, month - 1, day));
   const firstDayOfYear = new Date(Date.UTC(year, 0, 1));
   const dayOfYear =
-    Math.floor((localDate.getTime() - firstDayOfYear.getTime()) / 86_400_000) + 1;
+    Math.floor((localDate.getTime() - firstDayOfYear.getTime()) / 86_400_000) +
+    1;
   const firstSundayDay = 1 + ((7 - firstDayOfYear.getUTCDay()) % 7);
 
   if (dayOfYear < firstSundayDay) {

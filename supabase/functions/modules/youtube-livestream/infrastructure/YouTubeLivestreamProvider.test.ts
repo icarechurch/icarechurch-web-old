@@ -1,4 +1,4 @@
-import { findActivePublicLivestream } from "./youtube.ts";
+import { createYouTubeLivestreamProvider } from "./YouTubeLivestreamProvider.ts";
 
 const setProviderConfig = () => {
   Deno.env.set("YOUTUBE_API_KEY", "test-api-key");
@@ -41,7 +41,8 @@ Deno.test("findActivePublicLivestream sends the public live-video filters", asyn
   };
 
   try {
-    const stream = await findActivePublicLivestream();
+    const stream = await createYouTubeLivestreamProvider()
+      .findActiveLivestream();
     const params = new URL(requestUrl).searchParams;
 
     if (
@@ -72,7 +73,9 @@ Deno.test("returns offline when YouTube has no live result", async () => {
     new Response(JSON.stringify({ items: [] }), { status: 200 });
 
   try {
-    if ((await findActivePublicLivestream()) !== null) {
+    if (
+      (await createYouTubeLivestreamProvider().findActiveLivestream()) !== null
+    ) {
       throw new Error("Expected an empty result to be offline");
     }
   } finally {
@@ -85,12 +88,16 @@ Deno.test("rejects malformed first results", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () =>
     new Response(
-      JSON.stringify({ items: [{ id: { videoId: "video-123" }, snippet: {} }] }),
+      JSON.stringify({
+        items: [{ id: { videoId: "video-123" }, snippet: {} }],
+      }),
       { status: 200 },
     );
 
   try {
-    await expectRejected(() => findActivePublicLivestream());
+    await expectRejected(() =>
+      createYouTubeLivestreamProvider().findActiveLivestream()
+    );
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -100,12 +107,17 @@ Deno.test("rejects non-OK provider responses", async () => {
   setProviderConfig();
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () =>
-    new Response(JSON.stringify({ error: { message: "secret provider detail" } }), {
-      status: 503,
-    });
+    new Response(
+      JSON.stringify({ error: { message: "secret provider detail" } }),
+      {
+        status: 503,
+      },
+    );
 
   try {
-    await expectRejected(() => findActivePublicLivestream());
+    await expectRejected(() =>
+      createYouTubeLivestreamProvider().findActiveLivestream()
+    );
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -125,7 +137,7 @@ Deno.test("passes a 30-second abort signal to the provider", async () => {
     new Response(JSON.stringify({ items: [] }), { status: 200 });
 
   try {
-    await findActivePublicLivestream();
+    await createYouTubeLivestreamProvider().findActiveLivestream();
     if (timeoutMilliseconds !== 30_000) {
       throw new Error("Expected a 30-second provider timeout");
     }

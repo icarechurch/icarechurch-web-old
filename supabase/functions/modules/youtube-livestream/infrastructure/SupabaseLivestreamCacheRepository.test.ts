@@ -1,8 +1,8 @@
 import {
-  createCacheRepository,
   type CacheClient,
-} from "./cache.ts";
-import type { CacheStatus } from "./types.ts";
+  createSupabaseLivestreamCacheRepository,
+} from "./SupabaseLivestreamCacheRepository.ts";
+import type { CacheStatus } from "../domain/Livestream.ts";
 
 const initialStatus: CacheStatus = {
   singleton_key: true,
@@ -58,7 +58,7 @@ const createFakeClient = () => {
 
 Deno.test("readStatus selects only the singleton cache row", async () => {
   const fake = createFakeClient();
-  const repository = createCacheRepository(fake.client);
+  const repository = createSupabaseLivestreamCacheRepository(fake.client);
 
   const status = await repository.readStatus();
 
@@ -74,7 +74,7 @@ Deno.test("readStatus selects only the singleton cache row", async () => {
 
 Deno.test("claimRefresh invokes only the atomic claim RPC", async () => {
   const fake = createFakeClient();
-  const repository = createCacheRepository(fake.client);
+  const repository = createSupabaseLivestreamCacheRepository(fake.client);
   const now = new Date("2026-01-04T05:00:00.000Z");
 
   if (!(await repository.claimRefresh(now))) {
@@ -96,7 +96,7 @@ Deno.test("claimRefresh invokes only the atomic claim RPC", async () => {
 
 Deno.test("saveLive writes a live result and clears the refresh lease", async () => {
   const fake = createFakeClient();
-  const repository = createCacheRepository(fake.client);
+  const repository = createSupabaseLivestreamCacheRepository(fake.client);
 
   await repository.saveLive({ id: "video-123", title: "Sunday service" });
 
@@ -114,7 +114,7 @@ Deno.test("saveLive writes a live result and clears the refresh lease", async ()
 
 Deno.test("saveOffline preserves the claim timestamp and clears the lease", async () => {
   const fake = createFakeClient();
-  const repository = createCacheRepository(fake.client);
+  const repository = createSupabaseLivestreamCacheRepository(fake.client);
 
   await repository.saveOffline();
 

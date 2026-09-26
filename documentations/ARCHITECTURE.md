@@ -525,6 +525,16 @@ application use cases, infrastructure repositories, presentation controllers,
 and tests kept inside their owning resource. Domain and application code do not
 import Supabase or runtime globals; repositories own database access.
 
+The `youtube-livestream` module follows the same boundary:
+`supabase/functions/modules/youtube-livestream/entrypoint.ts` owns only
+transport setup, while `domain/` contains livestream state, schedule policy,
+and ports; `application/GetActiveLivestream.ts` owns the use case;
+`infrastructure/` owns the Supabase cache and YouTube provider adapters; and
+`presentation/LivestreamController.ts` validates the operation and maps
+application failures to the public HTTP contract. `index.ts` is the composition
+root. No flat cache, schedule, provider, or transport implementation files are
+kept beside the entrypoint.
+
 The current content operation map is:
 
 | Resource | Operations |

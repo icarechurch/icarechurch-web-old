@@ -18,6 +18,14 @@ tests. The public import surface is only
 other Edge Functions must not import a private resource path. Unused layers are
 omitted, so no empty layer directory or `.gitkeep` placeholder is required.
 
+## YouTube Livestream Module
+
+`supabase/functions/modules/youtube-livestream/` uses the same layered module
+boundary: domain policies and ports, the `GetActiveLivestream` application use
+case, infrastructure adapters for Supabase and YouTube, a presentation
+controller, and a composition root. Its configured entrypoint contains only
+request parsing, shared HTTP responses, and `Deno.serve` registration.
+
 This document provides comprehensive documentation for all components in the iCare Church Website application.
 
 ## Table of Contents

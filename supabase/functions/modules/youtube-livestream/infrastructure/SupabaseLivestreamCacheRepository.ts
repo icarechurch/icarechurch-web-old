@@ -1,6 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import type { LiveStream } from "./types.ts";
-import type { CacheStatus } from "./types.ts";
+import type { LivestreamCacheRepository } from "../domain/ports/LivestreamCacheRepository.ts";
+import type { CacheStatus, LiveStream } from "../domain/Livestream.ts";
 
 const CACHE_TABLE = "youtube_livestream_status" as const;
 const CLAIM_RPC = "claim_youtube_livestream_refresh" as const;
@@ -32,18 +32,13 @@ export type CacheClient = {
   ) => Promise<{ data: boolean | null; error: CacheError | null }>;
 };
 
-export type CacheRepository = {
-  readStatus: () => Promise<CacheStatus>;
-  claimRefresh: (now: Date) => Promise<boolean>;
-  saveLive: (stream: LiveStream) => Promise<void>;
-  saveOffline: () => Promise<void>;
-};
-
 const throwCacheError = (error: CacheError): never => {
   throw new Error(`Livestream cache operation failed: ${error.message}`);
 };
 
-export const createCacheRepository = (client: CacheClient): CacheRepository => ({
+export const createSupabaseLivestreamCacheRepository = (
+  client: CacheClient,
+): LivestreamCacheRepository => ({
   async readStatus() {
     const { data, error } = await client
       .from(CACHE_TABLE)
@@ -111,14 +106,18 @@ export const createCacheRepository = (client: CacheClient): CacheRepository => (
   },
 });
 
-export const createServiceRoleCacheRepository = (): CacheRepository => {
-  const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+export const createServiceRoleLivestreamCacheRepository =
+  (): LivestreamCacheRepository => {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-  if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error("Supabase function environment is not configured");
-  }
+    if (!supabaseUrl || !serviceRoleKey) {
+      throw new Error("Supabase function environment is not configured");
+    }
 
-  const client = createClient(supabaseUrl, serviceRoleKey) as unknown as CacheClient;
-  return createCacheRepository(client);
-};
+    const client = createClient(
+      supabaseUrl,
+      serviceRoleKey,
+    ) as unknown as CacheClient;
+    return createSupabaseLivestreamCacheRepository(client);
+  };

@@ -1,7 +1,7 @@
 import {
   isEligibleCheckingWindow,
   isFreshAttempt,
-} from "./schedule.ts";
+} from "./LivestreamSchedule.ts";
 
 const taipeiSundayAtFive = (year: number, month: number, day: number) =>
   new Date(Date.UTC(year, month - 1, day - 1, 21));
