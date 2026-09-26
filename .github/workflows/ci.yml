@@ -23,6 +23,7 @@ jobs:
   validate:
     name: Validate
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -38,6 +39,14 @@ jobs:
         working-directory: icarecenter-frontend
       - run: npm run typecheck
         working-directory: icarecenter-frontend
+      - run: npm exec -- ultracite doctor
+        working-directory: icarecenter-frontend
+      - run: npm exec -- ultracite check
+        working-directory: icarecenter-frontend
+      - run: npm audit --audit-level=low --omit=optional
+        working-directory: icarecenter-frontend
+      - run: npm run test:ssr
+        working-directory: icarecenter-frontend
       - run: npm run test:edge
         working-directory: icarecenter-frontend
       - run: npm run test:architecture -- --config trashAssetsBeforeRuns=false
@@ -47,7 +56,15 @@ jobs:
         working-directory: icarecenter-frontend
       - name: Wait for Vite
         run: curl --fail --silent --retry 60 --retry-delay 1 --retry-connrefused http://127.0.0.1:8080 >/dev/null
-      - run: npx cypress run --config-file ../icarecenter-test/cypress.config.cjs --spec ../icarecenter-test/e2e/sermons/youtube-livestream.cy.ts --config trashAssetsBeforeRuns=false
+      - run: npx cypress run --config-file ../icarecenter-test/cypress.config.cjs --spec ../icarecenter-test/e2e/sermons/youtube-livestream.cy.ts
         working-directory: icarecenter-frontend
       - run: npm run build:ssr
         working-directory: icarecenter-frontend
+      - name: Print Vite diagnostics on failure
+        if: failure()
+        run: |
+          if [ -f /tmp/icare-vite.log ]; then
+            cat /tmp/icare-vite.log
+          else
+            echo "No Vite log was created."
+          fi

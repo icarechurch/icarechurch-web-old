@@ -20,6 +20,7 @@ const getFrontendDataSources = () =>
   );
 
 module.exports = defineConfig({
+  allowCypressEnv: false,
   e2e: {
     baseUrl:
       process.env.CYPRESS_SKIP_BASE_URL === "true"

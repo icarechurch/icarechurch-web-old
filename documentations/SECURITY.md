@@ -492,11 +492,17 @@ WITH CHECK (public.has_role(auth.uid(), 'admin'));  -- Admin only
    [[headers]]
      for = "/*"
      [headers.values]
-       X-Frame-Options = "DENY"
        X-Content-Type-Options = "nosniff"
-       X-XSS-Protection = "1; mode=block"
+       X-Frame-Options = "DENY"
        Referrer-Policy = "strict-origin-when-cross-origin"
+       Permissions-Policy = "camera=(), geolocation=(), microphone=()"
+       Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
    ```
+
+   The SSR server applies the same baseline headers to function responses. SSR
+   failures return only a generic response; server logs record an error class
+   and timestamp without persisting request data or stack traces in the
+   application directory.
 
 3. **Environment Variables**
    - Set in Netlify dashboard

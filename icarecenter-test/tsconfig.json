@@ -1,0 +1,13 @@
+{
+  "extends": "../icarecenter-frontend/tsconfig.app.json",
+  "compilerOptions": {
+    "types": ["cypress", "node"],
+    "allowJs": true,
+    "noEmit": true,
+    "baseUrl": "..",
+    "paths": {
+      "@/*": ["icarecenter-frontend/src/*"]
+    }
+  },
+  "include": ["e2e/**/*.ts", "e2e/**/*.tsx", "support/**/*.ts", "support/**/*.tsx"]
+}

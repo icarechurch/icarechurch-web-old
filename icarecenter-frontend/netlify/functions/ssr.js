@@ -6,7 +6,7 @@ let app;
 // Create the app instance in production mode
 async function bootstrap() {
   if (!app) {
-    const server = await createServer(undefined, true);
+    const server = await createServer({ isProd: true });
     app = server.app;
   }
   return app;

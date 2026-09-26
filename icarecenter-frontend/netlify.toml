@@ -7,6 +7,16 @@
   node_bundler = "esbuild"
   external_node_modules = ["lightningcss"]
 
+# Apply baseline browser protections to static and SSR responses.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), geolocation=(), microphone=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+
 # Keep the HTML shell fresh so it cannot retain references to deleted hashed chunks.
 [[headers]]
   for = "/index.html"

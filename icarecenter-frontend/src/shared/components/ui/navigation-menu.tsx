@@ -16,7 +16,7 @@ const NavigationMenu = React.forwardRef<
     )}
     {...props}
     ref={ref}
-    viewport={viewport}
+    viewport={viewport || undefined}
   >
     {children}
     {viewport && <NavigationMenuViewport />}

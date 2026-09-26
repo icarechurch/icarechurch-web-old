@@ -8,8 +8,9 @@ import { createSitemapXml, loadSeoData } from "./seo/sitemap.mjs";
 
 export async function createServer({
   root = process.cwd(),
-  isProd = true, // Force prod for verification
+  isProd = true,
   hmrPort,
+  renderPage,
 } = {}) {
   const isTest = process.env.NODE_ENV === "test";
   const resolve = (p) => path.resolve(root, p);
@@ -20,6 +21,11 @@ export async function createServer({
     : "";
 
   const app = express();
+
+  app.use((_req, res, next) => {
+    res.set(getSecurityHeaders(isProd));
+    next();
+  });
 
   // Sitemap route - must be before any other middleware to ensure it's handled first
   app.get("/sitemap.xml", (_req, res) => {
@@ -43,7 +49,7 @@ export async function createServer({
         index: false,
       })
     );
-  } else {
+  } else if (!renderPage) {
     vite = await (await import("vite")).createServer({
       root,
       logLevel: isTest ? "error" : "info",
@@ -86,6 +92,8 @@ export async function createServer({
             pathToFileURL(resolve("dist/server/entry-server.js")).href
           )
         ).render;
+      } else if (renderPage) {
+        template = fs.readFileSync(resolve("index.html"), "utf-8");
       } else {
         // always read fresh template in dev
         template = fs.readFileSync(resolve("index.html"), "utf-8");
@@ -94,7 +102,7 @@ export async function createServer({
       }
 
       const context = {};
-      const appHtml = render(url, context);
+      const appHtml = await (renderPage ?? render)(url, context);
 
       // Extract HTML and Helmet data
       const { html, helmet } = appHtml;
@@ -123,16 +131,13 @@ export async function createServer({
           "Content-Type": "text/html",
         })
         .end(finalHtml);
-    } catch (e) {
-      if (!isProd) {
-        vite.ssrFixStacktrace(e);
+    } catch (error) {
+      if (!isProd && vite) {
+        vite.ssrFixStacktrace(error);
       }
       const timestamp = new Date().toISOString();
-      const logEntry = `[${timestamp}] SSR Error:\n${e.stack}\n\n`;
-      console.error("SSR Error:", e.stack);
-      fs.appendFile("server_error.log", logEntry, (writeErr) => {
-        if (writeErr) console.error("Failed to write error log:", writeErr);
-      });
+      const errorName = error instanceof Error ? error.name : "UnknownError";
+      console.error("SSR render failed", { timestamp, errorName });
       res.status(500).end("Internal Server Error");
     }
   });
@@ -140,14 +145,21 @@ export async function createServer({
   return { app, vite };
 }
 
-const isMainModule = import.meta.url === pathToFileURL(process.argv[1]).href;
+const entrypoint = process.argv[1]
+  ? pathToFileURL(process.argv[1]).href
+  : undefined;
+const isMainModule = import.meta.url === entrypoint;
 
 if (isMainModule) {
-  const port = process.env.PORT;
+  const port = Number(process.env.PORT ?? "8081");
+  if (!Number.isInteger(port) || port < 1 || port > 65_535) {
+    throw new Error("PORT must be an integer between 1 and 65535");
+  }
+
   createServer({})
     .then(({ app }) =>
       app.listen(port, () => {
-        console.log(`✈️✈️✈️ http://localhost:${port}`);
+        console.log(`Server listening on http://localhost:${port}`);
       })
     )
     .catch((e) => {
@@ -156,11 +168,23 @@ if (isMainModule) {
     });
 }
 
-process.on("unhandledRejection", (reason, _promise) => {
-  console.error("Unhandled Rejection:", reason);
+process.on("unhandledRejection", (reason) => {
+  const errorName = reason instanceof Error ? reason.name : "UnknownError";
+  console.error("Unhandled rejection", { errorName });
 });
 
-// Keep alive
-setInterval(() => {
-  // Keep the process alive
-}, 10_000);
+function getSecurityHeaders(isProd) {
+  const headers = {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), geolocation=(), microphone=()",
+  };
+
+  if (isProd) {
+    headers["Strict-Transport-Security"] =
+      "max-age=31536000; includeSubDomains; preload";
+  }
+
+  return headers;
+}

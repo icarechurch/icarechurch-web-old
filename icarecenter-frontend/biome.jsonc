@@ -1,23 +1,29 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": [
-    "ultracite/core",
-    "ultracite/react"
-  ],
+  "extends": ["ultracite/core", "ultracite/react"],
   "files": {
     "ignoreUnknown": true,
-    "ignore": [
-      "../icarecenter-test",
-      "node_modules",
-      "dist",
-      "coverage",
-      "build",
-      "*.d.ts",
-      "**/*.d.ts",
-      "**/*.js",
-      "**/*.jsx",
-      "**/*.ts",
-      "**/*.tsx"
+    "includes": [
+      "**",
+      "!!../icarecenter-test/**",
+      "!!**/node_modules/**",
+      "!!**/dist/**",
+      "!!**/coverage/**",
+      "!!**/build/**",
+      "!!**/*.d.ts",
+      "!!**/*.{js,jsx,ts,tsx}",
+      "!!**/*.css",
+      "!!public/**",
+      "!!index.html",
+      "!!src/admin/users/emails/**"
     ]
+  },
+  "linter": {
+    "rules": {
+      "suspicious": {
+        "noBiomeFirstException": "off",
+        "useBiomeIgnoreFolder": "off"
+      }
+    }
   }
 }

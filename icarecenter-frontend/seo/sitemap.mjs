@@ -32,7 +32,7 @@ export function createSitemapXml({ siteUrl, publicRoutes }) {
         <changefreq>${escapeXml(route.changefreq)}</changefreq>
         <priority>${escapeXml(route.priority)}</priority>
     </url>
-    `,
+    `
     )
     .join("");
 

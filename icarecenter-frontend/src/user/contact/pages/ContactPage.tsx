@@ -163,7 +163,8 @@ export default function Contact() {
                     onClick={() =>
                       window.open(
                         "https://www.google.com/maps/dir/?api=1&destination=14.848607,120.312585",
-                        "_blank"
+                        "_blank",
+                        "noopener,noreferrer",
                       )
                     }
                   >

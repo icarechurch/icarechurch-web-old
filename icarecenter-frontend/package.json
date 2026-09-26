@@ -11,12 +11,13 @@
     "dev": "vite",
     "build": "tsc && ultracite check && vite build",
     "build:dev": "tsc && vite build --mode development",
-    "lint": "eslint .",
+    "lint": "ultracite check",
     "preview": "vite preview",
     "test": "cypress run --config-file ../icarecenter-test/cypress.config.cjs",
     "test:edge": "deno test -A ../icarecenter-supabase/functions",
     "test:architecture": "cross-env CYPRESS_SKIP_BASE_URL=true cypress run --config-file ../icarecenter-test/cypress.config.cjs --spec ../icarecenter-test/e2e/architecture/frontend-data-access.cy.js",
     "typecheck": "tsc --noEmit",
+    "test:ssr": "cross-env NODE_ENV=test node --test server.test.mjs",
     "test:e2e": "cypress open --config-file ../icarecenter-test/cypress.config.cjs",
     "dev:ssr": "node server.js",
     "build:ssr": "npm run build:client && npm run build:server && node netlify/scripts/generate-sitemap.js && npm run verify:search-association",
@@ -79,7 +80,7 @@
     "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.61.1",
     "react-resizable-panels": "^2.1.9",
-    "react-router-dom": "^6.30.1",
+    "react-router-dom": "^7.18.4",
     "recharts": "^2.15.4",
     "serve-static": "^2.2.1",
     "serverless-http": "^4.0.0",
@@ -112,8 +113,9 @@
     "type-is": {
       "content-type": "2.0.0"
     },
+    "qs": "6.16.0",
     "vite": {
-      "esbuild": "0.27.7"
+      "esbuild": "0.28.1"
     },
     "strip-ansi@7.2.0": {
       "ansi-regex": "6.2.2"
