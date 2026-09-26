@@ -1,5 +1,9 @@
 # Architecture Documentation
 
+## Supabase Edge Function modules
+
+The Edge Function backend follows a MeatLens-style modular monolith boundary. content-data/index.ts is the deployment adapter for functions/modules/content. activity-logs/index.ts, analytics-data/index.ts, user-data/index.ts, and create-user/index.ts use the same boundary for functions/modules/audit, functions/modules/analytics, and functions/modules/identity. Each module keeps domain ports, application use cases, infrastructure repositories, and presentation controllers together. Legacy query/handler implementation files are removed; deployed names and request contracts remain stable. Empty layers are omitted and .gitkeep placeholders are not created.
+
 This document describes the system architecture, design decisions, and technical implementation of the iCare Church Website.
 
 ## Table of Contents

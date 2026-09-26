@@ -1,5 +1,9 @@
 # Development Guide
 
+## Supabase Edge Function modules
+
+When changing Edge Function behavior, work inside the owning module under functions/modules/ and keep the deployed adapter thin. Content uses functions/modules/content through content-data/index.ts; audit, analytics, and identity use their own module roots through their existing function names. Keep domain/application code independent of Supabase, put Supabase calls in infrastructure repositories, and expose operations through presentation controllers and the module composition root. Do not restore removed legacy query/handler files. Empty layers are omitted and .gitkeep placeholders are not created.
+
 This guide provides instructions for developers working on the iCare Church Website project.
 
 ## Table of Contents

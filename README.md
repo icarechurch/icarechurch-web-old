@@ -1,5 +1,9 @@
 #  I Care Church Website
 
+## Supabase Edge Function modules
+
+Supabase Edge Functions use a MeatLens-style modular monolith layout. Live deployment adapters are content-data/index.ts, activity-logs/index.ts, analytics-data/index.ts, user-data/index.ts, and create-user/index.ts; implementations live in functions/modules/content, functions/modules/audit, functions/modules/analytics, and functions/modules/identity. Modules own domain ports, application use cases, infrastructure repositories, and presentation controllers. Deployed names and request contracts remain stable. Legacy query/handler implementation files are not used. Empty layers are omitted and .gitkeep placeholders are not created.
+
 A modern, full-featured church website built with React, TypeScript, and Supabase. This application provides a comprehensive platform for church members and visitors to stay connected, view events, watch sermons, and engage with the church community.
 
 ## Project Structure

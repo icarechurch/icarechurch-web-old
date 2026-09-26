@@ -1,5 +1,9 @@
 # Security Documentation
 
+## Supabase Edge Function security boundaries
+
+content-data/index.ts forwards the caller authorization header into functions/modules/content; audit, analytics, and identity adapters follow the same request-scoped client boundary. Database access is isolated in module infrastructure repositories, while authorization and input validation stay in application/module services. Old direct query handler files are removed, and each feature remains inside its own module. Empty layers are omitted and .gitkeep placeholders are not used.
+
 This document outlines security considerations, best practices, and implemented security measures for the iCare Church Website.
 
 ## Table of Contents

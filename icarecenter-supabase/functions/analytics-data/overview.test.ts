@@ -1,4 +1,4 @@
-import { createAnalyticsOverviewHandler } from "./overview.ts";
+import { createAnalyticsModule } from "../modules/analytics/index.ts";
 
 type RpcResponse = {
   data: Array<Record<string, unknown>> | null;
@@ -32,10 +32,10 @@ Deno.test("loads the dashboard overview through one bounded database RPC", async
     },
   };
 
-  const result = await createAnalyticsOverviewHandler(client as never)({
+  const result = (await createAnalyticsModule(client as never).overview({
     daysBack: 30,
     recentLimit: 20,
-  });
+  })) as { summary: { total_visits: number } | null };
 
   if (calls.length !== 1) {
     throw new Error("Expected one overview RPC request");
@@ -43,10 +43,10 @@ Deno.test("loads the dashboard overview through one bounded database RPC", async
 
   if (
     JSON.stringify(calls[0]) !==
-    JSON.stringify({
-      name: "get_analytics_overview",
-      args: { days_back: 30, recent_limit: 20 },
-    })
+      JSON.stringify({
+        name: "get_analytics_overview",
+        args: { days_back: 30, recent_limit: 20 },
+      })
   ) {
     throw new Error("Overview RPC arguments changed");
   }
@@ -64,7 +64,7 @@ Deno.test("rejects overview limits outside the supported bounds", async () => {
   };
 
   try {
-    await createAnalyticsOverviewHandler(client as never)({
+    await createAnalyticsModule(client as never).overview({
       daysBack: 366,
       recentLimit: 20,
     });

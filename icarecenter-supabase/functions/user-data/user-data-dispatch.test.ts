@@ -1,5 +1,5 @@
 import { dispatchUserDataRequest } from "./index.ts";
-import { createUserDataHandlers } from "./queries.ts";
+import { createUserDataModule } from "../modules/identity/index.ts";
 
 Deno.test("dispatches the frontend roles/get request", async () => {
   const query = {
@@ -21,7 +21,7 @@ Deno.test("dispatches the frontend roles/get request", async () => {
       operation: "get",
       input: { userId: "admin-user" },
     },
-    createUserDataHandlers(client as never),
+    createUserDataModule(client as never),
   );
 
   if (result !== "admin") {

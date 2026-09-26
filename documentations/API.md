@@ -1,5 +1,9 @@
 # API and Data Layer Documentation
 
+## Supabase Edge Function boundaries
+
+content-data/index.ts remains the deployment adapter for functions/modules/content. Audit, analytics, and identity use the same adapter pattern through activity-logs/index.ts, analytics-data/index.ts, user-data/index.ts, and create-user/index.ts, with implementations in functions/modules/audit, functions/modules/analytics, and functions/modules/identity. Deployed names and request envelopes stay unchanged while old query/handler files are gone. Empty layers are omitted; .gitkeep is not used.
+
 ## Content Edge Function
 
 The deployed function name remains `content-data` and accepts the existing

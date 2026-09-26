@@ -1,5 +1,9 @@
 # Component Documentation
 
+## Supabase Edge Function modules
+
+Backend feature components live under functions/modules/content, functions/modules/audit, functions/modules/analytics, and functions/modules/identity. The content-data/index.ts adapter and corresponding audit, analytics, and identity adapters contain transport wiring only. Business logic stays inside its owning module, so one feature does not reach into another feature's implementation. Legacy query/handler files are not part of the runtime. Empty layers are omitted and .gitkeep placeholders are not created.
+
 ## Supabase Edge Function Content Module
 
 The frontend reaches content through the existing `content-data` function.

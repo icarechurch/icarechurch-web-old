@@ -1,12 +1,12 @@
-import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { createOptionsResponse } from "../_shared/cors.ts";
 import { HttpError } from "../_shared/errors.ts";
-import { parseRequest, type FunctionRequest } from "../_shared/request.ts";
+import { createRequestSupabaseClient } from "../_shared/infrastructure/supabase/request-client.ts";
+import { type FunctionRequest, parseRequest } from "../_shared/request.ts";
 import { failFromError, ok } from "../_shared/responses.ts";
-import { createActivityLogHandlers } from "./queries.ts";
+import { type AuditRoutes, createAuditModule } from "../modules/audit/index.ts";
 
-export type ActivityLogHandler = (...args: never[]) => Promise<unknown>;
-export type ActivityLogHandlers = Record<string, ActivityLogHandler>;
+export type ActivityLogHandler = AuditRoutes[keyof AuditRoutes];
+export type ActivityLogHandlers = AuditRoutes;
 
 export async function dispatchActivityLogRequest(
   request: FunctionRequest,
@@ -32,21 +32,9 @@ export async function dispatchActivityLogRequest(
   return handler(request.input as never);
 }
 
-function createRequestClient(req: Request): SupabaseClient {
-  const url = Deno.env.get("SUPABASE_URL");
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
-
-  if (!url || !anonKey) {
-    throw new Error("Supabase function environment is not configured");
-  }
-
-  const authorization = req.headers.get("Authorization");
-  return createClient(url, anonKey, {
-    global: authorization ? { headers: { Authorization: authorization } } : {},
-  });
-}
-
-export async function handleActivityLogRequest(req: Request): Promise<Response> {
+export async function handleActivityLogRequest(
+  req: Request,
+): Promise<Response> {
   if (req.method === "OPTIONS") {
     return createOptionsResponse();
   }
@@ -55,7 +43,7 @@ export async function handleActivityLogRequest(req: Request): Promise<Response> 
     const request = await parseRequest(req);
     const result = await dispatchActivityLogRequest(
       request,
-      createActivityLogHandlers(createRequestClient(req)),
+      createAuditModule(createRequestSupabaseClient(req)).activityLogs,
     );
 
     return ok(result);

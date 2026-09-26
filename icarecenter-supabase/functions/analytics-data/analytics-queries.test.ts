@@ -1,8 +1,6 @@
-import {
-  createAnalyticsHandlers,
-  getAnalyticsStartDate,
-} from "./queries.ts";
 import { HttpError } from "../_shared/errors.ts";
+import { createAnalyticsModule } from "../modules/analytics/index.ts";
+import { getAnalyticsStartDate } from "../modules/analytics/infrastructure/SupabaseAnalyticsRepository.ts";
 
 type Action = { method: string; args: unknown[] };
 
@@ -44,7 +42,10 @@ function createClient() {
   const results = new Map<string, unknown>();
   const client = {
     from(table: string) {
-      return createQuery(actions, results.get(table) ?? { data: [], error: null });
+      return createQuery(
+        actions,
+        results.get(table) ?? { data: [], error: null },
+      );
     },
     rpc(name: string, args: unknown) {
       actions.push({ method: "rpc", args: [name, args] });
@@ -55,8 +56,13 @@ function createClient() {
   return { actions, client, results };
 }
 
-const operation = (handlers: ReturnType<typeof createAnalyticsHandlers>, name: string) =>
-  handlers[name as keyof typeof handlers] as (...args: unknown[]) => Promise<unknown>;
+const operation = (
+  handlers: ReturnType<typeof createAnalyticsModule>,
+  name: string,
+) =>
+  handlers[name as keyof typeof handlers] as (
+    ...args: unknown[]
+  ) => Promise<unknown>;
 
 async function assertInvalidInput(
   handler: (...args: unknown[]) => Promise<unknown>,
@@ -74,7 +80,7 @@ async function assertInvalidInput(
 
 Deno.test("preserves the analytics visit insert query", async () => {
   const { actions, client } = createClient();
-  const handlers = createAnalyticsHandlers(client as never);
+  const handlers = createAnalyticsModule(client as never);
   const payload = { page_path: "/", visitor_id: "visitor-1" };
 
   await operation(handlers, "track-visit")(payload);
@@ -88,92 +94,114 @@ Deno.test("preserves the analytics visit insert query", async () => {
 
 Deno.test("preserves the analytics summary RPC", async () => {
   const { actions, client } = createClient();
-  const handlers = createAnalyticsHandlers(client as never);
+  const handlers = createAnalyticsModule(client as never);
 
   await operation(handlers, "summary")({ daysBack: 14 });
 
-  if (JSON.stringify(actions[0]) !== JSON.stringify({
-    method: "rpc",
-    args: ["get_analytics_summary", { days_back: 14 }],
-  })) {
+  if (
+    JSON.stringify(actions[0]) !== JSON.stringify({
+      method: "rpc",
+      args: ["get_analytics_summary", { days_back: 14 }],
+    })
+  ) {
     throw new Error("Summary RPC changed");
   }
 });
 
 Deno.test("preserves the daily visits query", async () => {
   const { actions, client } = createClient();
-  const handlers = createAnalyticsHandlers(client as never);
+  const handlers = createAnalyticsModule(client as never);
   const date = getAnalyticsStartDate(30);
 
   await operation(handlers, "daily-visits")({ daysBack: 30 });
 
-  if (JSON.stringify(actions) !== JSON.stringify([
-    { method: "select", args: ["date, total_visits, unique_visitors, page_path"] },
-    { method: "gte", args: ["date", date] },
-    { method: "order", args: ["date", { ascending: true }] },
-  ])) {
+  if (
+    JSON.stringify(actions) !== JSON.stringify([
+      {
+        method: "select",
+        args: ["date, total_visits, unique_visitors, page_path"],
+      },
+      { method: "gte", args: ["date", date] },
+      { method: "order", args: ["date", { ascending: true }] },
+    ])
+  ) {
     throw new Error("Daily visits query changed");
   }
 });
 
 Deno.test("preserves the page popularity query", async () => {
   const { actions, client } = createClient();
-  const handlers = createAnalyticsHandlers(client as never);
+  const handlers = createAnalyticsModule(client as never);
   const date = getAnalyticsStartDate(30);
 
   await operation(handlers, "page-popularity")({ daysBack: 30 });
 
-  if (JSON.stringify(actions) !== JSON.stringify([
-    { method: "select", args: ["page_path, total_visits, unique_visitors"] },
-    { method: "gte", args: ["date", date] },
-    { method: "order", args: ["total_visits", { ascending: false }] },
-  ])) {
+  if (
+    JSON.stringify(actions) !== JSON.stringify([
+      { method: "select", args: ["page_path, total_visits, unique_visitors"] },
+      { method: "gte", args: ["date", date] },
+      { method: "order", args: ["total_visits", { ascending: false }] },
+    ])
+  ) {
     throw new Error("Page popularity query changed");
   }
 });
 
 Deno.test("preserves the recent visits query", async () => {
   const { actions, client } = createClient();
-  const handlers = createAnalyticsHandlers(client as never);
+  const handlers = createAnalyticsModule(client as never);
 
   await operation(handlers, "recent-visits")({ limit: 50 });
 
-  if (JSON.stringify(actions) !== JSON.stringify([
-    { method: "select", args: ["id, page_path, visited_at, user_agent, referrer"] },
-    { method: "order", args: ["visited_at", { ascending: false }] },
-    { method: "limit", args: [50] },
-  ])) {
+  if (
+    JSON.stringify(actions) !== JSON.stringify([
+      {
+        method: "select",
+        args: ["id, page_path, visited_at, user_agent, referrer"],
+      },
+      { method: "order", args: ["visited_at", { ascending: false }] },
+      { method: "limit", args: [50] },
+    ])
+  ) {
     throw new Error("Recent visits query changed");
   }
 });
 
 Deno.test("preserves the content analytics queries", async () => {
   const { actions, client } = createClient();
-  const handlers = createAnalyticsHandlers(client as never);
+  const handlers = createAnalyticsModule(client as never);
 
   await operation(handlers, "content")();
 
   const selects = actions.filter((action) => action.method === "select");
-  if (JSON.stringify(selects) !== JSON.stringify([
-    { method: "select", args: ["id"] },
-    { method: "select", args: ["id, status"] },
-  ])) {
+  if (
+    JSON.stringify(selects) !== JSON.stringify([
+      { method: "select", args: ["id"] },
+      { method: "select", args: ["id, status"] },
+    ])
+  ) {
     throw new Error("Content analytics queries changed");
   }
 });
 
 Deno.test("rejects analytics day ranges outside the supported bounds", async () => {
   const { client } = createClient();
-  const handlers = createAnalyticsHandlers(client as never);
+  const handlers = createAnalyticsModule(client as never);
 
-  await assertInvalidInput(operation(handlers, "daily-visits"), { daysBack: -1 });
-  await assertInvalidInput(operation(handlers, "page-popularity"), { daysBack: 366 });
+  await assertInvalidInput(operation(handlers, "daily-visits"), {
+    daysBack: -1,
+  });
+  await assertInvalidInput(operation(handlers, "page-popularity"), {
+    daysBack: 366,
+  });
 });
 
 Deno.test("rejects recent visit limits outside the supported bounds", async () => {
   const { client } = createClient();
-  const handlers = createAnalyticsHandlers(client as never);
+  const handlers = createAnalyticsModule(client as never);
 
   await assertInvalidInput(operation(handlers, "recent-visits"), { limit: 0 });
-  await assertInvalidInput(operation(handlers, "recent-visits"), { limit: 101 });
+  await assertInvalidInput(operation(handlers, "recent-visits"), {
+    limit: 101,
+  });
 });

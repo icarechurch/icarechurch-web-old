@@ -1,4 +1,4 @@
-import { createUserDataHandlers } from "./queries.ts";
+import { createUserDataModule } from "../modules/identity/index.ts";
 
 type Action = { table: string; method: string; args: unknown[] };
 
@@ -63,27 +63,36 @@ function createClient() {
 }
 
 const operation = (
-  handlers: ReturnType<typeof createUserDataHandlers>,
+  handlers: ReturnType<typeof createUserDataModule>,
   name: string,
-) => handlers[name as keyof typeof handlers] as (...args: unknown[]) => Promise<unknown>;
+) =>
+  handlers[name as keyof typeof handlers] as (
+    ...args: unknown[]
+  ) => Promise<unknown>;
 
 Deno.test("preserves the admin profile and role queries", async () => {
   const { actions, client } = createClient();
-  const handlers = createUserDataHandlers(client as never);
+  const handlers = createUserDataModule(client as never);
 
   await operation(handlers, "admin-list")();
 
-  const queryActions = actions.map(({ table, method, args }) => ({ table, method, args }));
-  if (JSON.stringify(queryActions) !== JSON.stringify([
-    { table: "rpc", method: "get_admin_users", args: [{}] },
-  ])) {
+  const queryActions = actions.map(({ table, method, args }) => ({
+    table,
+    method,
+    args,
+  }));
+  if (
+    JSON.stringify(queryActions) !== JSON.stringify([
+      { table: "rpc", method: "get_admin_users", args: [{}] },
+    ])
+  ) {
     throw new Error("Admin user queries changed");
   }
 });
 
 Deno.test("preserves profile read and update queries", async () => {
   const { actions, client } = createClient();
-  const handlers = createUserDataHandlers(client as never);
+  const handlers = createUserDataModule(client as never);
 
   await operation(handlers, "profiles-get")({ userId: "user-1" });
   await operation(handlers, "profiles-upsert")({
@@ -91,57 +100,100 @@ Deno.test("preserves profile read and update queries", async () => {
     full_name: "Ada",
     updated_at: "2026-01-01T00:00:00.000Z",
   });
-  await operation(handlers, "profiles-update-name")({ userId: "user-1", fullName: "Ada" });
+  await operation(handlers, "profiles-update-name")({
+    userId: "user-1",
+    fullName: "Ada",
+  });
 
-  const queryActions = actions.map(({ table, method, args }) => ({ table, method, args }));
-  if (JSON.stringify(queryActions) !== JSON.stringify([
-    { table: "profiles", method: "select", args: ["full_name"] },
-    { table: "profiles", method: "eq", args: ["id", "user-1"] },
-    { table: "profiles", method: "single", args: [] },
-    { table: "profiles", method: "upsert", args: [{ id: "user-1", full_name: "Ada", updated_at: "2026-01-01T00:00:00.000Z" }] },
-    { table: "profiles", method: "update", args: [{ full_name: "Ada" }] },
-    { table: "profiles", method: "eq", args: ["id", "user-1"] },
-  ])) {
+  const queryActions = actions.map(({ table, method, args }) => ({
+    table,
+    method,
+    args,
+  }));
+  if (
+    JSON.stringify(queryActions) !== JSON.stringify([
+      { table: "profiles", method: "select", args: ["full_name"] },
+      { table: "profiles", method: "eq", args: ["id", "user-1"] },
+      { table: "profiles", method: "single", args: [] },
+      {
+        table: "profiles",
+        method: "upsert",
+        args: [{
+          id: "user-1",
+          full_name: "Ada",
+          updated_at: "2026-01-01T00:00:00.000Z",
+        }],
+      },
+      { table: "profiles", method: "update", args: [{ full_name: "Ada" }] },
+      { table: "profiles", method: "eq", args: ["id", "user-1"] },
+    ])
+  ) {
     throw new Error("Profile queries changed");
   }
 });
 
 Deno.test("preserves role queries and replacement order", async () => {
   const { actions, client } = createClient();
-  const handlers = createUserDataHandlers(client as never);
+  const handlers = createUserDataModule(client as never);
 
   await operation(handlers, "roles-get")({ userId: "user-1" });
-  await operation(handlers, "roles-create")({ user_id: "user-1", role: "admin" });
+  await operation(handlers, "roles-create")({
+    user_id: "user-1",
+    role: "admin",
+  });
   await operation(handlers, "roles-delete")({ userId: "user-1" });
-  await operation(handlers, "roles-replace")({ user_id: "user-1", role: "moderator" });
+  await operation(handlers, "roles-replace")({
+    user_id: "user-1",
+    role: "moderator",
+  });
 
-  const queryActions = actions.map(({ table, method, args }) => ({ table, method, args }));
-  if (JSON.stringify(queryActions) !== JSON.stringify([
-    { table: "user_roles", method: "select", args: ["role"] },
-    { table: "user_roles", method: "eq", args: ["user_id", "user-1"] },
-    { table: "user_roles", method: "maybeSingle", args: [] },
-    { table: "user_roles", method: "insert", args: [{ user_id: "user-1", role: "admin" }] },
-    { table: "user_roles", method: "delete", args: [] },
-    { table: "user_roles", method: "eq", args: ["user_id", "user-1"] },
-    { table: "user_roles", method: "delete", args: [] },
-    { table: "user_roles", method: "eq", args: ["user_id", "user-1"] },
-    { table: "user_roles", method: "insert", args: [{ user_id: "user-1", role: "moderator" }] },
-  ])) {
+  const queryActions = actions.map(({ table, method, args }) => ({
+    table,
+    method,
+    args,
+  }));
+  if (
+    JSON.stringify(queryActions) !== JSON.stringify([
+      { table: "user_roles", method: "select", args: ["role"] },
+      { table: "user_roles", method: "eq", args: ["user_id", "user-1"] },
+      { table: "user_roles", method: "maybeSingle", args: [] },
+      {
+        table: "user_roles",
+        method: "insert",
+        args: [{ user_id: "user-1", role: "admin" }],
+      },
+      { table: "user_roles", method: "delete", args: [] },
+      { table: "user_roles", method: "eq", args: ["user_id", "user-1"] },
+      { table: "user_roles", method: "delete", args: [] },
+      { table: "user_roles", method: "eq", args: ["user_id", "user-1"] },
+      {
+        table: "user_roles",
+        method: "insert",
+        args: [{ user_id: "user-1", role: "moderator" }],
+      },
+    ])
+  ) {
     throw new Error("Role queries changed");
   }
 });
 
 Deno.test("preserves permission and user deletion RPCs", async () => {
   const { actions, client } = createClient();
-  const handlers = createUserDataHandlers(client as never);
+  const handlers = createUserDataModule(client as never);
 
   await operation(handlers, "permissions-allowed-tabs")();
   await operation(handlers, "users-delete")({ target_user_id: "user-2" });
 
-  if (JSON.stringify(actions) !== JSON.stringify([
-    { table: "rpc", method: "get_allowed_tabs", args: [null] },
-    { table: "rpc", method: "delete_user", args: [{ target_user_id: "user-2" }] },
-  ])) {
+  if (
+    JSON.stringify(actions) !== JSON.stringify([
+      { table: "rpc", method: "get_allowed_tabs", args: [null] },
+      {
+        table: "rpc",
+        method: "delete_user",
+        args: [{ target_user_id: "user-2" }],
+      },
+    ])
+  ) {
     throw new Error("Permission or user deletion RPC changed");
   }
 });
