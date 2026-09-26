@@ -30,18 +30,50 @@ change:
 functions/modules/
   content/
     sermons/
+        domain/
+        application/
+        infrastructure/
+        presentation/
     events/
+        domain/
+        application/
+        infrastructure/
+        presentation/
     ministries/
+        domain/
+        application/
+        infrastructure/
+        presentation/
     church-info/
+        domain/
+        application/
+        infrastructure/
+        presentation/
     gallery/
+        domain/
+        application/
+        infrastructure/
+        presentation/
     pastors/
+        domain/
+        application/
+        infrastructure/
+        presentation/
     service-times/
+        domain/
+        application/
+        infrastructure/
+        presentation/
     giving/
+        domain/
+        application/
+        infrastructure/
+        presentation/
     event-popup/
-    domain/
-    application/
-    infrastructure/
-    presentation/
+        domain/
+        application/
+        infrastructure/
+        presentation/
     index.ts
 ```
 
@@ -49,6 +81,10 @@ The resource directories above are private submodules. They may contain their
 own domain rules, ports, use cases, repositories, controllers, and tests, but
 they must not be imported directly by another top-level module or by an Edge
 Function entrypoint.
+
+The `content` root should contain only `index.ts` unless `content` itself owns
+cross-submodule business behavior. Do not create empty parent layer
+directories or add `.gitkeep` files to represent unused layers.
 
 The public surface is `modules/content/index.ts`. It exposes only the
 composition factory and the types required by the function adapter.
@@ -106,6 +142,10 @@ Shared code must not contain sermons, users, analytics, livestream, or other
 business policies. A shared helper that needs business vocabulary belongs in
 the owning module instead.
 
+No directory is created merely to make the tree look complete. If a layer has
+no source files, the layer directory is omitted and no `.gitkeep` placeholder
+is added.
+
 ## Dependency rules
 
 The architecture test suite will enforce:
@@ -130,14 +170,37 @@ current resource operations move behind the `content` module:
 
 ```text
 content-data/index.ts
-  -> modules/content/presentation/content.controller.ts
-    -> modules/content/sermons/application/ListSermons.ts
-      -> modules/content/sermons/domain/ports/SermonRepository.ts
-        <- modules/content/sermons/infrastructure/SupabaseSermonRepository.ts
+  -> modules/content/index.ts
+    -> modules/content/sermons/presentation/SermonController.ts
+      -> modules/content/sermons/application/ListSermons.ts
+        -> modules/content/sermons/domain/ports/SermonRepository.ts
+          <- modules/content/sermons/infrastructure/SupabaseSermonRepository.ts
 ```
 
 The public request shape and `{ data: ... }` / `{ error: ... }` envelopes remain
 unchanged. The migration is architectural, not an API redesign.
+
+## Documentation impact
+
+Every module migration must update the repository documentation that describes
+the affected structure or boundary. For the initial `content` slice, review
+and update the applicable sections of:
+
+- `documentations/ARCHITECTURE.md` for module ownership and dependency flow;
+- `documentations/COMPONENTS.md` for Edge Function and content-module roles;
+- `documentations/API.md` for the unchanged function contract and operation
+  mapping;
+- `documentations/DEVELOPMENT.md` for local tests, architecture checks, and
+  module-scoped development workflow;
+- `documentations/SECURITY.md` for secret, client, RLS, and service-role
+  boundaries;
+- `README.md` or other project entrypoint documentation when it describes the
+  old function layout.
+
+Documentation must describe only directories and files that actually exist.
+It must not prescribe empty layer folders, placeholder files, or speculative
+future modules. Documentation changes stay in the same module migration
+commit/scope and are verified for stale path references before completion.
 
 ## Testing and CI
 
@@ -160,8 +223,9 @@ tests may satisfy the gate.
 3. Migrate one content submodule at a time, beginning with sermons.
 4. Route `content-data` through the migrated module while preserving its API.
 5. Remove only the superseded content implementation after contract tests pass.
-6. Verify the complete content and architecture lanes.
-7. Stop and review before planning the next top-level module.
+6. Update and review all affected repository documentation.
+7. Verify the complete content, documentation, and architecture lanes.
+8. Stop and review before planning the next top-level module.
 
 ## References
 
