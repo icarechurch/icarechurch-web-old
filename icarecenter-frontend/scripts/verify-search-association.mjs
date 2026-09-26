@@ -38,6 +38,15 @@ if (structuredData.alternateName !== legacyName) {
 if (structuredData.url !== `${seoConfig.siteUrl}/`) {
   throw new Error("Home page JSON-LD must use the canonical site URL");
 }
+if (structuredData["@id"] !== `${seoConfig.siteUrl}/#church`) {
+  throw new Error("Home page JSON-LD must expose the canonical Church @id");
+}
+if (structuredData.name !== seoConfig.brandName) {
+  throw new Error("Home page JSON-LD must use the visible organization name");
+}
+if (structuredData.areaServed?.name !== "Olongapo City") {
+  throw new Error("Home page JSON-LD must identify the service area");
+}
 
 const nonStructuredHead = [
   helmet.title.toString(),

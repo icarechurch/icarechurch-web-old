@@ -1,6 +1,5 @@
 import { Facebook, Mail, Phone} from "lucide-react";
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { Layout } from "@/shared/components/layout/Layout";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -21,13 +20,6 @@ export default function About() {
 
   return (
     <Layout>
-      <Helmet>
-        <title>About Us - I Care Center | The Refuge Church</title>
-        <meta
-          content="Learn about I Care Center - The Refuge Church in Olongapo City. Our mission is to share the Gospel, teach Biblical Truth, and provide a refuge for the lost."
-          name="description"
-        />
-      </Helmet>
       {/* Hero */}
       <section className="hero-gradient py-20" id="hero">
         <div className="container mx-auto px-4 text-center">

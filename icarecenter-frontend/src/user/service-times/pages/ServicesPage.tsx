@@ -1,5 +1,4 @@
 import { Accessibility, Baby, Clock, MapPin, Users } from "lucide-react";
-import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Layout } from "@/shared/components/layout/Layout";
 import { Button } from "@/shared/components/ui/button";
@@ -12,13 +11,6 @@ export default function ServicesPage() {
 
   return (
     <Layout>
-      <Helmet>
-        <title>Service Times - I Care Center | The Refuge Church</title>
-        <meta
-          content="Join us for worship at I Care Center. View our service times, what to expect, and how to find us in Olongapo City."
-          name="description"
-        />
-      </Helmet>
       {/* Hero */}
       <section className="hero-gradient py-20" id="hero">
         <div className="container mx-auto px-4 text-center">

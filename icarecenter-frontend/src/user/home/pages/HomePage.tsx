@@ -2,9 +2,9 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { CareGrid } from "@/user/ministries/components/CareGrid";
 import { EventPopup } from "@/user/home/components/EventPopup";
-import { HOME_PAGE_STRUCTURED_DATA } from "@/user/home/home-seo";
 import { Layout } from "@/shared/components/layout/Layout";
 import { Button } from "@/shared/components/ui/button";
+import { createChurchStructuredData } from "@/shared/seo/organization-structured-data";
 import { useChurchInfo } from "@/domains/church-info/hooks/useChurchInfo";
 
 const Index = () => {
@@ -13,18 +13,8 @@ const Index = () => {
   return (
     <Layout hideNavbarUntilSection="about">
       <Helmet>
-        <title>I Care Center - The Refuge Church | Olongapo City</title>
-        <meta
-          content="Welcome to I Care Center - The Refuge Church. A place of acceptance, love, and community in Olongapo City. Miracles happen when someone cares."
-          name="description"
-        />
-        <meta
-          content="i care center, refuge church, olongapo church, christian church, miracles, pastor"
-          name="keywords"
-        />
-        <link href="https://icarecenter.netlify.app/" rel="canonical" />
         <script type="application/ld+json">
-          {JSON.stringify(HOME_PAGE_STRUCTURED_DATA)}
+          {JSON.stringify(createChurchStructuredData(churchInfo ?? null))}
         </script>
       </Helmet>
       <EventPopup />
