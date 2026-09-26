@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { GetChurchInfo } from "./church-info/application/GetChurchInfo.ts";
+import { UpdateChurchInfo } from "./church-info/application/UpdateChurchInfo.ts";
 import { SupabaseChurchInfoRepository } from "./church-info/infrastructure/SupabaseChurchInfoRepository.ts";
 import { ChurchInfoController } from "./church-info/presentation/ChurchInfoController.ts";
 import { EventPopupController } from "./event-popup/presentation/EventPopupController.ts";
@@ -80,6 +81,7 @@ export function createContentModule(client: SupabaseClient): ContentRoutes {
     },
     "church-info": {
       get: () => churchInfoController.get(),
+      update: (input) => churchInfoController.update(asRecordWithId(input)),
     },
     sermons: {
       list: () => sermonController.list(),
@@ -135,8 +137,10 @@ function createServiceTimeController(
 function createChurchInfoController(
   client: SupabaseClient,
 ): ChurchInfoController {
+  const repository = new SupabaseChurchInfoRepository(client);
   return new ChurchInfoController(
-    new GetChurchInfo(new SupabaseChurchInfoRepository(client)),
+    new GetChurchInfo(repository),
+    new UpdateChurchInfo(repository),
   );
 }
 

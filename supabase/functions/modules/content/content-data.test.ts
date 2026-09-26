@@ -99,6 +99,27 @@ Deno.test("dispatches a content route through the public module surface", async 
   }
 });
 
+Deno.test("dispatches a church-info update through the public module surface", async () => {
+  const routes = createContentModule(
+    createFakeClient({
+      data: { id: "church-1", name: "Updated iCare" },
+      error: null,
+    }),
+  );
+  const result = await dispatchContentRequest(
+    {
+      resource: "church-info",
+      operation: "update",
+      input: { id: "church-1", name: "Updated iCare" },
+    },
+    routes,
+  );
+
+  if (!result || typeof result !== "object" || !("id" in result)) {
+    throw new Error("The church-info update route was not dispatched");
+  }
+});
+
 Deno.test("rejects an unknown content operation", async () => {
   try {
     await dispatchContentRequest(
