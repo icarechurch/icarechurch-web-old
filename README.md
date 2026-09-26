@@ -139,6 +139,14 @@ icarecenter-supabase/functions/
 
 Contains server-side Supabase Edge Functions used by the application.
 
+The public `content-data` function is mapped through `supabase/config.toml` to
+the module-owned entrypoint
+`supabase/functions/modules/content/entrypoint.ts`. Its implementation is
+composed from resource-owned modules under
+`supabase/functions/modules/content/`, with domain, application,
+infrastructure, presentation, and focused test boundaries. Unused layers are
+omitted; empty directories and `.gitkeep` placeholders are not created.
+
 ### Database Migrations
 
 ```text
