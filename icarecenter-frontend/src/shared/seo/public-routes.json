@@ -1,0 +1,65 @@
+[
+  {
+    "path": "/",
+    "title": "I Care Center - The Refuge Church | Olongapo City",
+    "description": "Welcome to I Care Center - The Refuge Church, a Christ-centered church family in Olongapo City where people worship, grow, and serve together.",
+    "changefreq": "weekly",
+    "priority": "1.0"
+  },
+  {
+    "path": "/about",
+    "title": "About Our Church | I Care Center - The Refuge Church",
+    "description": "Learn about I Care Center - The Refuge Church in Olongapo City, our mission, our values, and the people who serve our church community.",
+    "changefreq": "monthly",
+    "priority": "0.8"
+  },
+  {
+    "path": "/services",
+    "title": "Worship Service Times | I Care Center - The Refuge Church",
+    "description": "Find worship service times, what to expect, accessibility information, and directions for visiting I Care Center in Olongapo City.",
+    "changefreq": "weekly",
+    "priority": "0.9"
+  },
+  {
+    "path": "/ministries",
+    "title": "Church Ministries in Olongapo City | I Care Center",
+    "description": "Explore church ministries and outreach opportunities at I Care Center in Olongapo City and find ways to connect, serve, and grow.",
+    "changefreq": "weekly",
+    "priority": "0.8"
+  },
+  {
+    "path": "/events",
+    "title": "Church Events in Olongapo City | I Care Center",
+    "description": "See upcoming worship services, fellowship events, and community opportunities at I Care Center in Olongapo City.",
+    "changefreq": "weekly",
+    "priority": "0.8"
+  },
+  {
+    "path": "/sermons",
+    "title": "Sermons and Online Worship | I Care Center",
+    "description": "Watch sermons and online worship from I Care Center - The Refuge Church in Olongapo City.",
+    "changefreq": "weekly",
+    "priority": "0.8"
+  },
+  {
+    "path": "/contact",
+    "title": "Contact and Visit Us | I Care Center - The Refuge Church",
+    "description": "Contact I Care Center, find our Olongapo City location, and learn how to visit our church community.",
+    "changefreq": "monthly",
+    "priority": "0.8"
+  },
+  {
+    "path": "/giving",
+    "title": "Give to I Care Center | The Refuge Church",
+    "description": "Learn how to support the ministry of I Care Center - The Refuge Church through in-person and online giving.",
+    "changefreq": "monthly",
+    "priority": "0.6"
+  },
+  {
+    "path": "/gallery",
+    "title": "Church Life and Worship Gallery | I Care Center",
+    "description": "View photos from worship, church life, and community at I Care Center in Olongapo City.",
+    "changefreq": "monthly",
+    "priority": "0.6"
+  }
+]
