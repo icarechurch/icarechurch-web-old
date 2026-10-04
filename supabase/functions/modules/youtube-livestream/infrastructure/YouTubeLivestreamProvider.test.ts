@@ -53,7 +53,7 @@ Deno.test("findActivePublicLivestream sends the public live-video filters", asyn
       params.get("eventType") !== "live" ||
       params.get("type") !== "video" ||
       params.get("videoEmbeddable") !== "true" ||
-      params.get("videoSyndicated") !== "true" ||
+      params.get("videoSyndicated") !== null ||
       params.get("maxResults") !== "1" ||
       params.get("key") !== "test-api-key" ||
       !requestSignal ||
