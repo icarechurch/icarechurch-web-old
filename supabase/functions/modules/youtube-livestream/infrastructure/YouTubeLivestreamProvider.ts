@@ -28,7 +28,6 @@ export const createYouTubeLivestreamProvider = (): LivestreamProvider => ({
         part: "snippet",
         type: "video",
         videoEmbeddable: "true",
-        videoSyndicated: "true",
       });
       const response = await fetch(`${YOUTUBE_SEARCH_URL}?${searchParams}`, {
         signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
