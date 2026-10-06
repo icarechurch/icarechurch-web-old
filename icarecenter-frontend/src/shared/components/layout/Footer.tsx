@@ -34,7 +34,7 @@ export function Footer() {
                   className="transition-colors hover:text-background"
                   to="/about"
                 >
-                  About Us
+                  Our History
                 </Link>
               </li>
               <li>

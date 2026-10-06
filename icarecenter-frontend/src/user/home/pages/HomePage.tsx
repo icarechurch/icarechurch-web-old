@@ -85,7 +85,7 @@ const Index = () => {
                 asChild
                 className="bg-church-navy hover:bg-church-navy/90"
               >
-                <Link to="/about">Learn More About Us</Link>
+              <Link to="/about">Explore Our History</Link>
               </Button>
             </div>
             <div className="relative">

@@ -25,7 +25,7 @@ const navLinks = [
     label: "Home",
     subLinks: [
       { href: "/", label: "Welcome" },
-      { href: "/#about", label: "About Us" },
+      { href: "/about#story", label: "Our History" },
       { href: "/#care", label: "C.A.R.E." },
     ],
   },
@@ -33,7 +33,7 @@ const navLinks = [
     href: "/about",
     label: "About",
     subLinks: [
-      { href: "/about#story", label: "Our Story" },
+      { href: "/about#story", label: "Our History" },
       { href: "/about#mission", label: "Mission & Vision" },
       { href: "/about#values", label: "Core Values" },
       { href: "/about#pastor", label: "Leadership" },
