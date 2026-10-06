@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS public.youtube_livestream_status (
++CREATE TABLE IF NOT EXISTS public.youtube_livestream_status (
   singleton_key BOOLEAN PRIMARY KEY DEFAULT TRUE CHECK (singleton_key),
   status TEXT NOT NULL CHECK (status IN ('live', 'offline')),
   video_id TEXT,

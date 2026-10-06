@@ -18,59 +18,145 @@ const expectRejected = async (operation: () => Promise<unknown>) => {
   throw new Error("Expected the operation to reject");
 };
 
-Deno.test("findActivePublicLivestream sends the public live-video filters", async () => {
+Deno.test("finds an active embeddable video from the channel uploads playlist", async () => {
   setProviderConfig();
   const originalFetch = globalThis.fetch;
-  let requestUrl = "";
+  const requestUrls: string[] = [];
   let requestSignal: AbortSignal | null | undefined;
 
   globalThis.fetch = async (input, init) => {
-    requestUrl = input.toString();
+    const requestUrl = input.toString();
+    requestUrls.push(requestUrl);
     requestSignal = init?.signal;
-    return new Response(
-      JSON.stringify({
-        items: [
-          {
-            id: { videoId: "video-123" },
-            snippet: { title: "Sunday service" },
-          },
-        ],
-      }),
-      { status: 200 },
-    );
+
+    switch (new URL(requestUrl).pathname) {
+      case "/youtube/v3/channels":
+        return new Response(
+          JSON.stringify({
+            items: [
+              {
+                contentDetails: {
+                  relatedPlaylists: { uploads: "uploads-123" },
+                },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      case "/youtube/v3/playlistItems":
+        return new Response(
+          JSON.stringify({
+            items: [
+              { contentDetails: { videoId: "video-123" } },
+              { contentDetails: { videoId: "video-archive" } },
+            ],
+          }),
+          { status: 200 },
+        );
+      case "/youtube/v3/videos":
+        return new Response(
+          JSON.stringify({
+            items: [
+              {
+                id: "video-archive",
+                snippet: { title: "Last Sunday service" },
+                liveStreamingDetails: {
+                  actualStartTime: "2026-01-04T02:00:00Z",
+                  actualEndTime: "2026-01-04T04:00:00Z",
+                },
+                status: { embeddable: true, privacyStatus: "public" },
+              },
+              {
+                id: "video-123",
+                snippet: { title: "Sunday service" },
+                liveStreamingDetails: {
+                  actualStartTime: "2026-01-11T02:00:00Z",
+                },
+                status: { embeddable: true, privacyStatus: "public" },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      default:
+        return new Response(null, { status: 404 });
+    }
   };
 
   try {
     const stream = await createYouTubeLivestreamProvider()
       .findActiveLivestream();
-    const params = new URL(requestUrl).searchParams;
+    const [channelRequest, playlistRequest, videosRequest] = requestUrls.map(
+      (requestUrl) => new URL(requestUrl),
+    );
 
     if (
       stream?.id !== "video-123" ||
       stream.title !== "Sunday service" ||
-      params.get("part") !== "snippet" ||
-      params.get("channelId") !== "channel-123" ||
-      params.get("eventType") !== "live" ||
-      params.get("type") !== "video" ||
-      params.get("videoEmbeddable") !== "true" ||
-      params.get("videoSyndicated") !== null ||
-      params.get("maxResults") !== "1" ||
-      params.get("key") !== "test-api-key" ||
+      requestUrls.length !== 3 ||
+      channelRequest.searchParams.get("part") !== "contentDetails" ||
+      channelRequest.searchParams.get("id") !== "channel-123" ||
+      playlistRequest.searchParams.get("part") !== "contentDetails" ||
+      playlistRequest.searchParams.get("playlistId") !== "uploads-123" ||
+      playlistRequest.searchParams.get("maxResults") !== "25" ||
+      videosRequest.searchParams.get("part") !==
+        "snippet,liveStreamingDetails,status" ||
+      videosRequest.searchParams.get("id") !== "video-123,video-archive" ||
+      channelRequest.searchParams.get("key") !== "test-api-key" ||
       !requestSignal ||
       requestSignal.aborted
     ) {
-      throw new Error("Expected the bounded YouTube live search request");
+      throw new Error("Expected the YouTube uploads playlist lookup");
     }
   } finally {
     globalThis.fetch = originalFetch;
   }
 });
 
-Deno.test("returns offline when YouTube has no live result", async () => {
+Deno.test("returns offline when the uploads playlist has no active video", async () => {
   setProviderConfig();
   const originalFetch = globalThis.fetch;
-  globalThis.fetch = async () =>
-    new Response(JSON.stringify({ items: [] }), { status: 200 });
+  globalThis.fetch = async (input) => {
+    switch (new URL(input.toString()).pathname) {
+      case "/youtube/v3/channels":
+        return new Response(
+          JSON.stringify({
+            items: [
+              {
+                contentDetails: {
+                  relatedPlaylists: { uploads: "uploads-123" },
+                },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      case "/youtube/v3/playlistItems":
+        return new Response(
+          JSON.stringify({
+            items: [{ contentDetails: { videoId: "video-archive" } }],
+          }),
+          { status: 200 },
+        );
+      default:
+        return new Response(
+          JSON.stringify({
+            items: [
+              {
+                id: "video-archive",
+                snippet: { title: "Last Sunday service" },
+                liveStreamingDetails: {
+                  actualStartTime: "2026-01-04T02:00:00Z",
+                  actualEndTime: "2026-01-04T04:00:00Z",
+                },
+                status: { embeddable: true, privacyStatus: "public" },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+    }
+  };
 
   try {
     if (
@@ -89,7 +175,7 @@ Deno.test("rejects malformed first results", async () => {
   globalThis.fetch = async () =>
     new Response(
       JSON.stringify({
-        items: [{ id: { videoId: "video-123" }, snippet: {} }],
+        items: [{ contentDetails: { relatedPlaylists: {} } }],
       }),
       { status: 200 },
     );
