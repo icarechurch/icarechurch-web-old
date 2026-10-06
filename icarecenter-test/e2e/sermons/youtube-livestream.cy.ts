@@ -63,6 +63,33 @@ describe("YouTube public livestream", () => {
     cy.get("#livestream").should("not.contain", "facebook.com");
   });
 
+  it("renders the latest past livestream in the same area", () => {
+    cy.intercept("POST", functionUrl, {
+      body: {
+        data: {
+          status: "past",
+          video: { id: "past-video-123", title: "Communion Sunday" },
+          checkedAt: "2026-01-04T04:00:00.000Z",
+        },
+      },
+    }).as("youtubeLivestream");
+
+    cy.visit("/sermons");
+    cy.wait("@youtubeLivestream");
+    cy.get("#livestream iframe")
+      .should(
+        "have.attr",
+        "src",
+        "https://www.youtube.com/embed/past-video-123",
+      )
+      .and(
+        "have.attr",
+        "title",
+        "Watch the latest livestream: Communion Sunday",
+      );
+    cy.get("#livestream").should("not.contain", "facebook.com");
+  });
+
   it("renders an accessible offline state with a secure channel link", () => {
     cy.intercept("POST", functionUrl, {
       body: { data: { status: "offline", checkedAt: null } },
