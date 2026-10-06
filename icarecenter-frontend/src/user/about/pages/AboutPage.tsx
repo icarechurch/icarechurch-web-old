@@ -12,6 +12,7 @@ import {
 import { CORE_VALUES } from "@/shared/constants/core-values";
 import { usePastors } from "@/domains/pastors/hooks/usePastors";
 import type { Pastor } from "@/domains/pastors/model/pastors.types";
+import { HistoryGallery } from "@/user/about/components/HistoryGallery";
 import { MissionVision } from "@/user/about/components/MissionVision";
 
 export default function About() {
@@ -24,7 +25,8 @@ export default function About() {
       <section className="hero-gradient py-20" id="hero">
         <div className="container mx-auto px-4 text-center">
           <h1 className="mb-4 font-bold font-display text-4xl md:text-5xl">
-            About <span className="text-gradient">Our Church</span>
+            <span className="text-gradient">About</span>{" "}
+            <span className="text-black">Our Church</span>
           </h1>
           <p className="mx-auto max-w-2xl text-muted-foreground">
             For over 40+ years, I Care Center - Refuge has been a beacon of hope
@@ -33,33 +35,20 @@ export default function About() {
         </div>
       </section>
 
-      {/* Story */}
+      {/* History */}
       <section className="section-padding" id="story">
         <div className="container mx-auto px-4">
-          <div className="grid items-center gap-12 md:grid-cols-2">
-            <div>
-              <img
-                alt="Our church community"
-                className="rounded-lg shadow-xl"
-                src="/during worship.jpg"
-              />
-            </div>
-            <div className="space-y-6">
-              <h2 className="font-bold font-display text-3xl">Our Story</h2>
-              <p className="text-muted-foreground">
-                We're currently working on this page to better share the journey
-                God has been leading our church through.
-              </p>
-              <p className="text-muted-foreground">
-                Please check back soon to learn more about our beginnings, our
-                mission, and the people who call this church home.
-              </p>
-              <p className="text-muted-foreground">
-                We look forward to sharing our story with you soon. Until then,
-                you are always welcome here.
-              </p>
-            </div>
+          <div className="mx-auto mb-12 max-w-3xl text-center">
+            <h2 className="mb-4 font-bold font-display text-3xl md:text-4xl">
+              Our History
+            </h2>
+            <p className="text-muted-foreground">
+              A collection of moments from the life of I Care Center - Refuge,
+              shared with gratitude for the people and community who have
+              shaped our journey.
+            </p>
           </div>
+          <HistoryGallery />
         </div>
       </section>
 
