@@ -4,7 +4,7 @@ import {
 } from "./GetActiveLivestream.ts";
 import type { LivestreamCacheRepository } from "../domain/ports/LivestreamCacheRepository.ts";
 import type { LivestreamProvider } from "../domain/ports/LivestreamProvider.ts";
-import type { CacheStatus, LiveStream } from "../domain/Livestream.ts";
+import type { CacheStatus, LivestreamDiscovery } from "../domain/Livestream.ts";
 
 const NOW = new Date("2026-01-04T00:00:00.000Z");
 const staleStatus: CacheStatus = {
@@ -18,7 +18,8 @@ const staleStatus: CacheStatus = {
 
 const createDependencies = (options: {
   claim?: boolean;
-  provider?: LiveStream | null;
+  cacheStatus?: CacheStatus;
+  provider?: LivestreamDiscovery | null;
   providerError?: Error;
   now?: () => Date;
 } = {}) => {
@@ -26,7 +27,7 @@ const createDependencies = (options: {
   const cache: LivestreamCacheRepository = {
     async readStatus() {
       calls.push("readStatus");
-      return staleStatus;
+      return options.cacheStatus ?? staleStatus;
     },
     async claimRefresh() {
       calls.push("claimRefresh");
@@ -38,10 +39,13 @@ const createDependencies = (options: {
     async saveOffline() {
       calls.push("saveOffline");
     },
+    async savePast() {
+      calls.push("savePast");
+    },
   };
   const provider: LivestreamProvider = {
-    async findActiveLivestream() {
-      calls.push("findActiveLivestream");
+    async findLivestream() {
+      calls.push("findLivestream");
       if (options.providerError) {
         throw options.providerError;
       }
@@ -59,7 +63,33 @@ const createDependencies = (options: {
   };
 };
 
-Deno.test("returns offline outside the checking window without touching dependencies", async () => {
+Deno.test("returns a cached past stream outside the checking window", async () => {
+  const { calls, useCase } = createDependencies({
+    cacheStatus: {
+      ...staleStatus,
+      video_id: "past-video",
+      video_title: "Last Sunday service",
+    },
+    now: () => new Date("2026-01-05T00:00:00.000Z"),
+  });
+  const result = await useCase.execute();
+
+  if (
+    JSON.stringify(result) !==
+      JSON.stringify({
+        status: "past",
+        video: { id: "past-video", title: "Last Sunday service" },
+        checkedAt: staleStatus.provider_attempted_at,
+      })
+  ) {
+    throw new Error("Expected the cached past stream outside the window");
+  }
+  if (calls.join(",") !== "readStatus") {
+    throw new Error(`Unexpected calls: ${calls.join(",")}`);
+  }
+});
+
+Deno.test("returns offline outside the checking window without a cached stream", async () => {
   const { calls, useCase } = createDependencies({
     now: () => new Date("2026-01-05T00:00:00.000Z"),
   });
@@ -67,18 +97,24 @@ Deno.test("returns offline outside the checking window without touching dependen
 
   if (
     JSON.stringify(result) !==
-      JSON.stringify({ status: "offline", checkedAt: null })
+      JSON.stringify({
+        status: "offline",
+        checkedAt: staleStatus.provider_attempted_at,
+      })
   ) {
-    throw new Error("Expected offline outside the checking window");
+    throw new Error("Expected offline without a cached past stream");
   }
-  if (calls.length !== 0) {
-    throw new Error("Ineligible requests must not access dependencies");
+  if (calls.join(",") !== "readStatus") {
+    throw new Error(`Unexpected calls: ${calls.join(",")}`);
   }
 });
 
 Deno.test("returns and persists a claimed live result", async () => {
   const { calls, useCase } = createDependencies({
-    provider: { id: "live-video", title: "Sunday service" },
+    provider: {
+      kind: "live",
+      video: { id: "live-video", title: "Sunday service" },
+    },
   });
 
   const result = await useCase.execute();
@@ -94,7 +130,34 @@ Deno.test("returns and persists a claimed live result", async () => {
     throw new Error("Expected the live provider result");
   }
   if (
-    calls.join(",") !== "readStatus,claimRefresh,findActiveLivestream,saveLive"
+    calls.join(",") !== "readStatus,claimRefresh,findLivestream,saveLive"
+  ) {
+    throw new Error(`Unexpected calls: ${calls.join(",")}`);
+  }
+});
+
+Deno.test("returns and persists the newest past result", async () => {
+  const { calls, useCase } = createDependencies({
+    provider: {
+      kind: "past",
+      video: { id: "past-video", title: "Last Sunday service" },
+    },
+  });
+
+  const result = await useCase.execute();
+
+  if (
+    JSON.stringify(result) !==
+      JSON.stringify({
+        status: "past",
+        video: { id: "past-video", title: "Last Sunday service" },
+        checkedAt: NOW.toISOString(),
+      })
+  ) {
+    throw new Error("Expected the past provider result");
+  }
+  if (
+    calls.join(",") !== "readStatus,claimRefresh,findLivestream,savePast"
   ) {
     throw new Error(`Unexpected calls: ${calls.join(",")}`);
   }
@@ -113,7 +176,7 @@ Deno.test("sanitizes provider failures after releasing the cache lease", async (
     }
     if (
       calls.join(",") !==
-        "readStatus,claimRefresh,findActiveLivestream,saveOffline"
+        "readStatus,claimRefresh,findLivestream,saveOffline"
     ) {
       throw new Error(`Unexpected failure calls: ${calls.join(",")}`);
     }

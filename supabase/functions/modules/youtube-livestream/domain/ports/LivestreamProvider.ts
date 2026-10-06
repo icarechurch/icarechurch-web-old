@@ -1,5 +1,5 @@
-import type { LiveStream } from "../Livestream.ts";
+import type { LivestreamDiscovery } from "../Livestream.ts";
 
 export interface LivestreamProvider {
-  findActiveLivestream(): Promise<LiveStream | null>;
+  findLivestream(): Promise<LivestreamDiscovery | null>;
 }

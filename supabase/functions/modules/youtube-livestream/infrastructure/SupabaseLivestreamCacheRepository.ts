@@ -89,6 +89,22 @@ export const createSupabaseLivestreamCacheRepository = (
     }
   },
 
+  async savePast(stream) {
+    const { error } = await client
+      .from(CACHE_TABLE)
+      .update({
+        status: "offline",
+        video_id: stream.id,
+        video_title: stream.title,
+        refresh_lease_until: null,
+      })
+      .eq("singleton_key", true);
+
+    if (error) {
+      throwCacheError(error);
+    }
+  },
+
   async saveOffline() {
     const { error } = await client
       .from(CACHE_TABLE)

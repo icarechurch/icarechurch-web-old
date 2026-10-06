@@ -1,5 +1,14 @@
 # Ultracite Code Standards
 
+## Branching and Push Workflow
+
+- Use one shared integration branch named `development` for all work and commits.
+- Do not push directly to `master`, and do not create or push feature branches unless I explicitly request it.
+- When I say **push**, ensure all intended work is committed and push the complete local commit history for the current work to `origin/development`.
+- If `development` does not exist yet, create it from the current `master` branch and set it as the upstream branch.
+- Do not merge into `master` locally or remotely; I will manually merge `development` into `master` through the GitHub web interface.
+- Never force-push or rewrite shared branch history unless I explicitly authorize it.
+
 This project uses **Ultracite**, a zero-config Biome preset that enforces strict code quality standards through automated formatting and linting.
 
 ## Quick Reference

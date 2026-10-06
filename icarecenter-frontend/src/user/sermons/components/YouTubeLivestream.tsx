@@ -29,7 +29,12 @@ export function YouTubeLivestream() {
     );
   }
 
-  if (data?.status === "live") {
+  if (data?.status === "live" || data?.status === "past") {
+    const title =
+      data.status === "past"
+        ? `Watch the latest livestream: ${data.video.title}`
+        : `Watch ${data.video.title} live on YouTube`;
+
     return (
       <div className="aspect-video w-full bg-black">
         <iframe
@@ -38,7 +43,7 @@ export function YouTubeLivestream() {
           className="h-full w-full"
           referrerPolicy="strict-origin-when-cross-origin"
           src={`https://www.youtube.com/embed/${encodeURIComponent(data.video.id)}`}
-          title={`Watch ${data.video.title} live on YouTube`}
+          title={title}
         />
       </div>
     );

@@ -1,7 +1,8 @@
 import type { LivestreamProvider } from "../domain/ports/LivestreamProvider.ts";
-import type { LiveStream } from "../domain/Livestream.ts";
+import type { LiveStream, LivestreamDiscovery } from "../domain/Livestream.ts";
 
-const YOUTUBE_SEARCH_URL = "https://www.googleapis.com/youtube/v3/search";
+const YOUTUBE_API_BASE_URL = "https://www.googleapis.com/youtube/v3";
+const UPLOADS_MAX_RESULTS = "25";
 const PROVIDER_TIMEOUT_MS = 30_000;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -10,8 +11,133 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const getString = (value: unknown): string | null =>
   typeof value === "string" && value.length > 0 ? value : null;
 
+const getRecord = (
+  value: Record<string, unknown> | null,
+  key: string,
+): Record<string, unknown> | null => {
+  const nested = value?.[key];
+  return isRecord(nested) ? nested : null;
+};
+
+const fetchYouTubeJson = async (
+  url: string,
+  signal: AbortSignal,
+): Promise<unknown> => {
+  const response = await fetch(url, { signal });
+
+  if (!response.ok) {
+    throw new Error(`YouTube provider returned ${response.status}`);
+  }
+
+  return response.json();
+};
+
+const getItems = (payload: unknown): unknown[] => {
+  if (!isRecord(payload) || !Array.isArray(payload.items)) {
+    throw new Error("YouTube provider response is malformed");
+  }
+
+  return payload.items;
+};
+
+const getUploadsPlaylistId = (payload: unknown): string | null => {
+  const [channel] = getItems(payload);
+  if (channel === undefined) {
+    return null;
+  }
+
+  if (!isRecord(channel)) {
+    throw new Error("YouTube provider channel is malformed");
+  }
+
+  const contentDetails = getRecord(channel, "contentDetails");
+  const relatedPlaylists = getRecord(contentDetails, "relatedPlaylists");
+  const uploadsPlaylistId = getString(relatedPlaylists?.uploads);
+
+  if (!uploadsPlaylistId) {
+    throw new Error("YouTube provider uploads playlist is missing");
+  }
+
+  return uploadsPlaylistId;
+};
+
+const getVideoIds = (payload: unknown): string[] =>
+  getItems(payload)
+    .filter(isRecord)
+    .map((item) => {
+      const contentDetails = getRecord(item, "contentDetails");
+      return getString(contentDetails?.videoId);
+    })
+    .filter((videoId): videoId is string => videoId !== null);
+
+type VideoCandidate = {
+  actualEndTime: string | null;
+  actualStartTime: string | null;
+  video: LiveStream;
+};
+
+const getEligibleVideo = (item: unknown): VideoCandidate | null => {
+  if (!isRecord(item)) {
+    return null;
+  }
+
+  const videoId = getString(item.id);
+  const snippet = getRecord(item, "snippet");
+  const liveStreamingDetails = getRecord(item, "liveStreamingDetails");
+  const status = getRecord(item, "status");
+  const title = getString(snippet?.title);
+  const actualStartTime = getString(liveStreamingDetails?.actualStartTime);
+  const actualEndTime = getString(liveStreamingDetails?.actualEndTime);
+
+  if (
+    !videoId ||
+    !title ||
+    !actualStartTime ||
+    status?.privacyStatus !== "public" ||
+    status.embeddable !== true
+  ) {
+    return null;
+  }
+
+  return {
+    actualEndTime,
+    actualStartTime,
+    video: { id: videoId, title },
+  };
+};
+
+const getLivestreamDiscovery = (
+  payload: unknown,
+  playlistVideoIds: string[],
+): LivestreamDiscovery | null => {
+  const detailsById = new Map<string, VideoCandidate>();
+
+  for (const item of getItems(payload)) {
+    const candidate = getEligibleVideo(item);
+    if (candidate) {
+      detailsById.set(candidate.video.id, candidate);
+    }
+  }
+
+  for (const videoId of playlistVideoIds) {
+    const candidate = detailsById.get(videoId);
+    if (candidate?.actualStartTime && !candidate.actualEndTime) {
+      return { kind: "live", video: candidate.video };
+    }
+  }
+
+  for (const videoId of playlistVideoIds) {
+    const candidate = detailsById.get(videoId);
+    if (candidate?.actualEndTime) {
+      return { kind: "past", video: candidate.video };
+    }
+  }
+
+  return null;
+};
+
 export const createYouTubeLivestreamProvider = (): LivestreamProvider => ({
-  async findActiveLivestream(): Promise<LiveStream | null> {
+  async findLivestream(): Promise<LivestreamDiscovery | null> {
     try {
       const apiKey = Deno.env.get("YOUTUBE_API_KEY");
       const channelId = Deno.env.get("YOUTUBE_CHANNEL_ID");
@@ -20,47 +146,49 @@ export const createYouTubeLivestreamProvider = (): LivestreamProvider => ({
         throw new Error("YouTube provider configuration is missing");
       }
 
-      const searchParams = new URLSearchParams({
-        channelId,
-        eventType: "live",
+      const signal = AbortSignal.timeout(PROVIDER_TIMEOUT_MS);
+      const channelParams = new URLSearchParams({
+        id: channelId,
         key: apiKey,
-        maxResults: "1",
-        part: "snippet",
-        type: "video",
-        videoEmbeddable: "true",
+        part: "contentDetails",
       });
-      const response = await fetch(`${YOUTUBE_SEARCH_URL}?${searchParams}`, {
-        signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
-      });
+      const channelPayload = await fetchYouTubeJson(
+        `${YOUTUBE_API_BASE_URL}/channels?${channelParams}`,
+        signal,
+      );
+      const uploadsPlaylistId = getUploadsPlaylistId(channelPayload);
 
-      if (!response.ok) {
-        throw new Error(`YouTube provider returned ${response.status}`);
-      }
-
-      const payload: unknown = await response.json();
-      if (!isRecord(payload) || !Array.isArray(payload.items)) {
-        throw new Error("YouTube provider response is malformed");
-      }
-
-      if (payload.items.length === 0) {
+      if (!uploadsPlaylistId) {
         return null;
       }
 
-      const firstItem: unknown = payload.items[0];
-      if (!isRecord(firstItem)) {
-        throw new Error("YouTube provider result is malformed");
+      const playlistParams = new URLSearchParams({
+        key: apiKey,
+        maxResults: UPLOADS_MAX_RESULTS,
+        part: "contentDetails",
+        playlistId: uploadsPlaylistId,
+      });
+      const playlistPayload = await fetchYouTubeJson(
+        `${YOUTUBE_API_BASE_URL}/playlistItems?${playlistParams}`,
+        signal,
+      );
+      const videoIds = getVideoIds(playlistPayload);
+
+      if (videoIds.length === 0) {
+        return null;
       }
 
-      const itemId = isRecord(firstItem.id) ? firstItem.id.videoId : null;
-      const snippet = isRecord(firstItem.snippet) ? firstItem.snippet : null;
-      const videoId = getString(itemId);
-      const title = getString(snippet?.title);
+      const videosParams = new URLSearchParams({
+        id: videoIds.join(","),
+        key: apiKey,
+        part: "snippet,liveStreamingDetails,status",
+      });
+      const videosPayload = await fetchYouTubeJson(
+        `${YOUTUBE_API_BASE_URL}/videos?${videosParams}`,
+        signal,
+      );
 
-      if (!videoId || !title) {
-        throw new Error("YouTube provider result is incomplete");
-      }
-
-      return { id: videoId, title };
+      return getLivestreamDiscovery(videosPayload, videoIds);
     } catch {
       throw new Error("YouTube livestream lookup failed");
     }

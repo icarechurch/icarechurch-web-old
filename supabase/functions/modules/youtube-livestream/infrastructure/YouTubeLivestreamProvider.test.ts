@@ -18,65 +18,228 @@ const expectRejected = async (operation: () => Promise<unknown>) => {
   throw new Error("Expected the operation to reject");
 };
 
-Deno.test("findActivePublicLivestream sends the public live-video filters", async () => {
+Deno.test("finds an active embeddable video before completed uploads", async () => {
   setProviderConfig();
   const originalFetch = globalThis.fetch;
-  let requestUrl = "";
+  const requestUrls: string[] = [];
   let requestSignal: AbortSignal | null | undefined;
 
   globalThis.fetch = async (input, init) => {
-    requestUrl = input.toString();
+    const requestUrl = input.toString();
+    requestUrls.push(requestUrl);
     requestSignal = init?.signal;
-    return new Response(
-      JSON.stringify({
-        items: [
-          {
-            id: { videoId: "video-123" },
-            snippet: { title: "Sunday service" },
-          },
-        ],
-      }),
-      { status: 200 },
-    );
+
+    switch (new URL(requestUrl).pathname) {
+      case "/youtube/v3/channels":
+        return new Response(
+          JSON.stringify({
+            items: [
+              {
+                contentDetails: {
+                  relatedPlaylists: { uploads: "uploads-123" },
+                },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      case "/youtube/v3/playlistItems":
+        return new Response(
+          JSON.stringify({
+            items: [
+              { contentDetails: { videoId: "video-123" } },
+              { contentDetails: { videoId: "video-archive" } },
+            ],
+          }),
+          { status: 200 },
+        );
+      case "/youtube/v3/videos":
+        return new Response(
+          JSON.stringify({
+            items: [
+              {
+                id: "video-archive",
+                snippet: { title: "Last Sunday service" },
+                liveStreamingDetails: {
+                  actualStartTime: "2026-01-04T02:00:00Z",
+                  actualEndTime: "2026-01-04T04:00:00Z",
+                },
+                status: { embeddable: true, privacyStatus: "public" },
+              },
+              {
+                id: "video-123",
+                snippet: { title: "Sunday service" },
+                liveStreamingDetails: {
+                  actualStartTime: "2026-01-11T02:00:00Z",
+                },
+                status: { embeddable: true, privacyStatus: "public" },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      default:
+        return new Response(null, { status: 404 });
+    }
   };
 
   try {
-    const stream = await createYouTubeLivestreamProvider()
-      .findActiveLivestream();
-    const params = new URL(requestUrl).searchParams;
+    const stream = await createYouTubeLivestreamProvider().findLivestream();
+    const [channelRequest, playlistRequest, videosRequest] = requestUrls.map(
+      (requestUrl) => new URL(requestUrl),
+    );
 
     if (
-      stream?.id !== "video-123" ||
-      stream.title !== "Sunday service" ||
-      params.get("part") !== "snippet" ||
-      params.get("channelId") !== "channel-123" ||
-      params.get("eventType") !== "live" ||
-      params.get("type") !== "video" ||
-      params.get("videoEmbeddable") !== "true" ||
-      params.get("videoSyndicated") !== null ||
-      params.get("maxResults") !== "1" ||
-      params.get("key") !== "test-api-key" ||
+      stream?.kind !== "live" ||
+      stream.video.id !== "video-123" ||
+      stream.video.title !== "Sunday service" ||
+      requestUrls.length !== 3 ||
+      channelRequest.searchParams.get("part") !== "contentDetails" ||
+      channelRequest.searchParams.get("id") !== "channel-123" ||
+      playlistRequest.searchParams.get("part") !== "contentDetails" ||
+      playlistRequest.searchParams.get("playlistId") !== "uploads-123" ||
+      playlistRequest.searchParams.get("maxResults") !== "25" ||
+      videosRequest.searchParams.get("part") !==
+        "snippet,liveStreamingDetails,status" ||
+      videosRequest.searchParams.get("id") !== "video-123,video-archive" ||
+      channelRequest.searchParams.get("key") !== "test-api-key" ||
       !requestSignal ||
       requestSignal.aborted
     ) {
-      throw new Error("Expected the bounded YouTube live search request");
+      throw new Error("Expected the YouTube uploads playlist lookup");
     }
   } finally {
     globalThis.fetch = originalFetch;
   }
 });
 
-Deno.test("returns offline when YouTube has no live result", async () => {
+Deno.test("returns the newest completed upload when no video is live", async () => {
   setProviderConfig();
   const originalFetch = globalThis.fetch;
-  globalThis.fetch = async () =>
-    new Response(JSON.stringify({ items: [] }), { status: 200 });
+  globalThis.fetch = async (input) => {
+    switch (new URL(input.toString()).pathname) {
+      case "/youtube/v3/channels":
+        return new Response(
+          JSON.stringify({
+            items: [
+              {
+                contentDetails: {
+                  relatedPlaylists: { uploads: "uploads-123" },
+                },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      case "/youtube/v3/playlistItems":
+        return new Response(
+          JSON.stringify({
+            items: [
+              { contentDetails: { videoId: "video-archive" } },
+              { contentDetails: { videoId: "video-older" } },
+            ],
+          }),
+          { status: 200 },
+        );
+      default:
+        return new Response(
+          JSON.stringify({
+            items: [
+              {
+                id: "video-archive",
+                snippet: { title: "Last Sunday service" },
+                liveStreamingDetails: {
+                  actualStartTime: "2026-01-04T02:00:00Z",
+                  actualEndTime: "2026-01-04T04:00:00Z",
+                },
+                status: { embeddable: true, privacyStatus: "public" },
+              },
+              {
+                id: "video-older",
+                snippet: { title: "Two Sundays ago" },
+                liveStreamingDetails: {
+                  actualStartTime: "2025-12-28T02:00:00Z",
+                  actualEndTime: "2025-12-28T04:00:00Z",
+                },
+                status: { embeddable: true, privacyStatus: "public" },
+              },
+              {
+                id: "video-hidden",
+                snippet: { title: "Hidden service" },
+                liveStreamingDetails: {
+                  actualStartTime: "2026-01-03T02:00:00Z",
+                  actualEndTime: "2026-01-03T04:00:00Z",
+                },
+                status: { embeddable: false, privacyStatus: "public" },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+    }
+  };
 
   try {
+    const stream = await createYouTubeLivestreamProvider().findLivestream();
     if (
-      (await createYouTubeLivestreamProvider().findActiveLivestream()) !== null
+      stream?.kind !== "past" ||
+      stream.video.id !== "video-archive" ||
+      stream.video.title !== "Last Sunday service"
     ) {
-      throw new Error("Expected an empty result to be offline");
+      throw new Error("Expected the newest completed upload");
+    }
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("returns offline when uploads contain no eligible livestream", async () => {
+  setProviderConfig();
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input) => {
+    switch (new URL(input.toString()).pathname) {
+      case "/youtube/v3/channels":
+        return new Response(
+          JSON.stringify({
+            items: [
+              {
+                contentDetails: {
+                  relatedPlaylists: { uploads: "uploads-123" },
+                },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      case "/youtube/v3/playlistItems":
+        return new Response(
+          JSON.stringify({
+            items: [{ contentDetails: { videoId: "upcoming-video" } }],
+          }),
+          { status: 200 },
+        );
+      default:
+        return new Response(
+          JSON.stringify({
+            items: [
+              {
+                id: "upcoming-video",
+                snippet: { title: "Upcoming service" },
+                liveStreamingDetails: {
+                  scheduledStartTime: "2026-01-18T02:00:00Z",
+                },
+                status: { embeddable: true, privacyStatus: "public" },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+    }
+  };
+
+  try {
+    if (await createYouTubeLivestreamProvider().findLivestream()) {
+      throw new Error("Expected no eligible livestream");
     }
   } finally {
     globalThis.fetch = originalFetch;
@@ -89,14 +252,14 @@ Deno.test("rejects malformed first results", async () => {
   globalThis.fetch = async () =>
     new Response(
       JSON.stringify({
-        items: [{ id: { videoId: "video-123" }, snippet: {} }],
+        items: [{ contentDetails: { relatedPlaylists: {} } }],
       }),
       { status: 200 },
     );
 
   try {
     await expectRejected(() =>
-      createYouTubeLivestreamProvider().findActiveLivestream()
+      createYouTubeLivestreamProvider().findLivestream()
     );
   } finally {
     globalThis.fetch = originalFetch;
@@ -116,7 +279,7 @@ Deno.test("rejects non-OK provider responses", async () => {
 
   try {
     await expectRejected(() =>
-      createYouTubeLivestreamProvider().findActiveLivestream()
+      createYouTubeLivestreamProvider().findLivestream()
     );
   } finally {
     globalThis.fetch = originalFetch;
@@ -137,7 +300,7 @@ Deno.test("passes a 30-second abort signal to the provider", async () => {
     new Response(JSON.stringify({ items: [] }), { status: 200 });
 
   try {
-    await createYouTubeLivestreamProvider().findActiveLivestream();
+    await createYouTubeLivestreamProvider().findLivestream();
     if (timeoutMilliseconds !== 30_000) {
       throw new Error("Expected a 30-second provider timeout");
     }
