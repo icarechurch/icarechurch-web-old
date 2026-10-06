@@ -25,7 +25,8 @@ export default function About() {
       <section className="hero-gradient py-20" id="hero">
         <div className="container mx-auto px-4 text-center">
           <h1 className="mb-4 font-bold font-display text-4xl md:text-5xl">
-            <span className="text-gradient">About Our Church</span>
+            <span className="text-gradient">About</span>{" "}
+            <span className="text-black">Our Church</span>
           </h1>
           <p className="mx-auto max-w-2xl text-muted-foreground">
             For over 40+ years, I Care Center - Refuge has been a beacon of hope
