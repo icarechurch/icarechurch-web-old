@@ -3,9 +3,19 @@ export type LiveStream = {
   title: string;
 };
 
+export type LivestreamDiscovery = {
+  kind: "live" | "past";
+  video: LiveStream;
+};
+
 export type LivestreamResponse =
   | {
     status: "live";
+    video: LiveStream;
+    checkedAt: string;
+  }
+  | {
+    status: "past";
     video: LiveStream;
     checkedAt: string;
   }

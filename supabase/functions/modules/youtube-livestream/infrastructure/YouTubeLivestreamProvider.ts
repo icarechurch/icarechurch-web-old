@@ -1,5 +1,5 @@
 import type { LivestreamProvider } from "../domain/ports/LivestreamProvider.ts";
-import type { LiveStream } from "../domain/Livestream.ts";
+import type { LiveStream, LivestreamDiscovery } from "../domain/Livestream.ts";
 
 const YOUTUBE_API_BASE_URL = "https://www.googleapis.com/youtube/v3";
 const UPLOADS_MAX_RESULTS = "25";
@@ -70,29 +70,66 @@ const getVideoIds = (payload: unknown): string[] =>
     })
     .filter((videoId): videoId is string => videoId !== null);
 
-const getActiveLivestream = (payload: unknown): LiveStream | null => {
+type VideoCandidate = {
+  actualEndTime: string | null;
+  actualStartTime: string | null;
+  video: LiveStream;
+};
+
+const getEligibleVideo = (item: unknown): VideoCandidate | null => {
+  if (!isRecord(item)) {
+    return null;
+  }
+
+  const videoId = getString(item.id);
+  const snippet = getRecord(item, "snippet");
+  const liveStreamingDetails = getRecord(item, "liveStreamingDetails");
+  const status = getRecord(item, "status");
+  const title = getString(snippet?.title);
+  const actualStartTime = getString(liveStreamingDetails?.actualStartTime);
+  const actualEndTime = getString(liveStreamingDetails?.actualEndTime);
+
+  if (
+    !videoId ||
+    !title ||
+    !actualStartTime ||
+    status?.privacyStatus !== "public" ||
+    status.embeddable !== true
+  ) {
+    return null;
+  }
+
+  return {
+    actualEndTime,
+    actualStartTime,
+    video: { id: videoId, title },
+  };
+};
+
+const getLivestreamDiscovery = (
+  payload: unknown,
+  playlistVideoIds: string[],
+): LivestreamDiscovery | null => {
+  const detailsById = new Map<string, VideoCandidate>();
+
   for (const item of getItems(payload)) {
-    if (!isRecord(item)) {
-      continue;
+    const candidate = getEligibleVideo(item);
+    if (candidate) {
+      detailsById.set(candidate.video.id, candidate);
     }
+  }
 
-    const videoId = getString(item.id);
-    const snippet = getRecord(item, "snippet");
-    const liveStreamingDetails = getRecord(item, "liveStreamingDetails");
-    const status = getRecord(item, "status");
-    const title = getString(snippet?.title);
-    const actualStartTime = getString(liveStreamingDetails?.actualStartTime);
-    const actualEndTime = getString(liveStreamingDetails?.actualEndTime);
+  for (const videoId of playlistVideoIds) {
+    const candidate = detailsById.get(videoId);
+    if (candidate?.actualStartTime && !candidate.actualEndTime) {
+      return { kind: "live", video: candidate.video };
+    }
+  }
 
-    if (
-      videoId &&
-      title &&
-      actualStartTime &&
-      !actualEndTime &&
-      status?.privacyStatus === "public" &&
-      status.embeddable === true
-    ) {
-      return { id: videoId, title };
+  for (const videoId of playlistVideoIds) {
+    const candidate = detailsById.get(videoId);
+    if (candidate?.actualEndTime) {
+      return { kind: "past", video: candidate.video };
     }
   }
 
@@ -100,7 +137,7 @@ const getActiveLivestream = (payload: unknown): LiveStream | null => {
 };
 
 export const createYouTubeLivestreamProvider = (): LivestreamProvider => ({
-  async findActiveLivestream(): Promise<LiveStream | null> {
+  async findLivestream(): Promise<LivestreamDiscovery | null> {
     try {
       const apiKey = Deno.env.get("YOUTUBE_API_KEY");
       const channelId = Deno.env.get("YOUTUBE_CHANNEL_ID");
@@ -151,7 +188,7 @@ export const createYouTubeLivestreamProvider = (): LivestreamProvider => ({
         signal,
       );
 
-      return getActiveLivestream(videosPayload);
+      return getLivestreamDiscovery(videosPayload, videoIds);
     } catch {
       throw new Error("YouTube livestream lookup failed");
     }

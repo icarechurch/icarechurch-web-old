@@ -112,6 +112,24 @@ Deno.test("saveLive writes a live result and clears the refresh lease", async ()
   }
 });
 
+Deno.test("savePast writes completed video metadata as an offline cache row", async () => {
+  const fake = createFakeClient();
+  const repository = createSupabaseLivestreamCacheRepository(fake.client);
+
+  await repository.savePast({ id: "past-video", title: "Last Sunday service" });
+
+  const payload = fake.getUpdatePayload();
+  if (
+    payload?.status !== "offline" ||
+    payload.video_id !== "past-video" ||
+    payload.video_title !== "Last Sunday service" ||
+    payload.refresh_lease_until !== null ||
+    "provider_attempted_at" in payload
+  ) {
+    throw new Error("Expected completed video metadata and a cleared lease");
+  }
+});
+
 Deno.test("saveOffline preserves the claim timestamp and clears the lease", async () => {
   const fake = createFakeClient();
   const repository = createSupabaseLivestreamCacheRepository(fake.client);

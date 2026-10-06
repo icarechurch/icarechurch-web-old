@@ -28,7 +28,21 @@ const offlineResponse = (checkedAt: string | null): LivestreamResponse => ({
   checkedAt,
 });
 
-const responseFromCache = (status: CacheStatus): LivestreamResponse => {
+const responseFromCache = (
+  status: CacheStatus,
+  treatLiveAsPast = false,
+): LivestreamResponse => {
+  if (
+    status.video_id && status.video_title &&
+    (status.status === "offline" || treatLiveAsPast)
+  ) {
+    return {
+      status: "past",
+      video: { id: status.video_id, title: status.video_title },
+      checkedAt: status.provider_attempted_at ?? new Date(0).toISOString(),
+    };
+  }
+
   if (status.status === "live" && status.video_id && status.video_title) {
     return {
       status: "live",
@@ -45,11 +59,12 @@ export class GetActiveLivestream {
 
   async execute(): Promise<LivestreamResponse> {
     const now = this.dependencies.now();
+    const cachedStatus = await this.dependencies.cache.readStatus();
+
     if (!isEligibleCheckingWindow(now)) {
-      return offlineResponse(null);
+      return responseFromCache(cachedStatus, true);
     }
 
-    const cachedStatus = await this.dependencies.cache.readStatus();
     if (isFreshAttempt(cachedStatus.provider_attempted_at, now)) {
       return responseFromCache(cachedStatus);
     }
@@ -60,22 +75,37 @@ export class GetActiveLivestream {
     }
 
     try {
-      const activeLivestream = await this.dependencies.provider
-        .findActiveLivestream();
-      if (!activeLivestream) {
+      const discovery = await this.dependencies.provider.findLivestream();
+      if (!discovery) {
         await this.dependencies.cache.saveOffline();
         return offlineResponse(now.toISOString());
       }
 
-      await this.dependencies.cache.saveLive(activeLivestream);
+      if (discovery.kind === "past") {
+        await this.dependencies.cache.savePast(discovery.video);
+        return {
+          status: "past",
+          video: discovery.video,
+          checkedAt: now.toISOString(),
+        };
+      }
+
+      await this.dependencies.cache.saveLive(discovery.video);
       return {
         status: "live",
-        video: activeLivestream,
+        video: discovery.video,
         checkedAt: now.toISOString(),
       };
     } catch {
       try {
-        await this.dependencies.cache.saveOffline();
+        if (cachedStatus.video_id && cachedStatus.video_title) {
+          await this.dependencies.cache.savePast({
+            id: cachedStatus.video_id,
+            title: cachedStatus.video_title,
+          });
+        } else {
+          await this.dependencies.cache.saveOffline();
+        }
       } catch {
         // Preserve the sanitized provider failure even if cache cleanup fails.
       }
