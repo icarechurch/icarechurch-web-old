@@ -1,5 +1,6 @@
 import path from "node:path";
 import react from "@vitejs/plugin-react-swc";
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
@@ -8,7 +9,7 @@ export default defineConfig(({ mode: _mode }) => ({
     host: "::",
     port: 8080,
   },
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

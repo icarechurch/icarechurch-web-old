@@ -29,7 +29,7 @@
 - Consumes: the repository’s current dependency manifest and CI audit command.
 - Produces: a recorded local baseline of the vulnerable package graph and the existing validation commands.
 
-- [ ] **Step 1: Reproduce the CI audit command**
+- [x] **Step 1: Reproduce the CI audit command**
 
   Run from `icarecenter-frontend`:
 
@@ -39,7 +39,7 @@
 
   Expected: failure matching the supplied report, including `compression`, `proxy-addr`, `source-map-js`, `brace-expansion`, `braces`, and `postcss-selector-parser` paths.
 
-- [ ] **Step 2: Record the dependency paths**
+- [x] **Step 2: Record the dependency paths**
 
   ```powershell
   npm.cmd ls brace-expansion braces compression postcss-selector-parser proxy-addr source-map-js chokidar micromatch fast-glob tailwindcss postcss-nested --all
@@ -57,7 +57,7 @@
 - Consumes: the baseline package graph from Task 1.
 - Produces: a reproducible graph using Tailwind CSS 4 and patched security versions.
 
-- [ ] **Step 1: Install the supported Tailwind 4 build packages and patched packages**
+- [x] **Step 1: Install the supported Tailwind 4 build packages and patched packages**
 
   Run from `icarecenter-frontend`:
 
@@ -69,7 +69,7 @@
 
   Expected: only the frontend manifest and lockfile are changed, and the lockfile no longer contains Tailwind CSS 3’s vulnerable dependency chain. The patched transitive versions are selected during the lockfile refresh because their current parent ranges already include the fixed releases.
 
-- [ ] **Step 2: Inspect the resulting graph before code changes**
+- [x] **Step 2: Inspect the resulting graph before code changes**
 
   ```powershell
   npm.cmd ls tailwindcss @tailwindcss/vite tw-animate-css tailwindcss-animate brace-expansion braces compression proxy-addr source-map-js postcss-selector-parser --all
@@ -77,7 +77,7 @@
 
   Expected: Tailwind CSS 4 and `@tailwindcss/vite` are installed; `tailwindcss-animate` is absent; patched direct packages are present.
 
-- [ ] **Step 3: Refresh compatible transitive security fixes without force-upgrading**
+- [x] **Step 3: Refresh compatible transitive security fixes without force-upgrading**
 
   Run from `icarecenter-frontend`:
 
@@ -99,7 +99,7 @@
 - Consumes: Tailwind CSS 4 packages from Task 2.
 - Produces: Vite CSS processing through the official Tailwind Vite plugin, with the existing theme and animation utility names available to application components.
 
-- [ ] **Step 1: Register the official Vite plugin**
+- [x] **Step 1: Register the official Vite plugin**
 
   Add the named import and plugin entry to `vite.config.ts`:
 
@@ -111,7 +111,7 @@
   plugins: [react(), tailwindcss()],
   ```
 
-- [ ] **Step 2: Remove the obsolete PostCSS Tailwind plugin**
+- [x] **Step 2: Remove the obsolete PostCSS Tailwind plugin**
 
   Change `postcss.config.js` to retain only the still-used PostCSS plugins:
 
@@ -123,11 +123,11 @@
   };
   ```
 
-- [ ] **Step 3: Remove the Tailwind 3 JavaScript animation plugin registration**
+- [x] **Step 3: Remove the Tailwind 3 JavaScript animation plugin registration**
 
   Remove `plugins: [require("tailwindcss-animate")]` from `tailwind.config.ts` and leave the theme configuration available for explicit loading.
 
-- [ ] **Step 4: Update the stylesheet entry directives**
+- [x] **Step 4: Update the stylesheet entry directives**
 
   At the beginning of `src/index.css`, replace the three Tailwind 3 directives with:
 
@@ -150,7 +150,7 @@
 - Consumes: the migrated build and lockfile from Tasks 2–3.
 - Produces: evidence that clean installation, audit, typechecking, linting, SSR build, and existing test lanes pass.
 
-- [ ] **Step 1: Reinstall from the lockfile**
+- [x] **Step 1: Reinstall from the lockfile**
 
   ```powershell
   npm.cmd ci
@@ -158,7 +158,7 @@
 
   Expected: exit code 0 and a clean install from `package-lock.json`.
 
-- [ ] **Step 2: Run the audit gate**
+- [x] **Step 2: Run the audit gate**
 
   ```powershell
   npm.cmd audit --audit-level=low --omit=optional
@@ -166,7 +166,7 @@
 
   Expected: exit code 0 with no vulnerabilities reported at or above low severity.
 
-- [ ] **Step 3: Run the fast CI checks**
+- [x] **Step 3: Run the fast CI checks**
 
   ```powershell
   npm.cmd run typecheck
@@ -178,7 +178,7 @@
 
   Expected: every command exits 0 without suppressed failures.
 
-- [ ] **Step 4: Run the architecture test and production SSR build**
+- [x] **Step 4: Run the architecture test and production SSR build**
 
   ```powershell
   npm.cmd run test:architecture -- --config trashAssetsBeforeRuns=false
@@ -187,7 +187,7 @@
 
   Expected: both commands exit 0 and the generated client/server bundles are produced.
 
-- [ ] **Step 5: Run the focused browser test matching CI**
+- [x] **Step 5: Run the focused browser test matching CI**
 
   Start Vite in a separate PowerShell process and then run:
 
@@ -197,7 +197,7 @@
 
   Expected: the focused Cypress suite passes against the local Vite server.
 
-- [ ] **Step 6: Inspect the final diff and status**
+- [x] **Step 6: Inspect the final diff and status**
 
   ```powershell
   git diff --check
@@ -222,19 +222,19 @@
 - Consumes: the verified implementation from Task 4.
 - Produces: one coherent commit on `development` that can be reviewed or pushed without including unrelated user edits.
 
-- [ ] **Step 1: Stage only task files**
+- [x] **Step 1: Stage only task files**
 
   ```powershell
   git add -- docs/superpowers/plans/2026-10-06-npm-audit-remediation.md icarecenter-frontend/package.json icarecenter-frontend/package-lock.json icarecenter-frontend/vite.config.ts icarecenter-frontend/postcss.config.js icarecenter-frontend/tailwind.config.ts icarecenter-frontend/src/index.css
   ```
 
-- [ ] **Step 2: Commit the verified implementation**
+- [x] **Step 2: Commit the verified implementation**
 
   ```powershell
   git commit -m "fix: remediate frontend npm audit vulnerabilities"
   ```
 
-- [ ] **Step 3: Confirm the commit excludes the pre-existing edit**
+- [x] **Step 3: Confirm the commit excludes the pre-existing edit**
 
   ```powershell
   git status --short --branch
