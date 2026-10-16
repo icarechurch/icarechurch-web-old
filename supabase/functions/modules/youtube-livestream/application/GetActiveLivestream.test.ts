@@ -63,12 +63,13 @@ const createDependencies = (options: {
   };
 };
 
-Deno.test("returns a cached past stream outside the checking window", async () => {
+Deno.test("returns a fresh cached past stream on a weekday", async () => {
   const { calls, useCase } = createDependencies({
     cacheStatus: {
       ...staleStatus,
       video_id: "past-video",
       video_title: "Last Sunday service",
+      provider_attempted_at: "2026-01-04T23:55:00.000Z",
     },
     now: () => new Date("2026-01-05T00:00:00.000Z"),
   });
@@ -79,7 +80,7 @@ Deno.test("returns a cached past stream outside the checking window", async () =
       JSON.stringify({
         status: "past",
         video: { id: "past-video", title: "Last Sunday service" },
-        checkedAt: staleStatus.provider_attempted_at,
+        checkedAt: "2026-01-04T23:55:00.000Z",
       })
   ) {
     throw new Error("Expected the cached past stream outside the window");
@@ -89,7 +90,7 @@ Deno.test("returns a cached past stream outside the checking window", async () =
   }
 });
 
-Deno.test("returns offline outside the checking window without a cached stream", async () => {
+Deno.test("refreshes on a weekday when no current or past stream exists", async () => {
   const { calls, useCase } = createDependencies({
     now: () => new Date("2026-01-05T00:00:00.000Z"),
   });
@@ -99,18 +100,22 @@ Deno.test("returns offline outside the checking window without a cached stream",
     JSON.stringify(result) !==
       JSON.stringify({
         status: "offline",
-        checkedAt: staleStatus.provider_attempted_at,
+        checkedAt: "2026-01-05T00:00:00.000Z",
       })
   ) {
-    throw new Error("Expected offline without a cached past stream");
+    throw new Error("Expected offline when YouTube has no eligible stream");
   }
-  if (calls.join(",") !== "readStatus") {
+  if (
+    calls.join(",") !==
+      "readStatus,claimRefresh,findLivestream,saveOffline"
+  ) {
     throw new Error(`Unexpected calls: ${calls.join(",")}`);
   }
 });
 
 Deno.test("returns and persists a claimed live result", async () => {
   const { calls, useCase } = createDependencies({
+    now: () => new Date("2026-10-10T01:53:00.000Z"),
     provider: {
       kind: "live",
       video: { id: "live-video", title: "Sunday service" },
@@ -124,7 +129,7 @@ Deno.test("returns and persists a claimed live result", async () => {
       JSON.stringify({
         status: "live",
         video: { id: "live-video", title: "Sunday service" },
-        checkedAt: NOW.toISOString(),
+        checkedAt: "2026-10-10T01:53:00.000Z",
       })
   ) {
     throw new Error("Expected the live provider result");

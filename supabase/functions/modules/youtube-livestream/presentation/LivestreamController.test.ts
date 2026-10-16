@@ -137,7 +137,7 @@ Deno.test("rejects invalid requests and unsupported operations", async () => {
   }
 });
 
-Deno.test("returns offline outside the eligible window without a cached stream", async () => {
+Deno.test("checks on a weekday when there is no cached stream", async () => {
   const { handler, calls } = createDependencies({
     now: () => new Date("2026-01-05T00:00:00.000Z"),
   });
@@ -148,10 +148,13 @@ Deno.test("returns offline outside the eligible window without a cached stream",
 
   assertSuccess(body, {
     status: "offline",
-    checkedAt: staleStatus.provider_attempted_at,
+    checkedAt: "2026-01-05T00:00:00.000Z",
   });
-  if (calls.join(",") !== "readStatus") {
-    throw new Error(`Unexpected ineligible calls: ${calls.join(",")}`);
+  if (
+    calls.join(",") !==
+      "readStatus,claimRefresh,findLivestream,saveOffline"
+  ) {
+    throw new Error(`Unexpected weekday calls: ${calls.join(",")}`);
   }
 });
 
