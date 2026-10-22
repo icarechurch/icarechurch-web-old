@@ -2,6 +2,9 @@
   command = "npm run build:ssr"
   publish = "dist/client"
 
+[build.environment]
+  NODE_VERSION = "22.23.4"
+
 [functions]
   included_files = ["dist/server/**", "dist/client/index.html"]
   node_bundler = "esbuild"

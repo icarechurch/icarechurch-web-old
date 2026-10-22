@@ -68,11 +68,18 @@ repository, browser bundle, Netlify frontend variables, or logs.
 
 ## Build Configuration
 
-The existing Netlify deployment uses Node 22 and `npm run build:ssr` with:
+The existing Netlify deployment uses Node `>=22.23.4 <23` and `npm run build:ssr` with:
+
+- **Runtime floor**: Node 22.23.4, the patched Node 22 release for the October 2026 Node.js security advisory
 
 - **Publish directory**: `dist/client`
 - **SSR server bundle**: `dist/server`
 - **Netlify function**: `icarecenter-frontend/netlify/functions/ssr.js`
+
+The runtime floor is pinned consistently in the frontend package engine metadata,
+`.nvmrc`, CI workflow, Netlify configuration, and both Docker stages. npm
+engine enforcement prevents dependency installation under an affected or
+unsupported Node release.
 
 The repository-level `netlify.toml` points Netlify at `icarecenter-frontend/` when the
 site is connected to GitHub. All routing, function, and build configuration is in
